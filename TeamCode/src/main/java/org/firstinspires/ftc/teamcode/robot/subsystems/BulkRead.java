@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.robot.subsystems;
 
+
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.List;
 
-public class BulkRead {
+public class BulkRead extends Subsystem {
     private List<LynxModule> allHubs;
     public BulkRead(HardwareMap hardwareMap) {
         allHubs = hardwareMap.getAll(LynxModule.class);
@@ -13,12 +14,14 @@ public class BulkRead {
         }
     }
 
+    @Override
     public void update() {
         for (LynxModule hub : allHubs) {
             hub.clearBulkCache();
         }
     }
 
+    @Override
     public void start() {
 
     }

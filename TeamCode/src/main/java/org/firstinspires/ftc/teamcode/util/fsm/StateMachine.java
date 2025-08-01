@@ -31,7 +31,7 @@ public class StateMachine {
                 .orElse(-1);
     }
 
-    public void run() {
+    public void update() {
         if (!running) return;
 
         State current = states.get(index);
