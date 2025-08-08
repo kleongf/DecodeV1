@@ -39,6 +39,10 @@ public class ExampleTeleop extends OpMode {
     }
     @Override
     public void loop() {
+        // wait i have this brilliant idea
+        // so we can have another statemachine here
+        // we can use a button for cycling. Transition(() -> gp1.rightBumperPressed())
+        // and a back button: transition(() -> gp1.xPressed()), "name of prev state"
         gp1.update();
         gp2.update();
 
