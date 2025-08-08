@@ -171,12 +171,27 @@ public class PurePursuitFollower {
     private void setFollowerMotorPowers(double yDist, double hError) {
         // nah use velocity control. i will use a p controller for now because lazy lol
         // TODO: nah i set them all to 1 because why not lol we gonna be fast af also lazy
-        double normalizedSpeed = Math.signum(yDist);
-        double normalizedHeading = Math.signum(hError);
+        // WAIT THIS REALLY BAD WTF WAS I THINKGING
+//        double normalizedSpeed = Math.signum(yDist);
+//        double normalizedHeading = Math.signum(hError);
 //        double normalizedSpeed = MathFunctions.clamp(KpSpeed * yDist, -1, 1);
 //        double normalizedHeading = MathFunctions.clamp(KpHeading * hError, -1, 1);
 
-        setMotorPowers(0, normalizedSpeed, normalizedHeading);
+        // new plan: our setpoint is max velocity
+        // however when we reach the end of our path we set to 0 (based on acceleration we can compute)
+        // v^2 = vo^2 + 2adx
+        // so dx = vo^2/2a
+        double targetSpeed = MAX_VELOCITY;
+        double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
+        if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)) < distanceToEnd) && (currentPathIndex == currentPath.getSize() - 1)) {
+            targetSpeed = 0;
+        }
+        double outputSpeed = KP_SPEED * Math.signum(yDist) * (targetSpeed - speed) + KV_SPEED * Math.signum(yDist) * (targetSpeed);
+        // im just gonna set them equal for now, we know max value is likely max velocity, which we want to go at full speed, so it should be 0.02?
+        double outputHeading = KP_HEADING * hError;
+        // we probably wont be making more than 90 degree turns so i will base it off that: pi/2 is about 3/2, so wrapping it to 1 we have 0.66 -> 0.7
+
+        setMotorPowers(0, MathFunctions.clamp(outputSpeed, -1, 1), MathFunctions.clamp(outputHeading, -1, 1));
     }
 
     private void setP2PMotorPowers(double scaleFactor) {
@@ -226,6 +241,7 @@ public class PurePursuitFollower {
                     dist *= -1;
                 }
                 double angleDiff = MathFunctions.angleWrap(angleToGoal - currentPose.getHeading());
+                // so i think the angle thing is fine?
 
                 setFollowerMotorPowers(dist, angleDiff);
             }
