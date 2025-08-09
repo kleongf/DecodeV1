@@ -190,8 +190,21 @@ public class PurePursuitFollower {
         // im just gonna set them equal for now, we know max value is likely max velocity, which we want to go at full speed, so it should be 0.02?
         double outputHeading = KP_HEADING * hError;
         // we probably wont be making more than 90 degree turns so i will base it off that: pi/2 is about 3/2, so wrapping it to 1 we have 0.66 -> 0.7
+        // i want robot to prioritize turning
+        // i need a function that can map pi (max error) to 1 (all turning) to just addition
+        // so as heading error -> 0 then the horizontal multiplier -> 1
+        // but i need a better function. maybe cos(err/2)? if error = pi than it is 0, but if error = pi/8 or so then it is 0.5 or 1/3 of the power
+        // lets just use this for now: a linear scaling factor that equals 0 when it is pi and 1 when it is 0
+        // method 1
+        // setMotorPowers(0, ((Math.PI-Math.abs(hError))/Math.PI) * MathFunctions.clamp(outputSpeed, -1, 1), MathFunctions.clamp(outputHeading, -1, 1));
 
-        setMotorPowers(0, MathFunctions.clamp(outputSpeed, -1, 1), MathFunctions.clamp(outputHeading, -1, 1));
+        // method 2:
+        // wait till heading error < 10 degrees
+        if (Math.abs(hError) < Math.toRadians(10)) {
+            setMotorPowers(0, MathFunctions.clamp(outputSpeed, -1, 1), MathFunctions.clamp(outputHeading, -1, 1));
+        } else {
+            setMotorPowers(0, 0, MathFunctions.clamp(outputHeading, -1, 1));
+        }
     }
 
     private void setP2PMotorPowers(double scaleFactor) {

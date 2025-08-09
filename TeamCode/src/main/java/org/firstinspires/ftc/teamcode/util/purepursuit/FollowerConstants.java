@@ -11,10 +11,10 @@ public class FollowerConstants {
     public static double LOOK_AHEAD_MIN_DISTANCE = 4;
     public static double LOOK_AHEAD_MAX_DISTANCE = 8;
     // TODO: these arent being used except KP LOOK AHEAD
-    public static double KP_SPEED = 0.02;
-    public static double KP_HEADING = 0.8;
+    public static double KP_SPEED = 0.01;
+    public static double KP_HEADING = 2;
     public static double KP_LOOK_AHEAD = 0.1;
-    public static double KV_SPEED = 0.01;
+    public static double KV_SPEED = 0.02;
     // these values will need to be tuned
     public static double MAX_VELOCITY = 50; // 50 in/s
     public static double MAX_ACCELERATION = 200; // in/s^2, same as deceleration
