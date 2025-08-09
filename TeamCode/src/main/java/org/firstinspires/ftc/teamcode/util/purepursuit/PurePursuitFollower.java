@@ -80,10 +80,10 @@ public class PurePursuitFollower {
         this.frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.rearRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        this.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        this.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        this.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        this.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     public void setStartingPose(Pose startPose) {
@@ -156,7 +156,7 @@ public class PurePursuitFollower {
         currentPathIndex = lastFoundIndex;
     }
 
-    private void setMotorPowers(double x, double y, double rx) {
+    public void setMotorPowers(double x, double y, double rx) {
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontLeftPower = (y + x + rx) / denominator;
         double backLeftPower = (y - x + rx) / denominator;
