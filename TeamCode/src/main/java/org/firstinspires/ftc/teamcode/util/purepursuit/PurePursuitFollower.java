@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.util.purepursuit;
 
 
+import org.firstinspires.ftc.teamcode.util.controllers.HeadingPIDFController;
 import org.firstinspires.ftc.teamcode.util.controllers.PIDFController;
 import static org.firstinspires.ftc.teamcode.util.purepursuit.FollowerConstants.*;
 
@@ -26,7 +27,7 @@ public class PurePursuitFollower {
     private double holdPointRange;
     private PIDFController longitudinalController;
     private PIDFController lateralController;
-    private PIDFController headingController;
+    private HeadingPIDFController headingController;
 
     private Path2D currentPath;
     private int currentPathIndex;
@@ -47,7 +48,7 @@ public class PurePursuitFollower {
         this.currentPose = new Pose2D(0, 0, 0);
         this.longitudinalController = new PIDFController(LONGITUDINAL_COEFFICIENTS.kp, LONGITUDINAL_COEFFICIENTS.ki, LONGITUDINAL_COEFFICIENTS.kd, LONGITUDINAL_COEFFICIENTS.kf);
         this.lateralController = new PIDFController(LATERAL_COEFFICIENTS.kp, LATERAL_COEFFICIENTS.ki, LATERAL_COEFFICIENTS.kd, LATERAL_COEFFICIENTS.kf);
-        this.headingController = new PIDFController(HEADING_COEFFICIENTS.kp, HEADING_COEFFICIENTS.ki, HEADING_COEFFICIENTS.kd, HEADING_COEFFICIENTS.kf);
+        this.headingController = new HeadingPIDFController(HEADING_COEFFICIENTS.kp, HEADING_COEFFICIENTS.ki, HEADING_COEFFICIENTS.kd, HEADING_COEFFICIENTS.kf);
         this.holdPointScaleFactor = HOLD_POINT_SCALE_FACTOR;
         this.holdPointRange = HOLD_POINT_DISTANCE;
         this.speedConstraint = PATH_END_SPEED_CONSTRAINT;
@@ -211,11 +212,29 @@ public class PurePursuitFollower {
 
     private void setP2PMotorPowers(double scaleFactor) {
         // i think the problem is that we aren't using math cos and math sin
-        double xPower = longitudinalController.calculate(Math.sin(currentPose.getHeading()) * currentPose.getX(), Math.sin(goalPose.getHeading()) * goalPose.getX());
+        // let me fix this
+
+        // 1. gpt code gonna help me out lol
+        double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
+        double outY = headingController.calculate(currentPose.getY(), goalPose.getY());
+        double outHeading = headingController.calculate(currentPose.getHeading(), goalPose.getHeading());
+
+        // 4) Convert GLOBAL outputs to ROBOT-LOCAL frame using current heading:
+        double cosH = Math.cos(currentPose.getHeading());
+        double sinH = Math.sin(currentPose.getHeading());
+
+        // Global velocity-like outputs -> local robot frame
+        // [vx_local]   [ cos  sin ] [outX]
+        // [vy_local] = [-sin  cos ] [outY]
+        double xPower =  outX * cosH + outY * sinH;
+        double yPower = -outX * sinH + outY * cosH;
+        double headingPower = outHeading; // rotation is already body-centric sign
+
+        // double xPower = longitudinalController.calculate(Math.sin(currentPose.getHeading()) * currentPose.getX(), Math.sin(goalPose.getHeading()) * goalPose.getX());
         System.out.println("X Power: " + xPower);
-        double yPower = lateralController.calculate(Math.cos(currentPose.getHeading()) * currentPose.getY(), Math.cos(goalPose.getHeading()) * goalPose.getY());
+        // double yPower = lateralController.calculate(Math.cos(currentPose.getHeading()) * currentPose.getY(), Math.cos(goalPose.getHeading()) * goalPose.getY());
         System.out.println("Y Power: " + yPower);
-        double headingPower = headingController.calculate(MathFunctions.angleWrap(goalPose.getHeading()-currentPose.getHeading()));
+        // double headingPower = headingController.calculate(MathFunctions.angleWrap(goalPose.getHeading()-currentPose.getHeading()));
         System.out.println("Heading Power: " + headingPower);
         System.out.println("Goal Heading: " + goalPose.getHeading());
 
