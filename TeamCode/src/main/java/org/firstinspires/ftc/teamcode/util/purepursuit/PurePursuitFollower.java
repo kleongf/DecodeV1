@@ -99,8 +99,7 @@ public class PurePursuitFollower {
         double lookAheadDistance = calculateLookAheadDistance();
         double posX = currentPose.getX();
         double posY = currentPose.getY();
-
-        Pose2D goal = currentPath.getPose(lastFoundIndex + 1);
+        Pose2D goal = (lastFoundIndex == currentPath.getSize()-1) ? currentPath.getPose(lastFoundIndex) : currentPath.getPose(lastFoundIndex+1);
 
         for (int i = currentPathIndex; i < currentPath.getSize() - 1; i++) {
             double x1 = currentPath.getPose(i).getX() - posX;
@@ -142,7 +141,7 @@ public class PurePursuitFollower {
                         }
                     }
 
-                    if (MathFunctions.getDistance(goal, currentPath.getPose(i + 1)) < MathFunctions.getDistance(currentPose, currentPath.getPose(i + 1))) {
+                    if (MathFunctions.getDistance(goal, currentPath.getPose(i + 1)) < MathFunctions.getDistance(currentPose, currentPath.getPose(i+1))) {
                         lastFoundIndex = i;
                         break;
                     } else {
@@ -196,21 +195,29 @@ public class PurePursuitFollower {
         // but i need a better function. maybe cos(err/2)? if error = pi than it is 0, but if error = pi/8 or so then it is 0.5 or 1/3 of the power
         // lets just use this for now: a linear scaling factor that equals 0 when it is pi and 1 when it is 0
         // method 1
-        // setMotorPowers(0, ((Math.PI-Math.abs(hError))/Math.PI) * MathFunctions.clamp(outputSpeed, -1, 1), MathFunctions.clamp(outputHeading, -1, 1));
+        setMotorPowers(0, ((Math.PI-Math.abs(hError))/Math.PI) * MathFunctions.clamp(outputSpeed, -1, 1), MathFunctions.clamp(outputHeading, -1, 1));
 
         // method 2:
         // wait till heading error < 10 degrees
-        if (Math.abs(hError) < Math.toRadians(10)) {
-            setMotorPowers(0, MathFunctions.clamp(outputSpeed, -1, 1), MathFunctions.clamp(outputHeading, -1, 1));
-        } else {
-            setMotorPowers(0, 0, MathFunctions.clamp(outputHeading, -1, 1));
-        }
+//        if (Math.abs(hError) < Math.toRadians(10)) {
+//            setMotorPowers(0, MathFunctions.clamp(outputSpeed, -1, 1), MathFunctions.clamp(outputHeading, -1, 1));
+//        } else {
+//            setMotorPowers(0, 0, MathFunctions.clamp(outputHeading, -1, 1));
+//        }
+
+        // method 3: do nothing
+        //setMotorPowers(0, MathFunctions.clamp(outputSpeed, -1, 1), MathFunctions.clamp(outputHeading, -1, 1));
     }
 
     private void setP2PMotorPowers(double scaleFactor) {
-        double xPower = longitudinalController.calculate(currentPose.getX(), goalPose.getX());
-        double yPower = lateralController.calculate(currentPose.getY(), goalPose.getY());
-        double headingPower = headingController.calculate(MathFunctions.angleWrap(currentPose.getHeading()), MathFunctions.angleWrap(goalPose.getHeading()));
+        // i think the problem is that we aren't using math cos and math sin
+        double xPower = longitudinalController.calculate(Math.sin(currentPose.getHeading()) * currentPose.getX(), Math.sin(goalPose.getHeading()) * goalPose.getX());
+        System.out.println("X Power: " + xPower);
+        double yPower = lateralController.calculate(Math.cos(currentPose.getHeading()) * currentPose.getY(), Math.cos(goalPose.getHeading()) * goalPose.getY());
+        System.out.println("Y Power: " + yPower);
+        double headingPower = headingController.calculate(MathFunctions.angleWrap(goalPose.getHeading()-currentPose.getHeading()));
+        System.out.println("Heading Power: " + headingPower);
+        System.out.println("Goal Heading: " + goalPose.getHeading());
 
         setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, scaleFactor * headingPower);
     }
@@ -234,10 +241,43 @@ public class PurePursuitFollower {
         localizer.update();
         currentPose = localizer.getPose2D();
         speed = localizer.getSpeed();
+        System.out.println("Speed: " + speed);
+        System.out.println("Pose: X: " + currentPose.getX() + " Y: " + currentPose.getY());
+        System.out.println("Heading: " + currentPose.getHeading());
+        double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
+        if (currentPath != null) {
+            System.out.println("Distance To Target: " + MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)));
+            System.out.println("End of current path: " + (currentPathIndex == currentPath.getSize() - 1));
+            if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)) < distanceToEnd) && (currentPathIndex == currentPath.getSize() - 1)) {
+                System.out.println("SPEED TARGET IS 0");
+            }
+        }
+
+
+        System.out.println("Distance TO End: " + distanceToEnd);
+        if (isP2Ping) {
+            System.out.println("P2PING");
+        }
 
         if (isFollowingPath) {
-            if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)) < distanceConstraint) && (currentPathIndex == currentPath.getSize() - 1)) {
+            // TODO: done maybe we should put the p2p function in here? if it's past the deceleration constraint then p2p, it may not be a good idea to do based off of distance
+            //double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
+//            if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)) < distanceToEnd) && (currentPathIndex == currentPath.getSize() - 1)) {
+//                goalPose = currentPath.getPose(currentPath.getSize() - 1);
+//                setP2PMotorPowers(1.0);
+//                isP2Ping = true;
+//                isFollowingPath = false;
+//                isHoldingPoint = false;
+//                currentPath = null;
+//                currentPathIndex = 0;
+//                lastFoundIndex = 0;
+//                return;
+//            }
+            // i just realized these are the same lol
+            // not distanceconstraint anymore
+            if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)) < distanceToEnd) && (currentPathIndex == currentPath.getSize() - 1)) {
                 goalPose = currentPath.getPose(currentPath.getSize() - 1);
+                setP2PMotorPowers(1.0);
                 isP2Ping = true;
                 isFollowingPath = false;
                 isHoldingPoint = false;
@@ -253,15 +293,14 @@ public class PurePursuitFollower {
                     angleToGoal -= Math.PI;
                     dist *= -1;
                 }
-                double angleDiff = MathFunctions.angleWrap(angleToGoal - currentPose.getHeading());
+                double angleDiff = -MathFunctions.angleWrap(angleToGoal - currentPose.getHeading());
                 // so i think the angle thing is fine?
-
                 setFollowerMotorPowers(dist, angleDiff);
             }
             return;
         }
         if (isP2Ping) {
-            if (MathFunctions.getDistance(currentPose, goalPose) < holdPointRange && speed < speedConstraint && Math.abs(currentPose.getHeading() - goalPose.getHeading()) < headingConstraint) {
+            if (MathFunctions.getDistance(currentPose, goalPose) < holdPointRange && speed < speedConstraint && Math.abs(MathFunctions.angleWrap(goalPose.getHeading()-currentPose.getHeading())) < headingConstraint) {
                 isP2Ping = false;
                 isFollowingPath = false;
                 isHoldingPoint = true;
@@ -271,6 +310,7 @@ public class PurePursuitFollower {
             return;
         }
         if (isHoldingPoint) {
+            System.out.println("Holding Point");
             setP2PMotorPowers(holdPointScaleFactor);
         }
     }
