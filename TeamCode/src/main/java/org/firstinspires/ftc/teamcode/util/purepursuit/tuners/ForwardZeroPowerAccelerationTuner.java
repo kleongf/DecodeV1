@@ -144,8 +144,8 @@ Constants.setConstants(FConstants.class, LConstants.class);
                     previousTimeNano = System.nanoTime();
                     stopping = true;
                     for (DcMotorEx motor : motors) {
-                        // we want to decelerate as fast as possible! no zero power bs!
-                        motor.setPower(0);
+                        // we want to decelerate as fast as possible! no zero power bs! let's try -0.5.
+                        motor.setPower(-0.5);
                     }
                 }
             } else {
