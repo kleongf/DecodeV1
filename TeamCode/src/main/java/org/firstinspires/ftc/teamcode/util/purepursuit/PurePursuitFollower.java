@@ -25,6 +25,8 @@ public class PurePursuitFollower {
     private double pathEndDistance;
     private double distanceConstraint;
     private double holdPointRange;
+
+    // TODO: could make two different PID controllers, one for p2p for high velocities and one for normal p2p.
     private PIDFController longitudinalController;
     private PIDFController lateralController;
     private HeadingPIDFController headingController;
@@ -169,18 +171,11 @@ public class PurePursuitFollower {
         rearRight.setPower(backRightPower);
     }
     private void setFollowerMotorPowers(double yDist, double hError) {
-        // nah use velocity control. i will use a p controller for now because lazy lol
-        // TODO: nah i set them all to 1 because why not lol we gonna be fast af also lazy
-        // WAIT THIS REALLY BAD WTF WAS I THINKGING
-//        double normalizedSpeed = Math.signum(yDist);
-//        double normalizedHeading = Math.signum(hError);
-//        double normalizedSpeed = MathFunctions.clamp(KpSpeed * yDist, -1, 1);
-//        double normalizedHeading = MathFunctions.clamp(KpHeading * hError, -1, 1);
-
         // new plan: our setpoint is max velocity
         // however when we reach the end of our path we set to 0 (based on acceleration we can compute)
         // v^2 = vo^2 + 2adx
         // so dx = vo^2/2a
+        // none of this code does anything
         double targetSpeed = MAX_VELOCITY;
         double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
         if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)) < distanceToEnd) && (currentPathIndex == currentPath.getSize() - 1)) {
@@ -294,6 +289,8 @@ public class PurePursuitFollower {
 //            }
             // i just realized these are the same lol
             // not distanceconstraint anymore
+            // TODO: might want to not restrict this to the final path, and let it work for any point on the path. We could set acceleration to 180 like it was, but it could p2p at 60^2/(2 * 180) or 10 inches.
+            // if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd)) {
             if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)) < distanceToEnd) && (currentPathIndex == currentPath.getSize() - 1)) {
                 goalPose = currentPath.getPose(currentPath.getSize() - 1);
                 setP2PMotorPowers(1.0);
