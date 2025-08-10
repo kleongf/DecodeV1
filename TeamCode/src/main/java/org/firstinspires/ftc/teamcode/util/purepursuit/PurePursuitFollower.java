@@ -29,7 +29,7 @@ public class PurePursuitFollower {
     // TODO: could make two different PID controllers, one for p2p for high velocities and one for normal p2p.
     private PIDFController longitudinalController;
     private PIDFController lateralController;
-    private HeadingPIDFController headingController;
+    private PIDFController headingController;
 
     private Path2D currentPath;
     private int currentPathIndex;
@@ -50,7 +50,7 @@ public class PurePursuitFollower {
         this.currentPose = new Pose2D(0, 0, 0);
         this.longitudinalController = new PIDFController(LONGITUDINAL_COEFFICIENTS.kp, LONGITUDINAL_COEFFICIENTS.ki, LONGITUDINAL_COEFFICIENTS.kd, LONGITUDINAL_COEFFICIENTS.kf);
         this.lateralController = new PIDFController(LATERAL_COEFFICIENTS.kp, LATERAL_COEFFICIENTS.ki, LATERAL_COEFFICIENTS.kd, LATERAL_COEFFICIENTS.kf);
-        this.headingController = new HeadingPIDFController(HEADING_COEFFICIENTS.kp, HEADING_COEFFICIENTS.ki, HEADING_COEFFICIENTS.kd, HEADING_COEFFICIENTS.kf);
+        this.headingController = new PIDFController(HEADING_COEFFICIENTS.kp, HEADING_COEFFICIENTS.ki, HEADING_COEFFICIENTS.kd, HEADING_COEFFICIENTS.kf);
         this.holdPointScaleFactor = HOLD_POINT_SCALE_FACTOR;
         this.holdPointRange = HOLD_POINT_DISTANCE;
         this.speedConstraint = PATH_END_SPEED_CONSTRAINT;
@@ -212,7 +212,8 @@ public class PurePursuitFollower {
         // 1. gpt code gonna help me out lol
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
         double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
-        double outHeading = headingController.calculate(currentPose.getHeading(), goalPose.getHeading());
+        double outHeading = -headingController.calculate(MathFunctions.angleWrap(currentPose.getHeading()), MathFunctions.angleWrap(goalPose.getHeading()));
+        // double outHeading = headingController.calculate(currentPose.getHeading(), goalPose.getHeading());
 
         // 4) Convert GLOBAL outputs to ROBOT-LOCAL frame using current heading:
         double cosH = Math.cos(currentPose.getHeading());
@@ -221,8 +222,10 @@ public class PurePursuitFollower {
         // Global velocity-like outputs -> local robot frame
         // [vx_local]   [ cos  sin ] [outX]
         // [vy_local] = [-sin  cos ] [outY]
-        double xPower =  outX * cosH + outY * sinH;
-        double yPower = -outX * sinH + outY * cosH;
+//        double xPower =  outX * cosH + outY * sinH;
+//        double yPower = -outX * sinH + outY * cosH;
+        double xPower = 0;
+        double yPower = 0;
         double headingPower = outHeading; // rotation is already body-centric sign
 
         // double xPower = longitudinalController.calculate(Math.sin(currentPose.getHeading()) * currentPose.getX(), Math.sin(goalPose.getHeading()) * goalPose.getX());
