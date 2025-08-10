@@ -20,7 +20,7 @@ public class FollowerConstants {
     public static double MAX_ACCELERATION = 150; // in/s^2, same as deceleration
     public static PIDFCoefficients LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.01, 0, 0.0001, 0);
     public static PIDFCoefficients LATERAL_COEFFICIENTS = new PIDFCoefficients(0.01, 0, 0.0001, 0);
-    public static PIDFCoefficients HEADING_COEFFICIENTS = new PIDFCoefficients(1, 0, 0.01, 0);
+    public static PIDFCoefficients HEADING_COEFFICIENTS = new PIDFCoefficients(1, 0, 0.02, 0);
 
     public static String leftFrontMotorName = "front_left_drive";
     public static String rightFrontMotorName = "front_right_drive";
