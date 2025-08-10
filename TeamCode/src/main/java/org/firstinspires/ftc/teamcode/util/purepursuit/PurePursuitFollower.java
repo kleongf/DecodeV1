@@ -34,6 +34,7 @@ public class PurePursuitFollower {
     private Path2D currentPath;
     private int currentPathIndex;
     private int lastFoundIndex;
+    private double maxVelocity;
 
     private double minLookAhead;
     private double maxLookAhead;
@@ -56,6 +57,7 @@ public class PurePursuitFollower {
         this.speedConstraint = PATH_END_SPEED_CONSTRAINT;
         this.headingConstraint = PATH_END_HEADING_CONSTRAINT;
         this.distanceConstraint = PATH_END_DISTANCE_CONSTRAINT;
+        this.maxVelocity = MAX_VELOCITY;
         this.minLookAhead = LOOK_AHEAD_MIN_DISTANCE;
         this.maxLookAhead = LOOK_AHEAD_MAX_DISTANCE;
         this.KpLookAhead = KP_LOOK_AHEAD;
@@ -176,7 +178,7 @@ public class PurePursuitFollower {
         // v^2 = vo^2 + 2adx
         // so dx = vo^2/2a
         // none of this code does anything
-        double targetSpeed = MAX_VELOCITY;
+        double targetSpeed = maxVelocity;
         double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
         if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)) < distanceToEnd) && (currentPathIndex == currentPath.getSize() - 1)) {
             targetSpeed = 0;
@@ -316,12 +318,20 @@ public class PurePursuitFollower {
                 return;
             } else {
                 calculateGoalPose();
+                // TODO: WAIT WAIT WAIT WAIT A MINUTE THIS LOOKS HELLA CURSED
+                // TODO: NVM IT IS CORRECT I THINK
+                // isn't this supposed to be the opposite? like it should be x/y bc coord system? in the recording the bot goes the wrong way.
+                // let's think for a sec: it should be about -30 deg
+                // so x / y makes more sense. goalpose.x - current x / goalpose y - current y
+                // bruh why couldn't we make the encoders different bruh whatever
+                // coord system madness
                 double angleToGoal = Math.atan2(goalPose.getY()-currentPose.getY(), goalPose.getX()-currentPose.getX());
                 double dist = MathFunctions.getDistance(currentPose, goalPose);
                 if (currentPath.isReversed()) {
                     angleToGoal -= Math.PI;
                     dist *= -1;
                 }
+                // so apparently my definition of rotation is the opposite of theirs so yeah...
                 double angleDiff = -MathFunctions.angleWrap(angleToGoal - currentPose.getHeading());
                 // so i think the angle thing is fine?
                 setFollowerMotorPowers(dist, angleDiff);
@@ -338,6 +348,7 @@ public class PurePursuitFollower {
             setP2PMotorPowers(1.0);
             return;
         }
+        // not sure if we really want this functionality, if we tune our pid well then we wont need this
         if (isHoldingPoint) {
             System.out.println("Holding Point");
             setP2PMotorPowers(holdPointScaleFactor);
@@ -346,6 +357,10 @@ public class PurePursuitFollower {
 
     public boolean isFinished() {
         return !isP2Ping && !isFollowingPath;
+    }
+    // this will help us if we want to go slow
+    public void setMaxSpeed(double s) {
+        maxVelocity = s;
     }
 
     // we keep following paths i guess. Once the last point in a "path" is reached, we will pid to point
