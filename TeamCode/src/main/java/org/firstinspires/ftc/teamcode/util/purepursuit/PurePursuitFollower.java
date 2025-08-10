@@ -211,7 +211,7 @@ public class PurePursuitFollower {
 
         // 1. gpt code gonna help me out lol
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
-        double outY = headingController.calculate(currentPose.getY(), goalPose.getY());
+        double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
         double outHeading = headingController.calculate(currentPose.getHeading(), goalPose.getHeading());
 
         // 4) Convert GLOBAL outputs to ROBOT-LOCAL frame using current heading:
