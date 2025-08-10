@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class PurePursuitFollower {
     private Localizer localizer;
-    private Pose2D currentPose;
+    public Pose2D currentPose;
     private Pose2D goalPose;
     private double speed;
     private boolean isHoldingPoint = false;

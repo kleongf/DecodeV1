@@ -59,6 +59,9 @@ public class PurePursuitTest2 extends OpMode {
         follower.update();
         stateMachine.update();
         telemetry.addData("Following forward path:", followingForward);
+        if (follower.currentPose != null) {
+            telemetry.addLine("Pose: X: " + follower.currentPose.getX() + " Y: " + follower.currentPose.getY());
+        }
         telemetry.update();
     }
 
