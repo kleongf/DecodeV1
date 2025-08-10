@@ -212,8 +212,11 @@ public class PurePursuitFollower {
         // let me fix this
 
         // 1. gpt code gonna help me out lol
-        double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
-        double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
+        double KvX = 0.01;
+        double KvY = 0.01;
+        double outX = lateralController.calculate(currentPose.getX(), goalPose.getX()) + KvX * (0-localizer.getVelocity().getX()); // added this feedforward term in
+
+        double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY()) + KvY * (0-localizer.getVelocity().getY());;
         double outHeading = -headingController.calculate(MathFunctions.angleWrap(currentPose.getHeading()), MathFunctions.angleWrap(goalPose.getHeading()));
         // double outHeading = headingController.calculate(currentPose.getHeading(), goalPose.getHeading());
 

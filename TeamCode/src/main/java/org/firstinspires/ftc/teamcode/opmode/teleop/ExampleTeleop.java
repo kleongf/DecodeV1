@@ -62,6 +62,7 @@ public class ExampleTeleop extends OpMode {
 
     @Override
     public void start() {
+        // TODO: In the future, initPositions() should go here so we don't move on init
         follower.startTeleopDrive();
         robot.start();
     }
