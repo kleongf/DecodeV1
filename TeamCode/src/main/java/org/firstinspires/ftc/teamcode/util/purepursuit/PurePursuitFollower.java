@@ -222,10 +222,10 @@ public class PurePursuitFollower {
         // Global velocity-like outputs -> local robot frame
         // [vx_local]   [ cos  sin ] [outX]
         // [vy_local] = [-sin  cos ] [outY]
-//        double xPower =  outX * cosH + outY * sinH;
-//        double yPower = -outX * sinH + outY * cosH;
-        double xPower = 0;
-        double yPower = 0;
+        double xPower =  outX * cosH + outY * sinH;
+        double yPower = -outX * sinH + outY * cosH;
+//        double xPower = 0;
+//        double yPower = 0;
         double headingPower = outHeading; // rotation is already body-centric sign
 
         // double xPower = longitudinalController.calculate(Math.sin(currentPose.getHeading()) * currentPose.getX(), Math.sin(goalPose.getHeading()) * goalPose.getX());
