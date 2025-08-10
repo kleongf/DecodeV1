@@ -27,6 +27,7 @@ public class PurePursuitTest2 extends OpMode {
     private PurePursuitFollower follower;
     private StateMachine stateMachine;
     private final Pose startPose = new Pose(9, 40, Math.toRadians(0));
+    private boolean followingForward = true;
     private final Path2D forwardPath = new Path2D(
             new Pose2D(9, 40, Math.toRadians(0)),
             new Pose2D(40, 25, Math.toRadians(-30)),
@@ -49,7 +50,7 @@ public class PurePursuitTest2 extends OpMode {
                         .onEnter(() -> follower.followPath(forwardPath))
                         .transition(new Transition(() -> follower.isFinished())),
                 new State()
-                        .onEnter(() -> follower.followPath(backwardPath))
+                        .onEnter(() -> {follower.followPath(backwardPath); followingForward = false;})
                         .transition(new Transition(() -> follower.isFinished()))
         );
     }
@@ -57,6 +58,8 @@ public class PurePursuitTest2 extends OpMode {
     public void loop() {
         follower.update();
         stateMachine.update();
+        telemetry.addData("Following forward path:", followingForward);
+        telemetry.update();
     }
 
     @Override
