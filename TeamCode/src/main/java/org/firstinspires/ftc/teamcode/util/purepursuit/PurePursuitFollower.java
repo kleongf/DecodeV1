@@ -290,8 +290,8 @@ public class PurePursuitFollower {
             // i just realized these are the same lol
             // not distanceconstraint anymore
             // TODO: might want to not restrict this to the final path, and let it work for any point on the path. We could set acceleration to 180 like it was, but it could p2p at 60^2/(2 * 180) or 10 inches.
-            // if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd)) {
-            if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)) < distanceToEnd) && (currentPathIndex == currentPath.getSize() - 1)) {
+            if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd)) {
+//            if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)) < distanceToEnd) && (currentPathIndex == currentPath.getSize() - 1)) {
                 goalPose = currentPath.getPose(currentPath.getSize() - 1);
                 setP2PMotorPowers(1.0);
                 isP2Ping = true;
