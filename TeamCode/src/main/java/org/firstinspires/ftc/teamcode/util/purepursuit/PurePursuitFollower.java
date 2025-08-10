@@ -222,8 +222,18 @@ public class PurePursuitFollower {
         // Global velocity-like outputs -> local robot frame
         // [vx_local]   [ cos  sin ] [outX]
         // [vy_local] = [-sin  cos ] [outY]
-        double xPower =  outX * cosH + outY * sinH;
-        double yPower = -outX * sinH + outY * cosH;
+        // = cos * outX + sin * outY, -sin outX + cos outY
+
+        // TODO: IF this fails, the matrix could also be
+        // [vx_local]   [ cos  -sin ] [outX]
+        // [vy_local] = [ sin  cos ] [outY]
+
+        // TODO: ok turns out our coord system is wack so this is the transformation
+        double xPower =  sinH * outX  -  cosH * outY;
+        double yPower =  cosH * outX  +  sinH * outY;
+
+//        double xPower =  outX * cosH + outY * sinH;
+//        double yPower = -outX * sinH + outY * cosH;
 //        double xPower = 0;
 //        double yPower = 0;
         double headingPower = outHeading; // rotation is already body-centric sign
