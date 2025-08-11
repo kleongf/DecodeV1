@@ -31,7 +31,7 @@ public class SlideTeleop extends OpMode {
         vSlideMotorRight = hardwareMap.get(DcMotorEx.class, "VSlideRight");
         hSlideMotor = hardwareMap.get(DcMotorEx.class, "HSlide");
         vSlideMotorLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        vSlideMotorRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        vSlideMotorRight.setDirection(DcMotorSimple.Direction.REVERSE);
         hSlideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         vSlideMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
