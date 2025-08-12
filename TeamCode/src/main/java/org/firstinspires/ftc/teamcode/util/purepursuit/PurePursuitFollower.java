@@ -217,8 +217,9 @@ public class PurePursuitFollower {
 
         // 1. gpt code gonna help me out lol
         // jk i made this myself
-        double KvX = 0.01;
-        double KvY = 0.01;
+        // i reduced these from 0.01 by half
+        double KvX = 0.005;
+        double KvY = 0.005;
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX()) + KvX * (0-localizer.getVelocity().getX()); // added this feedforward term in
 
         double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY()) + KvY * (0-localizer.getVelocity().getY());;
