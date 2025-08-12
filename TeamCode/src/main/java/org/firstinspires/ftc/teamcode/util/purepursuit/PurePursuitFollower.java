@@ -45,6 +45,13 @@ public class PurePursuitFollower {
     private DcMotorEx frontRight;
     private DcMotorEx rearLeft;
     private DcMotorEx rearRight;
+    // TODO: um yeah so some changes we need to make:
+    // we need to make power constant at 1, normalize vectors proportionally. these should be computed by distance and angle to target. we can subtract these to get power vectors and find how fast robot goes laterally and longitudinally, multiply them proportionally as well.
+    // we could do the same thing with heading, just getting max heading speed and finding arc length or something
+    // need to predict where robot will go based on its current position and heading, to the goal pos and heading. should make it better for braking.
+    // use zero power acceleration? then use p controller?
+    // i honestly think a mix is the best: once we hit the zero power acceleration, continue using the pure pursuit vector, but set translational+drive power to zero (only use heading) and not make it a unit vector
+    // once velocity is lower like 30 m/s then pid to point
 
     public PurePursuitFollower(HardwareMap hardwareMap) {
         this.localizer = new Localizer(hardwareMap);
