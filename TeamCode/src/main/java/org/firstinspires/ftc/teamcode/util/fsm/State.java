@@ -8,7 +8,6 @@ import java.util.List;
 public class State {
     private final List<Transition> transitions = new ArrayList<>();
     private final List<TimedRunnable> timedRunnables = new ArrayList<>();
-    private int runnableIndex = 0;
     private int state = -1; // -1 = done, 0 = running
     private final String name;
     private Runnable entryRunnable;
