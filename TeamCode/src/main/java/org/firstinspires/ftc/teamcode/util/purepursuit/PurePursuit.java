@@ -148,7 +148,7 @@ public class PurePursuit {
         // TODO: i need something to measure power set for x y and heading and determine how far it goes. Then I can get more accurate results.
         double kY = 1.0;
         double kX = 2.0;
-        double kTheta = 5.0;
+        double kTheta = 20.0;
 
         double xPower = (Math.sin(currentPose.getHeading()) * dx - Math.cos(currentPose.getHeading()) * dy) * kX;
         double yPower = (Math.cos(currentPose.getHeading()) * dx + Math.sin(currentPose.getHeading()) * dy) * kY;
@@ -160,7 +160,7 @@ public class PurePursuit {
         thetaPower /= total;
 
         // thetaPower is negative because our coordinate system. also no negative scalefactor here, it dont make sense, it would reverse error
-        setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, Math.abs(scaleFactor)-thetaPower);
+        setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, Math.abs(scaleFactor)*thetaPower);
     }
 
     public void setMotorPowers(double x, double y, double rx) {
