@@ -172,6 +172,7 @@ public class PurePursuitFollower {
         frontRight.setPower(frontRightPower);
         rearRight.setPower(backRightPower);
     }
+
     private void setFollowerMotorPowers(double yDist, double hError) {
         // new plan: our setpoint is max velocity
         // however when we reach the end of our path we set to 0 (based on acceleration we can compute)
@@ -193,7 +194,10 @@ public class PurePursuitFollower {
         // but i need a better function. maybe cos(err/2)? if error = pi than it is 0, but if error = pi/8 or so then it is 0.5 or 1/3 of the power
         // lets just use this for now: a linear scaling factor that equals 0 when it is pi and 1 when it is 0
         // method 1
-        setMotorPowers(0, ((Math.PI-Math.abs(hError))/Math.PI) * MathFunctions.clamp(outputSpeed, -1, 1), MathFunctions.clamp(outputHeading, -1, 1));
+        // TODO: this works but i think there must be a better way to do it. I made it quadratic now, as acceleration is dependent on a squared dt. (idk it makes more physics sense)
+        setMotorPowers(0, Math.pow(((Math.PI-Math.abs(hError))/Math.PI), 2) * MathFunctions.clamp(outputSpeed, -1, 1), MathFunctions.clamp(outputHeading, -1, 1));
+        // first let's try not clamping the speed/heading so it will be somewhat accurate. idk why we are even clamping from -1 to 1.
+        // also it does not seem to be prioritizing heading as much as it should. but tbh it should be fine.
 
         // method 2:
         // wait till heading error < 10 degrees
@@ -212,6 +216,7 @@ public class PurePursuitFollower {
         // let me fix this
 
         // 1. gpt code gonna help me out lol
+        // jk i made this myself
         double KvX = 0.01;
         double KvY = 0.01;
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX()) + KvX * (0-localizer.getVelocity().getX()); // added this feedforward term in

@@ -7,6 +7,8 @@ import java.util.List;
 
 public class State {
     private final List<Transition> transitions = new ArrayList<>();
+    private final List<TimedRunnable> timedRunnables = new ArrayList<>();
+    private int runnableIndex = 0;
     private int state = -1; // -1 = done, 0 = running
     private final String name;
     private Runnable entryRunnable;
@@ -27,6 +29,9 @@ public class State {
     public void start() {
         timer.resetTimer();
         state = 0;
+        for (TimedRunnable runnable: timedRunnables) {
+            runnable.setRun(false);
+        }
         for (Transition transition : transitions) {
             transition.start();
         }
@@ -45,6 +50,13 @@ public class State {
                 if (exitRunnable != null) exitRunnable.run();
                 state = -1;
                 return;
+            }
+        }
+        // have a list of timed runnables.
+        for (TimedRunnable runnable: timedRunnables) {
+            if (runnable.getMs() > timer.getElapsedTime() && !runnable.wasRun()) {
+                runnable.getRunnable().run();
+                runnable.setRun(true);
             }
         }
 
@@ -83,6 +95,11 @@ public class State {
     public State fallbackState(String fallbackState) {
         if (fallbackState == null) throw new IllegalArgumentException("Fallback state cannot be null");
         this.nextState = fallbackState;
+        return this;
+    }
+
+    public State addTimedRunnable(TimedRunnable r) {
+        timedRunnables.add(r);
         return this;
     }
 

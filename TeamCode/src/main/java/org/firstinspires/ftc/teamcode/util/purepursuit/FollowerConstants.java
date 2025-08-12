@@ -26,8 +26,9 @@ public class FollowerConstants {
     // we gonna rotate the x and y velocity into the robot's coord frame, but it don't matter since it is 0
     // add Kv * (vreference-vcurrent), reference velocity is 0. also rotate current velocity into robot coord frame.
     // that way at low velocities this term is small but at high velocities it is large.
-    public static PIDFCoefficients LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.02, 0, 0.0004, 0);
-    public static PIDFCoefficients LATERAL_COEFFICIENTS = new PIDFCoefficients(0.05, 0, 0.001, 0);
+    // try no derivative term since the velocity term should dampen enough.
+    public static PIDFCoefficients LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.02, 0, 0.000, 0);
+    public static PIDFCoefficients LATERAL_COEFFICIENTS = new PIDFCoefficients(0.05, 0, 0.00, 0);
     public static PIDFCoefficients HEADING_COEFFICIENTS = new PIDFCoefficients(1, 0, 0.02, 0);
 
     public static String leftFrontMotorName = "front_left_drive";
