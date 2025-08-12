@@ -19,9 +19,9 @@ public class PurePursuit {
     private boolean isFollowingPath = false;
     private boolean isP2Ping = false;
     private boolean isDecelerating = false;
-    private PIDFController longitudinalController;
-    private PIDFController lateralController;
-    private PIDFController headingController;
+    public PIDFController longitudinalController;
+    public PIDFController lateralController;
+    public PIDFController headingController;
     private double decelerationDistance;
 
     private Path2D currentPath;
@@ -177,6 +177,7 @@ public class PurePursuit {
     }
 
     private void PIDToPose() {
+        // i think this is also cooked and the power needs normalizing
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
         double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
         double outHeading = -headingController.calculate(MathFunctions.angleWrap(currentPose.getHeading()), MathFunctions.angleWrap(goalPose.getHeading()));
