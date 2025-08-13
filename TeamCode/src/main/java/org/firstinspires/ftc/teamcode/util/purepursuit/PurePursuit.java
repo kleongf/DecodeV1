@@ -40,6 +40,25 @@ public class PurePursuit {
     // i honestly think a mix is the best: once we hit the zero power acceleration, continue using the pure pursuit vector, but set translational+drive power to zero (only use heading) and not make it a unit vector
     // once velocity is lower like 10-20 m/s then pid to point
 
+    // TODO: new implementation
+    // when isDecelerating, use a velocity feedforward
+    // formula is given as follows:
+    // feedforward(x) sqrt(max(0, 2 * targetDecel * (x-coastDistance))
+    // prob should do some math to do the same thing for y
+    // this becomes our new vector, or the new scaling thing for our vector, idk
+
+    // targetdecel is like 100 for example. thats what we want to decelerate at.
+    // coastDistance = c^2/2(zpam) (c^2 is max velocity, or i guess here current velocity before decelerating)
+
+    // the problem is executing this in two dimensions and with a heading vector
+    // i think we just keep heading but scale the other two
+
+    // feedforward = Kp * (targetVelocity - currentVelocity) + Kv * (targetVelocity)
+
+    // you know what? i should make a function that maps motor power (0-1) to acceleration.
+    // that way, when we decelerate, i just set the power to that value until speed decreases sufficiently.
+    // finally, i can pid to point when speed is low enough (10 in/s)
+
     public PurePursuit(HardwareMap hardwareMap) {
         this.localizer = new Localizer(hardwareMap);
         this.currentPose = new Pose2D(0, 0, 0);
@@ -77,6 +96,11 @@ public class PurePursuit {
     public void setStartingPose(Pose startPose) {
         currentPose = new Pose2D(startPose.getX(), startPose.getY(), startPose.getHeading());
         localizer.setStartPose(startPose);
+    }
+
+    public double getPowerForAcceleration(double acc) {
+        // TODO: find these values from the tuner, which will give us a least-squares regression line
+        return 0.05 + 0.01 * acc;
     }
 
     private void calculateGoalPose() {
@@ -235,7 +259,7 @@ public class PurePursuit {
 
         if (isFollowingPath) {
             if (isDecelerating) {
-                if (MathFunctions.getDistance(currentPose, goalPose) < PATH_END_DISTANCE_CONSTRAINT && speed < PATH_END_SPEED_CONSTRAINT) {
+                if (speed < PATH_END_SPEED_CONSTRAINT) {
                     isP2Ping = true;
                     goalPose = currentPath.getPose(currentPath.getSize() - 1);
                     isFollowingPath = false;
@@ -247,7 +271,9 @@ public class PurePursuit {
                 }
                 calculateGoalPose();
                 // when distance = decelerationDistance multiplier = 1, when distance = 0 multiplier = 0
-                double multiplier = MathFunctions.clamp((MathFunctions.getDistance(currentPose, goalPose)/decelerationDistance), -1, 1);
+                // double multiplier = MathFunctions.clamp((MathFunctions.getDistance(currentPose, goalPose)/decelerationDistance), -1, 1);
+                // now we find power for acceleration! so smart
+                double multiplier = -getPowerForAcceleration(MAX_ACCELERATION);
                 moveToPose(goalPose, multiplier);
                 return;
             } else if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd)) {
