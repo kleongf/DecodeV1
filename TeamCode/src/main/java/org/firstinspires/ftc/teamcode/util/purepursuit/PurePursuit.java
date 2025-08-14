@@ -189,12 +189,14 @@ public class PurePursuit {
 
     public double getRequiredAcceleration() {
         // a = vo^2/-2dx
-        double accelX = Math.pow(localizer.getVelocity().getX(), 2) / (-2 * (goalPose.getX() - currentPose.getX()));
-        double accelY = Math.pow(localizer.getVelocity().getY(), 2) / (-2 * (goalPose.getX() - currentPose.getY()));
-
-        double xRot = (Math.sin(currentPose.getHeading()) * accelX - Math.cos(currentPose.getHeading()) * accelY);
-        double yRot = (Math.cos(currentPose.getHeading()) * accelX + Math.sin(currentPose.getHeading()) * accelY);
-        return Math.sqrt(Math.pow(xRot, 2) + Math.pow(yRot, 2));
+//        double accelX = Math.pow(localizer.getVelocity().getX(), 2) / (-2 * (goalPose.getX() - currentPose.getX()));
+//        double accelY = Math.pow(localizer.getVelocity().getY(), 2) / (-2 * (goalPose.getX() - currentPose.getY()));
+//
+//        double xRot = (Math.sin(currentPose.getHeading()) * accelX - Math.cos(currentPose.getHeading()) * accelY);
+//        double yRot = (Math.cos(currentPose.getHeading()) * accelX + Math.sin(currentPose.getHeading()) * accelY);
+//        return Math.sqrt(Math.pow(xRot, 2) + Math.pow(yRot, 2));
+        // i could probably do this an easier way, let's just do distance lol
+        return Math.abs((Math.pow(localizer.getSpeed(), 2)) / (-2 * MathFunctions.getDistance(currentPose, goalPose)));
     }
 
     public void setMotorPowers(double x, double y, double rx) {
