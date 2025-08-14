@@ -187,6 +187,16 @@ public class PurePursuit {
         setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, Math.abs(scaleFactor) * -thetaPower);
     }
 
+    public double getRequiredAcceleration() {
+        // a = vo^2/-2dx
+        double accelX = Math.pow(localizer.getVelocity().getX(), 2) / (-2 * (goalPose.getX() - currentPose.getX()));
+        double accelY = Math.pow(localizer.getVelocity().getY(), 2) / (-2 * (goalPose.getX() - currentPose.getY()));
+
+        double xRot = (Math.sin(currentPose.getHeading()) * accelX - Math.cos(currentPose.getHeading()) * accelY);
+        double yRot = (Math.cos(currentPose.getHeading()) * accelX + Math.sin(currentPose.getHeading()) * accelY);
+        return Math.sqrt(Math.pow(xRot, 2) + Math.pow(yRot, 2));
+    }
+
     public void setMotorPowers(double x, double y, double rx) {
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontLeftPower = (y + x + rx) / denominator;
@@ -273,7 +283,12 @@ public class PurePursuit {
                 // when distance = decelerationDistance multiplier = 1, when distance = 0 multiplier = 0
                 // double multiplier = MathFunctions.clamp((MathFunctions.getDistance(currentPose, goalPose)/decelerationDistance), -1, 1);
                 // now we find power for acceleration! so smart
-                double multiplier = -getPowerForAcceleration(MAX_ACCELERATION);
+                // wait hold up, wouldn't this just push the robot farther from goal point?
+                // we need to do some math here
+                // so we need to predict where robot will go based on its current position
+                // make acceleration based on predicted position from goal point (made from
+                // i like this idea actually
+                double multiplier = -1 * getRequiredAcceleration();
                 moveToPose(goalPose, multiplier);
                 return;
             } else if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd)) {
