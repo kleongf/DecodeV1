@@ -100,7 +100,7 @@ public class PurePursuit {
 
     public double getPowerForAcceleration(double acc) {
         // TODO: find these values from the tuner, which will give us a least-squares regression line
-        return 0.05 + 0.01 * acc;
+        return 0.08 + 0.01 * Math.abs(acc);
     }
 
     private void calculateGoalPose() {
@@ -291,18 +291,33 @@ public class PurePursuit {
                 // make acceleration based on predicted position from goal point (made from
                 // i like this idea actually
                 double multiplier = -1 * getRequiredAcceleration();
-                moveToPose(goalPose, multiplier);
+                if (currentPath.isReversed()) {
+                    Pose2D pose = new Pose2D(goalPose.getX(), goalPose.getY(), goalPose.getHeading()-Math.PI);
+                    moveToPose(pose, 1 * multiplier);
+                } else {
+                    moveToPose(goalPose, 1 * multiplier);
+                }
                 return;
             } else if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd)) {
                 // this means we should start decelerating
                 isDecelerating = true;
                 decelerationDistance = distanceToEnd;
                 calculateGoalPose();
-                moveToPose(goalPose, 1);
+                if (currentPath.isReversed()) {
+                    Pose2D pose = new Pose2D(goalPose.getX(), goalPose.getY(), goalPose.getHeading()-Math.PI);
+                    moveToPose(pose, 1);
+                } else {
+                    moveToPose(goalPose, 1);
+                }
                 return;
             } else {
                 calculateGoalPose();
-                moveToPose(goalPose, 1);
+                if (currentPath.isReversed()) {
+                    Pose2D pose = new Pose2D(goalPose.getX(), goalPose.getY(), goalPose.getHeading()-Math.PI);
+                    moveToPose(pose, 1);
+                } else {
+                    moveToPose(goalPose, 1);
+                }
                 return;
             }
         }

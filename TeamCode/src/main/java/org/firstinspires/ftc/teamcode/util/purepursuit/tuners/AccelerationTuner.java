@@ -21,6 +21,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
@@ -46,6 +47,7 @@ public class AccelerationTuner extends OpMode {
     private Telemetry telemetryA;
 
     private double power = 0.0;
+    private ElapsedTime elapsedTime;
 
     /**
      * This initializes the drive motors as well as the cache of velocities and the FTC Dashboard
@@ -53,6 +55,7 @@ public class AccelerationTuner extends OpMode {
      */
     @Override
     public void init() {
+        elapsedTime = new ElapsedTime();
         Constants.setConstants(FConstants.class, LConstants.class);
         poseUpdater = new PoseUpdater(hardwareMap, FConstants.class, LConstants.class);
 
@@ -90,6 +93,7 @@ public class AccelerationTuner extends OpMode {
      */
     @Override
     public void start() {
+        elapsedTime.reset();
         leftFront.setPower(power);
         leftRear.setPower(power);
         rightFront.setPower(power);
@@ -104,6 +108,7 @@ public class AccelerationTuner extends OpMode {
      */
     @Override
     public void loop() {
+        double dt = elapsedTime.seconds();
         if (gamepad1.cross || gamepad1.a) {
             for (DcMotorEx motor : motors) {
                 motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -116,12 +121,12 @@ public class AccelerationTuner extends OpMode {
         rightFront.setPower(power);
         rightRear.setPower(power);
 
-        double acceleration = poseUpdater.getAcceleration().getXComponent();
+        double acceleration = poseUpdater.getAcceleration().getMagnitude();
 
         System.out.println("Power: " + power + ", Acceleration: " + acceleration);
 
         power += 0.005;
-
+        elapsedTime.reset();
         poseUpdater.update();
 
         // goal is to graph power (y-axis) over acceleration (x-axis). this will give us a scaling factor for our vector.
