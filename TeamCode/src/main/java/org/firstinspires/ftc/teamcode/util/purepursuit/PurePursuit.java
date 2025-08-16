@@ -100,8 +100,8 @@ public class PurePursuit {
 
     public double getPowerForAcceleration(double acc) {
         // TODO: find these values from the tuner, which will give us a least-squares regression line
-        // i found the regression line: y=0.0013764591633869138x + 0.2301550764661924
-        return 0.2301550764661924 + 0.0013764591633869138 * Math.abs(acc);
+        // i found the regression line: y = 0.0025296834325654956x + 0.1612122351740747
+        return 0.1612122351740747 + 0.0025296834325654956 * Math.abs(acc);
     }
 
     private void calculateGoalPose() {
