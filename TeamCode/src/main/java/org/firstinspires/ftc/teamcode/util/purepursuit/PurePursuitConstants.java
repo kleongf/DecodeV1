@@ -9,7 +9,7 @@ public class PurePursuitConstants {
     public static double END_SPEED_CONSTRAINT = 1;
     public static double END_DISTANCE_CONSTRAINT = 1;
     public static double END_HEADING_CONSTRAINT = Math.toRadians(3);
-    public static double MAX_ACCELERATION = 80; // in/s^2, same as deceleration on pedro zpam
+    public static double MAX_ACCELERATION = 100; // in/s^2, same as deceleration on pedro zpam
     public static PIDFCoefficients LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.02, 0, 0.0002, 0);
     public static PIDFCoefficients LATERAL_COEFFICIENTS = new PIDFCoefficients(0.04, 0, 0.0007, 0);
     public static PIDFCoefficients HEADING_COEFFICIENTS = new PIDFCoefficients(1.5, 0, 0.02, 0);
