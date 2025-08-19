@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class PurePursuitConstants {
     public static double LOOK_AHEAD_DISTANCE = 10;
     public static double PATH_END_DISTANCE_CONSTRAINT = 5;
+    public static double ZPAM = 40; // just a guess
     public static double PATH_END_SPEED_CONSTRAINT = 20;
     public static double END_SPEED_CONSTRAINT = 1;
     public static double END_DISTANCE_CONSTRAINT = 1;

@@ -188,6 +188,22 @@ public class PurePursuit {
         setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, Math.abs(scaleFactor) * -thetaPower);
     }
 
+    public void decelerateToPose(Pose2D pose) {
+        double dTheta = MathFunctions.angleWrap(pose.getHeading()-currentPose.getHeading());
+
+        // TODO: i need something to measure power set for x y and heading and determine how far it goes. Then I can get more accurate results.
+        double kTheta = 2.0;
+
+        double thetaPower = dTheta * kTheta;
+
+        double total = Math.abs(thetaPower);
+        thetaPower /= total;
+
+        // thetaPower is negative because our coordinate system. also no negative scalefactor here, it dont make sense, it would reverse error
+        setMotorPowers(0, 0, -thetaPower);
+    }
+    // TOOD: want to make my own command based with commands in a folder
+
     public double getRequiredAcceleration() {
         // a = vo^2/-2dx
 //        double accelX = Math.pow(localizer.getVelocity().getX(), 2) / (-2 * (goalPose.getX() - currentPose.getX()));
@@ -260,7 +276,7 @@ public class PurePursuit {
         System.out.println("Speed: " + speed);
         System.out.println("Pose: X: " + currentPose.getX() + " Y: " + currentPose.getY());
         System.out.println("Heading: " + currentPose.getHeading());
-        double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
+        double distanceToEnd = (speed * speed) / (2 * ZPAM);
         if (currentPath != null) {
             System.out.println("Distance To Target: " + MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)));
         }
@@ -291,12 +307,12 @@ public class PurePursuit {
                 // so we need to predict where robot will go based on its current position
                 // make acceleration based on predicted position from goal point (made from
                 // i like this idea actually
-                double multiplier = -1 * getRequiredAcceleration();
+                // double multiplier = -1 * getRequiredAcceleration();
                 if (currentPath.isReversed()) {
                     Pose2D pose = new Pose2D(goalPose.getX(), goalPose.getY(), goalPose.getHeading()-Math.PI);
-                    moveToPose(pose, 1 * multiplier);
+                    decelerateToPose(pose);
                 } else {
-                    moveToPose(goalPose, 1 * multiplier);
+                    decelerateToPose(goalPose);
                 }
                 return;
             } else if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd)) {
