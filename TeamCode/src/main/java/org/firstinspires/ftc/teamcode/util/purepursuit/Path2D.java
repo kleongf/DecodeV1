@@ -5,7 +5,8 @@ import java.util.Arrays;
 
 public class Path2D {
     private final ArrayList<Pose2D> waypoints;
-    private final boolean reversed;
+    private boolean reversed;
+    private boolean tangent = true;
 
     public Path2D(Pose2D...waypoints) {
         this.waypoints = new ArrayList<>(Arrays.asList(waypoints));
@@ -19,6 +20,19 @@ public class Path2D {
 
     public ArrayList<Pose2D> getWaypoints() {
         return waypoints;
+    }
+    public Path2D setTangent(boolean t) {
+        this.tangent = t;
+        return this;
+    }
+
+    public Path2D setReversed(boolean r) {
+        this.reversed = r;
+        return this;
+    }
+
+    public boolean isTangent() {
+        return tangent;
     }
 
     public double getLength() {

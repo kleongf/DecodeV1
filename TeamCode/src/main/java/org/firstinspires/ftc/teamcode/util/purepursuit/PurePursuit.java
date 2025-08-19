@@ -128,8 +128,14 @@ public class PurePursuit {
 
                 Pose2D sol1 = new Pose2D(sol_x1 + posX, sol_y1 + posY, 0);
                 Pose2D sol2 = new Pose2D(sol_x2 + posX, sol_y2 + posY, 0);
-                sol1.setHeading(Math.atan2(sol1.getY()-currentPose.getY(), sol1.getX()-currentPose.getX()));
-                sol2.setHeading(Math.atan2(sol2.getY()-currentPose.getY(), sol2.getX()-currentPose.getX()));
+                // if it's not tangent we try to go to its normal heading
+                if (!currentPath.isTangent()) {
+                    sol1.setHeading(currentPath.getPose(i).getHeading());
+                    sol2.setHeading(currentPath.getPose(i).getHeading());
+                } else {
+                    sol1.setHeading(Math.atan2(sol1.getY()-currentPose.getY(), sol1.getX()-currentPose.getX()));
+                    sol2.setHeading(Math.atan2(sol2.getY()-currentPose.getY(), sol2.getX()-currentPose.getX()));
+                }
 
                 double minX = Math.min(currentPath.getPose(i).getX(), currentPath.getPose(i + 1).getX());
                 double maxX = Math.max(currentPath.getPose(i).getX(), currentPath.getPose(i + 1).getX());
@@ -192,17 +198,56 @@ public class PurePursuit {
         double dTheta = MathFunctions.angleWrap(pose.getHeading()-currentPose.getHeading());
 
         // TODO: i need something to measure power set for x y and heading and determine how far it goes. Then I can get more accurate results.
-        double kTheta = 2.0;
+        double kTheta = 1.0;
 
         double thetaPower = dTheta * kTheta;
 
-        double total = Math.abs(thetaPower);
-        thetaPower /= total;
+        //double total = Math.abs(thetaPower);
+        //thetaPower /= total;
 
         // thetaPower is negative because our coordinate system. also no negative scalefactor here, it dont make sense, it would reverse error
         setMotorPowers(0, 0, -thetaPower);
     }
     // TOOD: want to make my own command based with commands in a folder
+
+    public void turnToPose() {
+        // turn to pose? duh?
+    }
+    // TODO: should implement a holdpoint function after p2p
+
+    public boolean isBusy() {
+        // return !p2ping and !turning and !followingPath
+        return true;
+    }
+    // TODO: i am realizing that for tangent heading, it is fine to use forward zpam, but for
+    // non tangent heading, i need to take the dot product and multiply. keep applying
+    // power in the direction that has not enough acceleration.
+    // maybe i should do this in general?
+//    public void move2pose2(Pose2D pose, double scaleFactor) {
+//        double dy = pose.getY()-currentPose.getY();
+//        double dx = pose.getX()-currentPose.getX();
+//        double dTheta = MathFunctions.angleWrap(pose.getHeading()-currentPose.getHeading());
+//
+//        double kY = 1.0;
+//        double kX = 2.0;
+//        double kTheta = 8.0;
+//
+//        double xPower = (Math.sin(currentPose.getHeading()) * dx - Math.cos(currentPose.getHeading()) * dy) * kX;
+//        double yPower = (Math.cos(currentPose.getHeading()) * dx + Math.sin(currentPose.getHeading()) * dy) * kY;
+//        double thetaPower = dTheta * kTheta;
+//
+//        double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(thetaPower);
+//        xPower /= total;
+//        yPower /= total;
+//        thetaPower /= total;
+//
+//        // has enough forward velocity to get to end (i should probably rotate this)
+//        // this isnt distance to end it's z distance to end
+//        if (Math.pow(localizer.getVelocity().getX(), 2) > 2 * )
+//
+//        // thetaPower is negative because our coordinate system. also no negative scalefactor here, it dont make sense, it would reverse error
+//        setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, Math.abs(scaleFactor) * -thetaPower);
+//    }
 
     public double getRequiredAcceleration() {
         // a = vo^2/-2dx
