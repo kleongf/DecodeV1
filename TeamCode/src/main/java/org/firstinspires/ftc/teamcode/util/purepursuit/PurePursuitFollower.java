@@ -22,8 +22,7 @@ public class PurePursuitFollower {
     private double holdPointScaleFactor;
     private double speedConstraint;
     private double headingConstraint;
-    private double pathEndDistance;
-    private double distanceConstraint;
+
     private double holdPointRange;
 
     // TODO: could make two different PID controllers, one for p2p for high velocities and one for normal p2p.
@@ -38,20 +37,11 @@ public class PurePursuitFollower {
 
     private double minLookAhead;
     private double maxLookAhead;
-    private double KpHeading;
-    private double KpSpeed;
     private double KpLookAhead;
     private DcMotorEx frontLeft;
     private DcMotorEx frontRight;
     private DcMotorEx rearLeft;
     private DcMotorEx rearRight;
-    // TODO: um yeah so some changes we need to make:
-    // we need to make power constant at 1, normalize vectors proportionally. these should be computed by distance and angle to target. we can subtract these to get power vectors and find how fast robot goes laterally and longitudinally, multiply them proportionally as well.
-    // we could do the same thing with heading, just getting max heading speed and finding arc length or something
-    // need to predict where robot will go based on its current position and heading, to the goal pos and heading. should make it better for braking.
-    // use zero power acceleration? then use p controller?
-    // i honestly think a mix is the best: once we hit the zero power acceleration, continue using the pure pursuit vector, but set translational+drive power to zero (only use heading) and not make it a unit vector
-    // once velocity is lower like 30 m/s then pid to point
 
     public PurePursuitFollower(HardwareMap hardwareMap) {
         this.localizer = new Localizer(hardwareMap);
@@ -63,13 +53,10 @@ public class PurePursuitFollower {
         this.holdPointRange = HOLD_POINT_DISTANCE;
         this.speedConstraint = PATH_END_SPEED_CONSTRAINT;
         this.headingConstraint = PATH_END_HEADING_CONSTRAINT;
-        this.distanceConstraint = PATH_END_DISTANCE_CONSTRAINT;
         this.maxVelocity = MAX_VELOCITY;
         this.minLookAhead = LOOK_AHEAD_MIN_DISTANCE;
         this.maxLookAhead = LOOK_AHEAD_MAX_DISTANCE;
         this.KpLookAhead = KP_LOOK_AHEAD;
-        this.KpSpeed = KP_SPEED;
-        this.KpHeading = KP_HEADING;
         this.currentPathIndex = 0;
 
         this.frontLeft = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);

@@ -7,15 +7,12 @@ public class Path2D {
     private final ArrayList<Pose2D> waypoints;
     private boolean reversed;
     private boolean tangent = true;
+    private double lookAheadDistance = PurePursuitConstants.LOOK_AHEAD_DISTANCE;
+    private double maxPower = 1.0;
 
     public Path2D(Pose2D...waypoints) {
         this.waypoints = new ArrayList<>(Arrays.asList(waypoints));
         this.reversed = false;
-    }
-
-    public Path2D(boolean reversed, Pose2D...waypoints) {
-        this.waypoints = new ArrayList<>(Arrays.asList(waypoints));
-        this.reversed = reversed;
     }
 
     public ArrayList<Pose2D> getWaypoints() {
@@ -31,19 +28,12 @@ public class Path2D {
         return this;
     }
 
-    public boolean isTangent() {
-        return tangent;
+    public Path2D setMaxPower(double m) {
+        this.maxPower = m;
+        return this;
     }
 
-    public double getLength() {
-        // this will be used later. if we are close to our goal then we can just P2P i guess.
-        // haha useless
-        double sum = 0;
-        for (int i = 0; i < waypoints.size()-1; i++) {
-            sum += MathFunctions.getDistance(waypoints.get(i+1), waypoints.get(i));
-        }
-        return sum;
-    }
+    public boolean isTangent() {return tangent;}
 
     public int getSize() {
         return waypoints.size();
@@ -56,5 +46,7 @@ public class Path2D {
     public boolean isReversed() {
         return reversed;
     }
+    public double getMaxPower() {return maxPower;}
+    public double getLookAheadDistance() {return lookAheadDistance;}
 
 }

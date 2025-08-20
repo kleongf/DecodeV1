@@ -106,4 +106,8 @@ public class MathFunctions {
         return new Pose(x, y, heading);
     }
 
+    public static Pose2D reverseHeading(Pose2D pose) {
+        return new Pose2D(pose.getX(), pose.getY(), pose.getHeading()-Math.PI);
+    }
+
 }

@@ -36,11 +36,11 @@ public class PurePursuitTest4 extends OpMode {
     );
 
     private final Path2D backwardPath = new Path2D(
-            true,
             new Pose2D(60, 10, Math.toRadians(-60)),
             new Pose2D(40, 25, Math.toRadians(-30)),
             new Pose2D(9, 40, Math.toRadians(0))
-    );
+    ).setReversed(true)
+            ;
 
     @Override
     public void init() {
@@ -49,10 +49,10 @@ public class PurePursuitTest4 extends OpMode {
         stateMachine = new StateMachine(
                 new State()
                         .onEnter(() -> follower.followPath(forwardPath))
-                        .transition(new Transition(() -> follower.isFinished())),
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> {follower.followPath(backwardPath); followingForward = false;})
-                        .transition(new Transition(() -> follower.isFinished()))
+                        .transition(new Transition(() -> !follower.isBusy()))
         );
     }
     @Override

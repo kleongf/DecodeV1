@@ -29,7 +29,7 @@ public class PIDToPointTest extends OpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         follower = new PurePursuit(hardwareMap);
         follower.setStartingPose(startPose);
-        follower.p2p(poseToHold);
+        follower.pidToPoint(poseToHold);
     }
     @Override
     public void loop() {

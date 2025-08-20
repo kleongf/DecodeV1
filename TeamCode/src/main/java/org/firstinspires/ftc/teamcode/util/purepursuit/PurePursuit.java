@@ -1,63 +1,31 @@
 package org.firstinspires.ftc.teamcode.util.purepursuit;
 
-
-import org.firstinspires.ftc.teamcode.util.controllers.HeadingPIDFController;
 import org.firstinspires.ftc.teamcode.util.controllers.PIDFController;
 import static org.firstinspires.ftc.teamcode.util.purepursuit.PurePursuitConstants.*;
-
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-
 public class PurePursuit {
+    private PurePursuitState purePursuitState = PurePursuitState.INIT;
     private Localizer localizer;
     public Pose2D currentPose;
     private Pose2D goalPose;
-    private double speed;
-    private boolean isFollowingPath = false;
-    private boolean isP2Ping = false;
-    private boolean isDecelerating = false;
     public PIDFController longitudinalController;
     public PIDFController lateralController;
     public PIDFController headingController;
-    private double decelerationDistance;
 
     private Path2D currentPath;
     private int currentPathIndex;
     private int lastFoundIndex;
+    private double maxPower = 1.0;
+    private double lookAheadDistance = LOOK_AHEAD_DISTANCE;
 
     private DcMotorEx frontLeft;
     private DcMotorEx frontRight;
     private DcMotorEx rearLeft;
     private DcMotorEx rearRight;
-    // TODO: um yeah so some changes we need to make:
-    // we need to make power constant at 1, normalize vectors proportionally. these should be computed by distance and angle to target. we can subtract these to get power vectors and find how fast robot goes laterally and longitudinally, multiply them proportionally as well.
-    // we could do the same thing with heading, just getting max heading speed and finding arc length or something
-    // need to predict where robot will go based on its current position and heading, to the goal pos and heading. should make it better for braking.
-    // use max acceleration? then use p controller?
-    // i honestly think a mix is the best: once we hit the zero power acceleration, continue using the pure pursuit vector, but set translational+drive power to zero (only use heading) and not make it a unit vector
-    // once velocity is lower like 10-20 m/s then pid to point
-
-    // TODO: new implementation
-    // when isDecelerating, use a velocity feedforward
-    // formula is given as follows:
-    // feedforward(x) sqrt(max(0, 2 * targetDecel * (x-coastDistance))
-    // prob should do some math to do the same thing for y
-    // this becomes our new vector, or the new scaling thing for our vector, idk
-
-    // targetdecel is like 100 for example. thats what we want to decelerate at.
-    // coastDistance = c^2/2(zpam) (c^2 is max velocity, or i guess here current velocity before decelerating)
-
-    // the problem is executing this in two dimensions and with a heading vector
-    // i think we just keep heading but scale the other two
-
-    // feedforward = Kp * (targetVelocity - currentVelocity) + Kv * (targetVelocity)
-
-    // you know what? i should make a function that maps motor power (0-1) to acceleration.
-    // that way, when we decelerate, i just set the power to that value until speed decreases sufficiently.
-    // finally, i can pid to point when speed is low enough (10 in/s)
 
     public PurePursuit(HardwareMap hardwareMap) {
         this.localizer = new Localizer(hardwareMap);
@@ -98,12 +66,6 @@ public class PurePursuit {
         localizer.setStartPose(startPose);
     }
 
-    public double getPowerForAcceleration(double acc) {
-        // TODO: find these values from the tuner, which will give us a least-squares regression line
-        // i found the regression line: y = 0.0025296834325654956x + 0.1612122351740747
-        return 0.1612122351740747 + 0.0025296834325654956 * Math.abs(acc);
-    }
-
     private void calculateGoalPose() {
         double posX = currentPose.getX();
         double posY = currentPose.getY();
@@ -118,7 +80,7 @@ public class PurePursuit {
             double dy = y2 - y1;
             double dr = Math.sqrt(dx * dx + dy * dy);
             double det = x1 * y2 - x2 * y1;
-            double discriminant = (LOOK_AHEAD_DISTANCE * LOOK_AHEAD_DISTANCE) * (dr * dr) - (det * det);
+            double discriminant = (lookAheadDistance * lookAheadDistance) * (dr * dr) - (det * det);
 
             if (discriminant >= 0) {
                 double sol_x1 = (det * dy + Math.signum(dy) * dx * Math.sqrt(discriminant)) / (dr * dr);
@@ -176,7 +138,6 @@ public class PurePursuit {
         double dx = pose.getX()-currentPose.getX();
         double dTheta = MathFunctions.angleWrap(pose.getHeading()-currentPose.getHeading());
 
-        // TODO: i need something to measure power set for x y and heading and determine how far it goes. Then I can get more accurate results.
         double kY = 1.0;
         double kX = 2.0;
         double kTheta = 8.0;
@@ -194,88 +155,20 @@ public class PurePursuit {
         setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, Math.abs(scaleFactor) * -thetaPower);
     }
 
-    public void decelerateToPose(Pose2D pose) {
-        double dTheta = MathFunctions.angleWrap(pose.getHeading()-currentPose.getHeading());
-
-        // TODO: i need something to measure power set for x y and heading and determine how far it goes. Then I can get more accurate results.
-        double kTheta = 1.0;
-
-        double thetaPower = dTheta * kTheta;
-
-        //double total = Math.abs(thetaPower);
-        //thetaPower /= total;
-
-        // thetaPower is negative because our coordinate system. also no negative scalefactor here, it dont make sense, it would reverse error
-        setMotorPowers(0, 0, -thetaPower);
-    }
-    // TOOD: want to make my own command based with commands in a folder
-
-    public void turnToPose() {
-        // turn to pose? duh?
-    }
-    // TODO: should implement a holdpoint function after p2p
-
-    public boolean isBusy() {
-        // return !p2ping and !turning and !followingPath
-        return true;
-    }
-    // TODO: i am realizing that for tangent heading, it is fine to use forward zpam, but for
-    // non tangent heading, i need to take the dot product and multiply. keep applying
-    // power in the direction that has not enough acceleration.
-    // maybe i should do this in general?
-//    public void move2pose2(Pose2D pose, double scaleFactor) {
-//        double dy = pose.getY()-currentPose.getY();
-//        double dx = pose.getX()-currentPose.getX();
-//        double dTheta = MathFunctions.angleWrap(pose.getHeading()-currentPose.getHeading());
-//
-//        double kY = 1.0;
-//        double kX = 2.0;
-//        double kTheta = 8.0;
-//
-//        double xPower = (Math.sin(currentPose.getHeading()) * dx - Math.cos(currentPose.getHeading()) * dy) * kX;
-//        double yPower = (Math.cos(currentPose.getHeading()) * dx + Math.sin(currentPose.getHeading()) * dy) * kY;
-//        double thetaPower = dTheta * kTheta;
-//
-//        double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(thetaPower);
-//        xPower /= total;
-//        yPower /= total;
-//        thetaPower /= total;
-//
-//        // has enough forward velocity to get to end (i should probably rotate this)
-//        // this isnt distance to end it's z distance to end
-//        if (Math.pow(localizer.getVelocity().getX(), 2) > 2 * )
-//
-//        // thetaPower is negative because our coordinate system. also no negative scalefactor here, it dont make sense, it would reverse error
-//        setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, Math.abs(scaleFactor) * -thetaPower);
-//    }
-
-    public double getRequiredAcceleration() {
-        // a = vo^2/-2dx
-//        double accelX = Math.pow(localizer.getVelocity().getX(), 2) / (-2 * (goalPose.getX() - currentPose.getX()));
-//        double accelY = Math.pow(localizer.getVelocity().getY(), 2) / (-2 * (goalPose.getX() - currentPose.getY()));
-//
-//        double xRot = (Math.sin(currentPose.getHeading()) * accelX - Math.cos(currentPose.getHeading()) * accelY);
-//        double yRot = (Math.cos(currentPose.getHeading()) * accelX + Math.sin(currentPose.getHeading()) * accelY);
-//        return Math.sqrt(Math.pow(xRot, 2) + Math.pow(yRot, 2));
-        // i could probably do this an easier way, let's just do distance lol
-        return Math.abs((Math.pow(localizer.getSpeed(), 2)) / (-2 * MathFunctions.getDistance(currentPose, goalPose)));
-    }
-
-    public void setMotorPowers(double x, double y, double rx) {
+    private void setMotorPowers(double x, double y, double rx) {
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontLeftPower = (y + x + rx) / denominator;
         double backLeftPower = (y - x + rx) / denominator;
         double frontRightPower = (y - x - rx) / denominator;
         double backRightPower = (y + x - rx) / denominator;
 
-        frontLeft.setPower(frontLeftPower);
-        rearLeft.setPower(backLeftPower);
-        frontRight.setPower(frontRightPower);
-        rearRight.setPower(backRightPower);
+        frontLeft.setPower(MathFunctions.clamp(frontLeftPower, -maxPower, maxPower));
+        rearLeft.setPower(MathFunctions.clamp(backLeftPower, -maxPower, maxPower));
+        frontRight.setPower(MathFunctions.clamp(frontRightPower, -maxPower, maxPower));
+        rearRight.setPower(MathFunctions.clamp(backRightPower, -maxPower, maxPower));
     }
 
-    private void PIDToPose() {
-        // i think this is also cooked and the power needs normalizing
+    private void PIDToPose(double scaleFactor) {
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
         double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
         double outHeading = -headingController.calculate(MathFunctions.angleWrap(currentPose.getHeading()), MathFunctions.angleWrap(goalPose.getHeading()));
@@ -288,27 +181,29 @@ public class PurePursuit {
         double yPower =  cosH * outX  +  sinH * outY;
         double headingPower = outHeading; // rotation is already body-centric sign
 
-        System.out.println("X Power: " + xPower);
-        System.out.println("Y Power: " + yPower);
-        System.out.println("Heading Power: " + headingPower);
-        System.out.println("Goal Heading: " + goalPose.getHeading());
+        double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(headingPower);
 
-        setMotorPowers(xPower, yPower, headingPower);
+        if (total > 1) {
+            xPower /= total;
+            yPower /= total;
+            headingPower /= total;
+        }
+
+        setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, scaleFactor * headingPower);
     }
 
     public void followPath(Path2D path) {
+        purePursuitState = PurePursuitState.FOLLOWING_PATH;
+        lookAheadDistance = path.getLookAheadDistance();
+        maxPower = path.getMaxPower();
         currentPath = path;
-        isP2Ping = false;
-        isFollowingPath = true;
-        isDecelerating = false;
         currentPathIndex = 0;
         lastFoundIndex = 0;
+
     }
-    public void p2p(Pose2D pose) {
+    public void pidToPoint(Pose2D pose) {
+        purePursuitState = PurePursuitState.PIDING_TO_POINT;
         goalPose = pose;
-        isP2Ping = true;
-        isFollowingPath = false;
-        isDecelerating = false;
         currentPath = null;
         currentPathIndex = 0;
         lastFoundIndex = 0;
@@ -317,78 +212,43 @@ public class PurePursuit {
     public void update() {
         localizer.update();
         currentPose = localizer.getPose2D();
-        speed = localizer.getSpeed();
-        System.out.println("Speed: " + speed);
-        System.out.println("Pose: X: " + currentPose.getX() + " Y: " + currentPose.getY());
-        System.out.println("Heading: " + currentPose.getHeading());
-        double distanceToEnd = (speed * speed) / (2 * ZPAM);
-        if (currentPath != null) {
-            System.out.println("Distance To Target: " + MathFunctions.getDistance(currentPose, currentPath.getPose(currentPathIndex)));
-        }
+        double speed = localizer.getSpeed();
+        double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
 
-        System.out.println("Distance TO End: " + distanceToEnd);
-        if (isP2Ping) {
-            System.out.println("P2PING");
-        }
-
-        if (isFollowingPath) {
-            if (isDecelerating) {
-                if (speed < PATH_END_SPEED_CONSTRAINT) {
-                    isP2Ping = true;
+        switch (purePursuitState) {
+            case INIT:
+                break;
+            case FOLLOWING_PATH:
+                if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd) || MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < PATH_END_DISTANCE_CONSTRAINT) {
                     goalPose = currentPath.getPose(currentPath.getSize() - 1);
-                    isFollowingPath = false;
-                    isDecelerating = false;
-                    currentPath = null;
-                    currentPathIndex = 0;
-                    lastFoundIndex = 0;
-                    return;
-                }
-                calculateGoalPose();
-                // when distance = decelerationDistance multiplier = 1, when distance = 0 multiplier = 0
-                // double multiplier = MathFunctions.clamp((MathFunctions.getDistance(currentPose, goalPose)/decelerationDistance), -1, 1);
-                // now we find power for acceleration! so smart
-                // wait hold up, wouldn't this just push the robot farther from goal point?
-                // we need to do some math here
-                // so we need to predict where robot will go based on its current position
-                // make acceleration based on predicted position from goal point (made from
-                // i like this idea actually
-                // double multiplier = -1 * getRequiredAcceleration();
-                if (currentPath.isReversed()) {
-                    Pose2D pose = new Pose2D(goalPose.getX(), goalPose.getY(), goalPose.getHeading()-Math.PI);
-                    decelerateToPose(pose);
+                    maxPower = 1.0;
+                    lookAheadDistance = LOOK_AHEAD_DISTANCE;
+                    purePursuitState = PurePursuitState.PIDING_TO_POINT;
                 } else {
-                    decelerateToPose(goalPose);
+                    calculateGoalPose();
+                    if (currentPath.isReversed()) {
+                        moveToPose(MathFunctions.reverseHeading(goalPose), 1);
+                    } else {
+                        moveToPose(goalPose, 1);
+                    }
                 }
-                return;
-            } else if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd)) {
-                // this means we should start decelerating
-                isDecelerating = true;
-                decelerationDistance = distanceToEnd;
-                calculateGoalPose();
-                if (currentPath.isReversed()) {
-                    Pose2D pose = new Pose2D(goalPose.getX(), goalPose.getY(), goalPose.getHeading()-Math.PI);
-                    moveToPose(pose, 1);
+                break;
+            case PIDING_TO_POINT:
+                if (MathFunctions.getDistance(currentPose, goalPose) < PID_TO_POINT_END_DISTANCE_CONSTRAINT && speed < PID_TO_POINT_END_SPEED_CONSTRAINT && Math.abs(MathFunctions.angleWrap(currentPose.getHeading()-goalPose.getHeading())) < PID_TO_POINT_END_HEADING_CONSTRAINT) {
+                    purePursuitState = PurePursuitState.HOLDING_POINT;
                 } else {
-                    moveToPose(goalPose, 1);
+                    calculateGoalPose();
+                    PIDToPose(1.0);
                 }
-                return;
-            } else {
-                calculateGoalPose();
-                if (currentPath.isReversed()) {
-                    Pose2D pose = new Pose2D(goalPose.getX(), goalPose.getY(), goalPose.getHeading()-Math.PI);
-                    moveToPose(pose, 1);
-                } else {
-                    moveToPose(goalPose, 1);
-                }
-                return;
-            }
-        }
-        if (isP2Ping) {
-            PIDToPose();
+                break;
+            case HOLDING_POINT:
+                PIDToPose(HOLD_POINT_SCALE_FACTOR);
+                break;
         }
     }
 
-    public boolean isFinished() {
-        return isP2Ping && !isFollowingPath && MathFunctions.getDistance(currentPose, goalPose) < END_DISTANCE_CONSTRAINT && Math.abs(MathFunctions.angleWrap(currentPose.getHeading()-goalPose.getHeading())) < END_HEADING_CONSTRAINT && speed < END_SPEED_CONSTRAINT;
+    public boolean isBusy() {
+        return (purePursuitState != PurePursuitState.FOLLOWING_PATH && purePursuitState != PurePursuitState.PIDING_TO_POINT);
     }
+
 }

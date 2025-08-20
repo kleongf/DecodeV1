@@ -38,14 +38,14 @@ public class PurePursuitTest5 extends OpMode {
         follower.setStartingPose(startPose);
         stateMachine = new StateMachine(
                 new State()
-                        .onEnter(() -> follower.p2p(pose1))
-                        .transition(new Transition(() -> follower.isFinished())),
+                        .onEnter(() -> follower.pidToPoint(pose1))
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> follower.p2p(pose2))
-                        .transition(new Transition(() -> follower.isFinished())),
+                        .onEnter(() -> follower.pidToPoint(pose2))
+                        .transition(new Transition(() -> follower.isBusy())),
                 new State()
-                        .onEnter(() -> follower.p2p(pose3))
-                        .transition(new Transition(() -> follower.isFinished()))
+                        .onEnter(() -> follower.pidToPoint(pose3))
+                        .transition(new Transition(() -> follower.isBusy()))
         );
     }
     @Override
