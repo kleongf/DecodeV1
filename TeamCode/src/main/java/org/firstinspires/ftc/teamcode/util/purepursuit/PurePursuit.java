@@ -199,7 +199,6 @@ public class PurePursuit {
         currentPath = path;
         currentPathIndex = 0;
         lastFoundIndex = 0;
-
     }
     public void pidToPoint(Pose2D pose) {
         purePursuitState = PurePursuitState.PIDING_TO_POINT;
@@ -248,7 +247,7 @@ public class PurePursuit {
     }
 
     public boolean isBusy() {
-        return (purePursuitState != PurePursuitState.FOLLOWING_PATH && purePursuitState != PurePursuitState.PIDING_TO_POINT);
+        return (purePursuitState == PurePursuitState.FOLLOWING_PATH || purePursuitState == PurePursuitState.PIDING_TO_POINT);
     }
 
 }

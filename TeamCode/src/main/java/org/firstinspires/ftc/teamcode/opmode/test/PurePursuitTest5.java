@@ -42,10 +42,10 @@ public class PurePursuitTest5 extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.pidToPoint(pose2))
-                        .transition(new Transition(() -> follower.isBusy())),
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.pidToPoint(pose3))
-                        .transition(new Transition(() -> follower.isBusy()))
+                        .transition(new Transition(() -> !follower.isBusy()))
         );
     }
     @Override
