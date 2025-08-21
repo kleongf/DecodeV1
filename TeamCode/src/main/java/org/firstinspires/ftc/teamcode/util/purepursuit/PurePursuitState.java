@@ -4,5 +4,5 @@ public enum PurePursuitState {
     FOLLOWING_PATH,
     PIDING_TO_POINT,
     HOLDING_POINT,
-    INIT
+    IDLE
 }

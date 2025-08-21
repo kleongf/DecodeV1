@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class PurePursuit {
-    private PurePursuitState purePursuitState = PurePursuitState.INIT;
+    private PurePursuitState purePursuitState = PurePursuitState.IDLE;
     private Localizer localizer;
     public Pose2D currentPose;
     private Pose2D goalPose;
@@ -215,13 +215,11 @@ public class PurePursuit {
         double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
 
         switch (purePursuitState) {
-            case INIT:
+            case IDLE:
                 break;
             case FOLLOWING_PATH:
                 if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd) || MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < PATH_END_DISTANCE_CONSTRAINT) {
                     goalPose = currentPath.getPose(currentPath.getSize() - 1);
-                    maxPower = 1.0;
-                    lookAheadDistance = LOOK_AHEAD_DISTANCE;
                     purePursuitState = PurePursuitState.PIDING_TO_POINT;
                 } else {
                     calculateGoalPose();
@@ -241,9 +239,21 @@ public class PurePursuit {
                 }
                 break;
             case HOLDING_POINT:
+                // resetting
+                maxPower = 1.0;
+                lookAheadDistance = LOOK_AHEAD_DISTANCE;
                 PIDToPose(HOLD_POINT_SCALE_FACTOR);
                 break;
         }
+    }
+
+    public void breakFollowing() {
+        purePursuitState = PurePursuitState.IDLE;
+        maxPower = 1.0;
+        lookAheadDistance = LOOK_AHEAD_DISTANCE;
+        currentPath = null;
+        currentPathIndex = 0;
+        lastFoundIndex = 0;
     }
 
     public boolean isBusy() {
