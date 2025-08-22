@@ -26,6 +26,9 @@ public class PurePursuit {
     private DcMotorEx frontRight;
     private DcMotorEx rearLeft;
     private DcMotorEx rearRight;
+    private double vx = 0;
+    private double vy = 0;
+    private double vr = 0;
 
     public PurePursuit(HardwareMap hardwareMap) {
         this.localizer = new Localizer(hardwareMap);
@@ -217,6 +220,9 @@ public class PurePursuit {
         switch (purePursuitState) {
             case IDLE:
                 break;
+            case TELEOP_DRIVE:
+                setMotorPowers(vx, vy, vr);
+                break;
             case FOLLOWING_PATH:
                 if ((MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd) || MathFunctions.getDistance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < PATH_END_DISTANCE_CONSTRAINT) {
                     goalPose = currentPath.getPose(currentPath.getSize() - 1);
@@ -247,6 +253,21 @@ public class PurePursuit {
         }
     }
 
+    public void setTeleopMovementVectors(double x, double y, double r) {
+        vx = x;
+        vy = y;
+        vr = r;
+    }
+
+    public void startTeleopDrive() {
+        purePursuitState = PurePursuitState.TELEOP_DRIVE;
+        maxPower = 1.0;
+        lookAheadDistance = LOOK_AHEAD_DISTANCE;
+        currentPath = null;
+        currentPathIndex = 0;
+        lastFoundIndex = 0;
+    }
+
     public void breakFollowing() {
         purePursuitState = PurePursuitState.IDLE;
         maxPower = 1.0;
@@ -259,5 +280,4 @@ public class PurePursuit {
     public boolean isBusy() {
         return (purePursuitState == PurePursuitState.FOLLOWING_PATH || purePursuitState == PurePursuitState.PIDING_TO_POINT);
     }
-
 }

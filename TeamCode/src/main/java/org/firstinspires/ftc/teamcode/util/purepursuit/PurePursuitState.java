@@ -4,5 +4,6 @@ public enum PurePursuitState {
     FOLLOWING_PATH,
     PIDING_TO_POINT,
     HOLDING_POINT,
-    IDLE
+    IDLE,
+    TELEOP_DRIVE
 }
