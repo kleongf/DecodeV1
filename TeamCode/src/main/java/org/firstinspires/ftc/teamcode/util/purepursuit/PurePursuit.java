@@ -2,10 +2,13 @@ package org.firstinspires.ftc.teamcode.util.purepursuit;
 
 import org.firstinspires.ftc.teamcode.util.controllers.PIDFController;
 import static org.firstinspires.ftc.teamcode.util.purepursuit.PurePursuitConstants.*;
+
+import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 public class PurePursuit {
     private PurePursuitState purePursuitState = PurePursuitState.IDLE;
@@ -26,6 +29,7 @@ public class PurePursuit {
     private DcMotorEx frontRight;
     private DcMotorEx rearLeft;
     private DcMotorEx rearRight;
+    private VoltageSensor voltageSensor;
     private double vx = 0;
     private double vy = 0;
     private double vr = 0;
@@ -62,11 +66,19 @@ public class PurePursuit {
         this.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         this.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         this.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        this.voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
     }
 
     public void setStartingPose(Pose startPose) {
         currentPose = new Pose2D(startPose.getX(), startPose.getY(), startPose.getHeading());
         localizer.setStartPose(startPose);
+    }
+
+
+
+    private double getVoltageScaler() {
+        return (NOMINAL_VOLTAGE - (NOMINAL_VOLTAGE * FRICTION_CONSTANT)) / (voltageSensor.getVoltage() - ((Math.pow(NOMINAL_VOLTAGE, 2) / voltageSensor.getVoltage()) * FRICTION_CONSTANT));
     }
 
     private void calculateGoalPose() {
@@ -165,6 +177,14 @@ public class PurePursuit {
         double frontRightPower = (y - x - rx) / denominator;
         double backRightPower = (y + x - rx) / denominator;
 
+        if ((VOLTAGE_COMP_AUTO && purePursuitState != PurePursuitState.TELEOP_DRIVE) || (VOLTAGE_COMP_TELEOP && purePursuitState == PurePursuitState.TELEOP_DRIVE)) {
+            double scaler = getVoltageScaler();
+            frontLeftPower *= scaler;
+            backLeftPower *= scaler;
+            frontRightPower *= scaler;
+            backRightPower *= scaler;
+        }
+
         frontLeft.setPower(MathFunctions.clamp(frontLeftPower, -maxPower, maxPower));
         rearLeft.setPower(MathFunctions.clamp(backLeftPower, -maxPower, maxPower));
         frontRight.setPower(MathFunctions.clamp(frontRightPower, -maxPower, maxPower));
@@ -253,7 +273,7 @@ public class PurePursuit {
         }
     }
 
-    public void setTeleopMovementVectors(double x, double y, double r) {
+    public void setTeleopMovement(double x, double y, double r) {
         vx = x;
         vy = y;
         vr = r;
@@ -266,6 +286,11 @@ public class PurePursuit {
         currentPath = null;
         currentPathIndex = 0;
         lastFoundIndex = 0;
+
+        this.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void breakFollowing() {

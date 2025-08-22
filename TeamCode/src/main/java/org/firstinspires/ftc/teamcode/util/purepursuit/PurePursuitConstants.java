@@ -5,6 +5,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class PurePursuitConstants {
     // path end constraints: what distance/speed we can go at before p2ping
     // p2p end constraint: what distance/speed we need to be at before holding point
+    public static boolean VOLTAGE_COMP_AUTO = true;
+    public static boolean VOLTAGE_COMP_TELEOP = true;
+    public static double FRICTION_CONSTANT = 0.15;
+    public static double NOMINAL_VOLTAGE = 13;
+
     public static double LOOK_AHEAD_DISTANCE = 10;
     public static double PATH_END_DISTANCE_CONSTRAINT = 5;
     public static double PID_TO_POINT_END_SPEED_CONSTRAINT = 1;
