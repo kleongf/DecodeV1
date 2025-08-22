@@ -8,7 +8,7 @@ public class PurePursuitConstants {
     public static boolean VOLTAGE_COMP_AUTO = true;
     public static boolean VOLTAGE_COMP_TELEOP = true;
     public static double FRICTION_CONSTANT = 0.15;
-    public static double NOMINAL_VOLTAGE = 13;
+    public static double NOMINAL_VOLTAGE = 12.7;
 
     public static double LOOK_AHEAD_DISTANCE = 10;
     public static double PATH_END_DISTANCE_CONSTRAINT = 5;
