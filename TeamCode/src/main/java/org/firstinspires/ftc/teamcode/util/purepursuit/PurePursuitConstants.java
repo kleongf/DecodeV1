@@ -17,6 +17,9 @@ public class PurePursuitConstants {
     public static double PID_TO_POINT_END_HEADING_CONSTRAINT = Math.toRadians(3);
     public static double HOLD_POINT_SCALE_FACTOR = 0.3;
     public static double MAX_ACCELERATION = 100; // in/s^2, same as deceleration
+    // TODO: could probably replace the feedforward with frictionconstant
+    public static double LONGITUDINAL_FEEDFORWARD = 0.1;
+    public static double LATERAL_FEEDFORWARD = 0.1;
     public static PIDFCoefficients LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.12, 0, 0.01, 0);
     public static PIDFCoefficients LATERAL_COEFFICIENTS = new PIDFCoefficients(0.06, 0, 0.005, 0);
     public static PIDFCoefficients HEADING_COEFFICIENTS = new PIDFCoefficients(1, 0, 0.04, 0);
