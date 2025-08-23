@@ -194,6 +194,13 @@ public class PurePursuit {
     private void PIDToPose(double scaleFactor) {
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
         double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
+        // this is the L in pdfl, more commonly known as Ks
+        if (Math.abs(currentPose.getX()-goalPose.getX()) > 2*PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outX) < 0.1) {
+            outX = Math.signum(outX) * 0.1;
+        }
+        if (Math.abs(currentPose.getY()-goalPose.getY()) > 2*PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outY) < 0.1) {
+            outY = Math.signum(outY) * 0.1;
+        }
         double outHeading = -headingController.calculate(MathFunctions.angleWrap(currentPose.getHeading()), MathFunctions.angleWrap(goalPose.getHeading()));
 
         // 4) Convert GLOBAL outputs to ROBOT-LOCAL frame using current heading:
@@ -249,7 +256,7 @@ public class PurePursuit {
                     purePursuitState = PurePursuitState.PIDING_TO_POINT;
                 } else {
                     calculateGoalPose();
-                    if (currentPath.isReversed() && !currentPath.isTangent()) {
+                    if (currentPath.isReversed() && currentPath.isTangent()) {
                         moveToPose(MathFunctions.reverseHeading(goalPose), 1);
                     } else {
                         moveToPose(goalPose, 1);
