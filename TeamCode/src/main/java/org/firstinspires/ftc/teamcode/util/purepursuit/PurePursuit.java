@@ -249,7 +249,7 @@ public class PurePursuit {
                     purePursuitState = PurePursuitState.PIDING_TO_POINT;
                 } else {
                     calculateGoalPose();
-                    if (currentPath.isReversed()) {
+                    if (currentPath.isReversed() && !currentPath.isTangent()) {
                         moveToPose(MathFunctions.reverseHeading(goalPose), 1);
                     } else {
                         moveToPose(goalPose, 1);
@@ -260,7 +260,7 @@ public class PurePursuit {
                 if (MathFunctions.getDistance(currentPose, goalPose) < PID_TO_POINT_END_DISTANCE_CONSTRAINT && speed < PID_TO_POINT_END_SPEED_CONSTRAINT && Math.abs(MathFunctions.angleWrap(currentPose.getHeading()-goalPose.getHeading())) < PID_TO_POINT_END_HEADING_CONSTRAINT) {
                     purePursuitState = PurePursuitState.HOLDING_POINT;
                 } else {
-                    calculateGoalPose();
+                    // calculateGoalPose();
                     PIDToPose(1.0);
                 }
                 break;
