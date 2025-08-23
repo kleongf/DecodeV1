@@ -195,10 +195,10 @@ public class PurePursuit {
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
         double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
         // this is the L in pdfl, more commonly known as Ks
-        if (Math.abs(currentPose.getX()-goalPose.getX()) > 2*PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outX) < 0.1) {
+        if (Math.abs(currentPose.getX()-goalPose.getX()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outX) < 0.1) {
             outX = Math.signum(outX) * 0.1;
         }
-        if (Math.abs(currentPose.getY()-goalPose.getY()) > 2*PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outY) < 0.1) {
+        if (Math.abs(currentPose.getY()-goalPose.getY()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outY) < 0.1) {
             outY = Math.signum(outY) * 0.1;
         }
         double outHeading = -headingController.calculate(MathFunctions.angleWrap(currentPose.getHeading()), MathFunctions.angleWrap(goalPose.getHeading()));
