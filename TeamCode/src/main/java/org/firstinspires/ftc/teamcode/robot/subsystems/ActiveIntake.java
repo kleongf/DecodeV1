@@ -41,6 +41,8 @@ public class ActiveIntake extends Subsystem {
         targetColor = color;
     }
 
+    public String getTargetColor() {return targetColor;}
+
     private boolean isBlue(float[] values) {
         return inRange(values[0], 100, 130) && inRange(values[1], 100, 255) && inRange(values[2], 100, 255);
     }

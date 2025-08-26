@@ -51,6 +51,9 @@ public class IntakeTeleop extends OpMode {
         }
 
         activeIntake.update();
+
+        telemetry.addData("current color", activeIntake.getTargetColor());
+        telemetry.update();
     }
 
     @Override
