@@ -192,15 +192,32 @@ public class PurePursuit {
     }
 
     private void PIDToPose(double scaleFactor) {
+        // gain scheduling: use less powerful coefficients when far, more powerful d when close
+        if (MathFunctions.getDistance(currentPose, goalPose) > 5) {
+            longitudinalController.setPIDF(FAR_LONGITUDINAL_COEFFICIENTS.kp, FAR_LONGITUDINAL_COEFFICIENTS.ki, FAR_LONGITUDINAL_COEFFICIENTS.kd, FAR_LONGITUDINAL_COEFFICIENTS.kf);
+            lateralController.setPIDF(FAR_LATERAL_COEFFICIENTS.kp, FAR_LATERAL_COEFFICIENTS.ki, FAR_LATERAL_COEFFICIENTS.kd, FAR_LATERAL_COEFFICIENTS.kf);
+        } else {
+            longitudinalController.setPIDF(LONGITUDINAL_COEFFICIENTS.kp, LONGITUDINAL_COEFFICIENTS.ki, LONGITUDINAL_COEFFICIENTS.kd, LONGITUDINAL_COEFFICIENTS.kf);
+            lateralController.setPIDF(LATERAL_COEFFICIENTS.kp, LATERAL_COEFFICIENTS.ki, LATERAL_COEFFICIENTS.kd, LATERAL_COEFFICIENTS.kf);
+        }
+
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
         double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
-        // this is the L in pdfl, more commonly known as Ks
-        if (Math.abs(currentPose.getX()-goalPose.getX()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outX) < LONGITUDINAL_FEEDFORWARD) {
+        // let's say velocity is 12, dx = vo^2/2a = less than 1 inch if u think about it (100)/(2*180)
+        // apply lower limit when velocity to target < some number AND close to target
+        if (Math.abs(localizer.getVelocity().getX()) < 10 && Math.abs(currentPose.getX()-goalPose.getX()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outX) < LONGITUDINAL_FEEDFORWARD) {
             outX = Math.signum(outX) * LONGITUDINAL_FEEDFORWARD;
         }
-        if (Math.abs(currentPose.getY()-goalPose.getY()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outY) < LATERAL_FEEDFORWARD) {
+        if (Math.abs(localizer.getVelocity().getY()) < 10 && Math.abs(currentPose.getY()-goalPose.getY()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outY) < LATERAL_FEEDFORWARD) {
             outY = Math.signum(outY) * LATERAL_FEEDFORWARD;
         }
+        // this is the L in pdfl, more commonly known as Ks
+//        if (Math.abs(currentPose.getX()-goalPose.getX()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outX) < LONGITUDINAL_FEEDFORWARD) {
+//            outX = Math.signum(outX) * LONGITUDINAL_FEEDFORWARD;
+//        }
+//        if (Math.abs(currentPose.getY()-goalPose.getY()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outY) < LATERAL_FEEDFORWARD) {
+//            outY = Math.signum(outY) * LATERAL_FEEDFORWARD;
+//        }
         double outHeading = -headingController.calculate(MathFunctions.angleWrap(currentPose.getHeading()), MathFunctions.angleWrap(goalPose.getHeading()));
 
         // 4) Convert GLOBAL outputs to ROBOT-LOCAL frame using current heading:
