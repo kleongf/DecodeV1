@@ -20,8 +20,8 @@ public class PurePursuitConstants {
     // TODO: could probably replace the feedforward with frictionconstant
     public static double LONGITUDINAL_FEEDFORWARD = 0.1;
     public static double LATERAL_FEEDFORWARD = 0.1;
-    public static PIDFCoefficients LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.12, 0, 0.012, 0);
-    public static PIDFCoefficients LATERAL_COEFFICIENTS = new PIDFCoefficients(0.06, 0, 0.006, 0);
+    public static PIDFCoefficients LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.12, 0, 0.0, 0); // both were 0.1p earlier
+    public static PIDFCoefficients LATERAL_COEFFICIENTS = new PIDFCoefficients(0.06, 0, 0.00, 0);
 
     public static PIDFCoefficients FAR_LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.1, 0, 0.005, 0);
     public static PIDFCoefficients FAR_LATERAL_COEFFICIENTS = new PIDFCoefficients(0.05, 0, 0.0001, 0);

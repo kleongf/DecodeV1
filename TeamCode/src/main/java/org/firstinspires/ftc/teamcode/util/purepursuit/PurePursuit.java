@@ -203,14 +203,27 @@ public class PurePursuit {
 
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
         double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
+
+        if (MathFunctions.getDistance(currentPose, goalPose) <= 5) {
+            double vx = localizer.getVelocity().getX();
+            double vy = localizer.getVelocity().getY();
+
+            // negative quadratic feedforward
+            double dampX = 0.0001 * (-vx * Math.abs(vx));
+            double dampY = 0.0001 * (-vy * Math.abs(vy));
+
+            outX += dampX;
+            outY += dampY;
+        }
+
         // let's say velocity is 12, dx = vo^2/2a = less than 1 inch if u think about it (100)/(2*180)
         // apply lower limit when velocity to target < some number AND close to target
-        if (Math.abs(localizer.getVelocity().getX()) < 10 && Math.abs(currentPose.getX()-goalPose.getX()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outX) < LONGITUDINAL_FEEDFORWARD) {
-            outX = Math.signum(outX) * LONGITUDINAL_FEEDFORWARD;
-        }
-        if (Math.abs(localizer.getVelocity().getY()) < 10 && Math.abs(currentPose.getY()-goalPose.getY()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outY) < LATERAL_FEEDFORWARD) {
-            outY = Math.signum(outY) * LATERAL_FEEDFORWARD;
-        }
+//        if (Math.abs(localizer.getVelocity().getX()) < 10 && Math.abs(currentPose.getX()-goalPose.getX()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outX) < LONGITUDINAL_FEEDFORWARD) {
+//            outX = Math.signum(outX) * LONGITUDINAL_FEEDFORWARD;
+//        }
+//        if (Math.abs(localizer.getVelocity().getY()) < 10 && Math.abs(currentPose.getY()-goalPose.getY()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outY) < LATERAL_FEEDFORWARD) {
+//            outY = Math.signum(outY) * LATERAL_FEEDFORWARD;
+//        }
         // this is the L in pdfl, more commonly known as Ks
 //        if (Math.abs(currentPose.getX()-goalPose.getX()) > PID_TO_POINT_END_DISTANCE_CONSTRAINT && Math.abs(outX) < LONGITUDINAL_FEEDFORWARD) {
 //            outX = Math.signum(outX) * LONGITUDINAL_FEEDFORWARD;
