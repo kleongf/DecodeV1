@@ -23,8 +23,8 @@ public class PurePursuitConstants {
     public static PIDFCoefficients LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.12, 0, 0.0, 0); // both were 0.1p earlier
     public static PIDFCoefficients LATERAL_COEFFICIENTS = new PIDFCoefficients(0.06, 0, 0.00, 0);
 
-    public static PIDFCoefficients FAR_LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.1, 0, 0.005, 0);
-    public static PIDFCoefficients FAR_LATERAL_COEFFICIENTS = new PIDFCoefficients(0.05, 0, 0.0001, 0);
+    public static PIDFCoefficients FAR_LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.1, 0, 0.001, 0);
+    public static PIDFCoefficients FAR_LATERAL_COEFFICIENTS = new PIDFCoefficients(0.05, 0, 0.0005, 0);
     public static PIDFCoefficients HEADING_COEFFICIENTS = new PIDFCoefficients(1, 0, 0.04, 0);
 
     public static String leftFrontMotorName = "front_left_drive";
