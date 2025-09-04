@@ -193,7 +193,7 @@ public class PurePursuit {
 
     private void PIDToPose(double scaleFactor) {
         // gain scheduling: use less powerful coefficients when far, more powerful d when close
-        if (MathFunctions.getDistance(currentPose, goalPose) > 5) {
+        if (MathFunctions.getDistance(currentPose, goalPose) > 10) {
             longitudinalController.setPIDF(FAR_LONGITUDINAL_COEFFICIENTS.kp, FAR_LONGITUDINAL_COEFFICIENTS.ki, FAR_LONGITUDINAL_COEFFICIENTS.kd, FAR_LONGITUDINAL_COEFFICIENTS.kf);
             lateralController.setPIDF(FAR_LATERAL_COEFFICIENTS.kp, FAR_LATERAL_COEFFICIENTS.ki, FAR_LATERAL_COEFFICIENTS.kd, FAR_LATERAL_COEFFICIENTS.kf);
         } else {
@@ -204,13 +204,13 @@ public class PurePursuit {
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
         double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
 
-        if (MathFunctions.getDistance(currentPose, goalPose) <= 5) {
+        if (MathFunctions.getDistance(currentPose, goalPose) <= 10) {
             double vx = localizer.getVelocity().getX();
             double vy = localizer.getVelocity().getY();
 
             // negative quadratic feedforward
-            double dampX = 0.001 * (-vx * Math.abs(vx));
-            double dampY = 0.001 * (-vy * Math.abs(vy));
+            double dampX = 0.0003 * (-vx * Math.abs(vx));
+            double dampY = 0.0003 * (-vy * Math.abs(vy));
 
             outX += dampX;
             outY += dampY;
