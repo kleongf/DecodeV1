@@ -11,20 +11,21 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobot;
 import org.firstinspires.ftc.teamcode.robot.subsystems.ActiveIntake;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-@TeleOp(name="Active Intake Teleop")
+@TeleOp(name="Intake Teleop")
 public class IntakeTeleop extends OpMode {
-    private ActiveIntake activeIntake;
+    private Intake intake;
     private SmartGamepad gp1;
 
 
     @Override
     public void init() {
-        activeIntake = new ActiveIntake(hardwareMap);
+        intake = new Intake(hardwareMap);
         gp1 = new SmartGamepad(gamepad1);
     }
     @Override
@@ -32,32 +33,33 @@ public class IntakeTeleop extends OpMode {
         gp1.update();
 
         if (gp1.leftBumperPressed()) {
-            activeIntake.setRunning(true);
+            intake.intakeOn = true;
         }
         if (gp1.rightBumperPressed()) {
-            activeIntake.setRunning(false);
+            intake.intakeOn = false;
         }
 
-        if (gp1.x()) {
-            activeIntake.setTargetColor("red");
+        if (gp1.dpadUpPressed()) {
+            intake.releaseCenter();
         }
 
-        if (gp1.y()) {
-            activeIntake.setTargetColor("blue");
+        if (gp1.dpadLeftPressed()) {
+            intake.releaseLeft();
         }
 
-        if (gp1.a()) {
-            activeIntake.setTargetColor("yellow");
+        if (gp1.dpadRightPressed()) {
+            intake.releaseRight();
         }
 
-        activeIntake.update();
+        if (gp1.dpadDownPressed()) {
+            intake.reset();
+        }
 
-        telemetry.addData("current color", activeIntake.getTargetColor());
-        telemetry.update();
+        intake.update();
     }
 
     @Override
     public void start() {
-        activeIntake.start();
+        intake.start();
     }
 }

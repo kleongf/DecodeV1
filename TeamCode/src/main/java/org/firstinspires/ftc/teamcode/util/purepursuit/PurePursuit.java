@@ -208,7 +208,7 @@ public class PurePursuit {
             double vx = localizer.getVelocity().getX();
             double vy = localizer.getVelocity().getY();
 
-            // negative quadratic feedforward
+            // negative quadratic feedforward?
             double dampX = 0.0002 * (-vx * Math.abs(vx));
             double dampY = 0.0002 * (-vy * Math.abs(vy));
 
