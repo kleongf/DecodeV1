@@ -27,7 +27,7 @@ public class Intake extends Subsystem {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     @Override
@@ -71,4 +71,18 @@ public class Intake extends Subsystem {
     public void releaseCenter() {
         centerLatch.setPosition(0.5);
     }
+
+//    public void release(String color) {
+//        if (color.equals(getLeftColor())) {
+//            releaseLeft();
+//        } else if (color.equals(getRightColor())) {
+//            releaseRight();
+//        } else if (color.equals(getCenterColor())) {
+//            releaseCenter();
+//        }
+//    }
+//
+//    public String getLeftColor() {
+//        // returns the left color? "g" or "p" or "n", n for null
+//    }
 }

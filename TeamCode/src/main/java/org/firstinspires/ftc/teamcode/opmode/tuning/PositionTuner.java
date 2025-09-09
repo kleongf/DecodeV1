@@ -1,10 +1,51 @@
 package org.firstinspires.ftc.teamcode.opmode.tuning;
 
-public class PositionTuner {
-    // the gist is pretty simple
-    // essentially, you initialize a new robot but don't initialize its positions
-    // the robot class will have an initPositions() method, so don't call that.
+import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 
-    // next, you have a boolean for each subsystem. if it is on, then it will move to its set targets
-    // thats kinda it, loop at PositionTuning.java for more information
+@Config
+@TeleOp(name="Position Tuner")
+public class PositionTuner extends OpMode {
+    public Servo leftLatch;
+    public Servo rightLatch;
+    public Servo centerLatch;
+    public Servo leftElbow;
+    public Servo rightElbow;
+    public Servo shooterServo;
+    public static double leftLatchTarget = 0;
+    public static double rightLatchTarget = 0;
+    public static double centerLatchTarget = 0;
+    public static double leftElbowTarget = 0;
+    public static double rightElbowTarget = 0;
+    public static double shooterTarget = 0;
+
+    @Override
+    public void init() {
+        leftLatch = hardwareMap.get(Servo.class, "leftLatch");
+        rightLatch = hardwareMap.get(Servo.class, "rightLatch");
+        centerLatch = hardwareMap.get(Servo.class, "centerLatch");
+
+        leftElbow = hardwareMap.get(Servo.class, "leftElbow");
+        rightElbow = hardwareMap.get(Servo.class, "rightElbow");
+        shooterServo = hardwareMap.get(Servo.class, "shooterServo");
+
+        leftLatch.setDirection(Servo.Direction.FORWARD);
+        rightLatch.setDirection(Servo.Direction.FORWARD);
+        centerLatch.setDirection(Servo.Direction.FORWARD);
+        leftElbow.setDirection(Servo.Direction.FORWARD);
+        rightElbow.setDirection(Servo.Direction.FORWARD);
+        shooterServo.setDirection(Servo.Direction.FORWARD);
+    }
+
+    @Override
+    public void loop() {
+        leftLatch.setPosition(leftLatchTarget);
+        rightLatch.setPosition(rightLatchTarget);
+        centerLatch.setPosition(centerLatchTarget);
+        leftElbow.setPosition(leftElbowTarget);
+        rightElbow.setPosition(rightElbowTarget);
+        shooterServo.setPosition(shooterTarget);
+    }
 }
