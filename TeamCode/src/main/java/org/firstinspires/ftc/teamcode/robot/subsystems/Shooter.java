@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class Shooter extends Subsystem {
     // we gonna pid to velocity later
     private double targetVelocity = 0;
-    private boolean shooterOn = false;
+    public boolean shooterOn = false;
     // we might make this two cr servos with gecko wheels
     private Servo shooterServo;
     private DcMotorEx shooterMotorTop;
@@ -37,6 +37,14 @@ public class Shooter extends Subsystem {
             shooterMotorTop.setPower(1);
             shooterMotorBottom.setPower(1);
         }
+    }
+
+    public void launch() {
+        shooterServo.setPosition(0.5);
+    }
+
+    public void reset() {
+        shooterServo.setPosition(0.1);
     }
 
     @Override

@@ -72,17 +72,28 @@ public class Intake extends Subsystem {
         centerLatch.setPosition(0.5);
     }
 
-//    public void release(String color) {
-//        if (color.equals(getLeftColor())) {
-//            releaseLeft();
-//        } else if (color.equals(getRightColor())) {
-//            releaseRight();
-//        } else if (color.equals(getCenterColor())) {
-//            releaseCenter();
-//        }
-//    }
-//
-//    public String getLeftColor() {
-//        // returns the left color? "g" or "p" or "n", n for null
-//    }
+    public void release(String color) {
+        if (color.equals(getLeftColor())) {
+            releaseLeft();
+        } else if (color.equals(getRightColor())) {
+            releaseRight();
+        } else if (color.equals(getCenterColor())) {
+            releaseCenter();
+        }
+    }
+
+    public String getLeftColor() {
+        // returns the left color? "g" or "p" or "n", n for null
+        return "g";
+    }
+
+    public String getRightColor() {
+        // returns the left color? "g" or "p" or "n", n for null
+        return "p";
+    }
+
+    public String getCenterColor() {
+        // returns the left color? "g" or "p" or "n", n for null
+        return "p";
+    }
 }

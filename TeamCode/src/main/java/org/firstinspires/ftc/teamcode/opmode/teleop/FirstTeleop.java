@@ -4,14 +4,16 @@ import static java.lang.Thread.sleep;
 
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobot;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-
-public class ExampleTeleop extends OpMode {
+@TeleOp(name="first teleop")
+public class FirstTeleop extends OpMode {
     private VoltageCompFollower follower;
     private double longitudinalSpeed = 1.0, lateralSpeed = 1.0, rotationSpeed = 1.0;
     private TeleopRobot robot;
@@ -39,17 +41,25 @@ public class ExampleTeleop extends OpMode {
     }
     @Override
     public void loop() {
-        // wait i have this brilliant idea
-        // so we can have another statemachine here
-        // we can use a button for cycling. Transition(() -> gp1.rightBumperPressed())
-        // and a back button: transition(() -> gp1.xPressed()), "name of prev state"
+        // TODO: have a robot is busy thing so that commands dont collide
         gp1.update();
         gp2.update();
 
         if (gp1.leftBumperPressed()) {
-            robot.scoreSpecimen.start();
+            robot.prepareIntake.start();
         }
 
+        if (gp1.rightBumperPressed()) {
+            robot.prepareShooting.start();
+        }
+
+        if (gp1.xPressed()) {
+            robot.shootGreen.start();
+        }
+
+        if (gp1.yPressed()) {
+            robot.shootPurple.start();
+        }
 
         follower.update();
         follower.setTeleOpMovementVectors(
