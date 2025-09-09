@@ -15,7 +15,7 @@ public class TeleopRobot {
     private final ArrayList<Subsystem> subsystems;
     private final BulkRead bulkRead;
     private final Intake intake;
-    private final Shooter shooter;
+    public final Shooter shooter;
 
     private final ArrayList<StateMachine> commands;
     public StateMachine prepareIntake;

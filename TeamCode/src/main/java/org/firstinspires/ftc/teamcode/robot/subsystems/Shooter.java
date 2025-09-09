@@ -12,6 +12,7 @@ public class Shooter extends Subsystem {
     public boolean shooterOn = false;
     // we might make this two cr servos with gecko wheels
     private Servo shooterServo;
+    private Servo pitchServo;
     private DcMotorEx shooterMotorTop;
     private DcMotorEx shooterMotorBottom;
     public Shooter(HardwareMap hardwareMap) {
@@ -29,6 +30,8 @@ public class Shooter extends Subsystem {
 
         shooterServo = hardwareMap.get(Servo.class, "shooterServo");
         shooterServo.setPosition(0);
+
+        pitchServo = hardwareMap.get(Servo.class, "pitchServo");
     }
     @Override
     public void update() {
@@ -45,6 +48,15 @@ public class Shooter extends Subsystem {
 
     public void reset() {
         shooterServo.setPosition(0.1);
+    }
+
+    public void setShooterPitchDegrees(double angleDegrees) {
+        // idk
+        pitchServo.setPosition(0.1 + angleDegrees/90);
+    }
+
+    public void setTargetVelocity(double t) {
+        targetVelocity = t;
     }
 
     @Override
