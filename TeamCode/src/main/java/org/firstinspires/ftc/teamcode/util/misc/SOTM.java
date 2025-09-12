@@ -6,9 +6,10 @@ import com.pedropathing.pathgen.Vector;
 import org.firstinspires.ftc.teamcode.util.purepursuit.Pose2D;
 
 public class SOTM {
-    private final double g = 9.81; // gravity. maybe i should convert everything to inches/s^2.
-    private final double zi = 0.3; // meters the shooter is above ground. again prob inches
-    private final double zf = 1.5; // target height maybe should be inches
+    private final double g = 386.2205; // gravity, in/s^2
+    private final double zi = 12; // in. our shooter height above ground
+    private final double zf = 48; // in. the goal height
+    private final double flywheelRadius = 1.5; // flywheel radius, in
     private final Pose goal;
     public SOTM(Pose goal) {
         this.goal = goal;
@@ -25,7 +26,10 @@ public class SOTM {
         double vMin = vTheta[0];
         double thetaMin = vTheta[1];
 
-        // TODO: could result in a div0 error
+        if ((vMin * Math.cos(thetaMin)) == 0) {
+            // if we return 0, 0, 0, then just ignore it because its an error.
+            return new double[] {0, 0, 0};
+        }
         double t = (dz) / (vMin * Math.cos(thetaMin));
 
         double driftX = robotVelocity.getXComponent() * t;
@@ -36,11 +40,11 @@ public class SOTM {
         double distEff = Math.hypot(dx, dy);
         double rho = Math.atan2(dEffY, dEffX);
 
-        double[] vThetaEff = computeMinSpeedAngle(distEff, dz);
-        double vMinEff = vThetaEff[0];
-        double thetaMinEff = vThetaEff[1];
-
-        return new double[]{rho, thetaMinEff, vMinEff};
+        double[] vThetaCorr = computeMinSpeedAngle(distEff, dz);
+        // returns rho (turret angle), theta (pitch angle), v (flywheel angular velocity, in/s).
+        // v = r * omega, so omega = v/r.
+        // for rho, we can just add this to the robot heading then normalize it with MathFunctions.
+        return new double[] {rho, vThetaCorr[1], (vThetaCorr[0] / flywheelRadius)};
     }
 
     public double[] computeMinSpeedAngle(double dist, double dz) {
