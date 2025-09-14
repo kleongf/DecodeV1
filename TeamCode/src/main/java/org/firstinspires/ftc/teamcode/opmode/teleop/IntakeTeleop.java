@@ -11,21 +11,22 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobot;
 import org.firstinspires.ftc.teamcode.robot.subsystems.ActiveIntake;
+import org.firstinspires.ftc.teamcode.robot.subsystems.BetterIntake;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-@TeleOp(name="Intake Teleop")
+@TeleOp(name="Intake Teleop WORKING")
 public class IntakeTeleop extends OpMode {
-    private Intake intake;
+    private BetterIntake intake;
     private SmartGamepad gp1;
 
 
     @Override
     public void init() {
-        intake = new Intake(hardwareMap);
+        intake = new BetterIntake(hardwareMap);
         gp1 = new SmartGamepad(gamepad1);
     }
     @Override
@@ -33,26 +34,7 @@ public class IntakeTeleop extends OpMode {
         gp1.update();
 
         if (gp1.leftBumperPressed()) {
-            intake.intakeOn = true;
-        }
-        if (gp1.rightBumperPressed()) {
-            intake.intakeOn = false;
-        }
-
-        if (gp1.dpadUpPressed()) {
-            intake.releaseCenter();
-        }
-
-        if (gp1.dpadLeftPressed()) {
-            intake.releaseLeft();
-        }
-
-        if (gp1.dpadRightPressed()) {
-            intake.releaseRight();
-        }
-
-        if (gp1.dpadDownPressed()) {
-            intake.reset();
+            intake.intakeOn = !intake.intakeOn;
         }
 
         intake.update();

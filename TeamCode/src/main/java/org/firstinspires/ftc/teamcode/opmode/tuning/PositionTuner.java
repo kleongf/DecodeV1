@@ -25,33 +25,34 @@ public class PositionTuner extends OpMode {
 
     @Override
     public void init() {
-        leftLatch = hardwareMap.get(Servo.class, "leftLatch");
-        rightLatch = hardwareMap.get(Servo.class, "rightLatch");
-        centerLatch = hardwareMap.get(Servo.class, "centerLatch");
+//        leftLatch = hardwareMap.get(Servo.class, "leftLatch");
+//        rightLatch = hardwareMap.get(Servo.class, "rightLatch");
+//        centerLatch = hardwareMap.get(Servo.class, "centerLatch");
 
         leftElbow = hardwareMap.get(Servo.class, "leftElbow");
+        // TODO: leftelbow down: 0.12, up = 0.4
         rightElbow = hardwareMap.get(Servo.class, "rightElbow");
-        shooterServo = hardwareMap.get(Servo.class, "shooterServo");
+//        shooterServo = hardwareMap.get(Servo.class, "shooterServo");
+//
+//        pitchServo = hardwareMap.get(Servo.class, "pitchServo");
 
-        pitchServo = hardwareMap.get(Servo.class, "pitchServo");
-
-        leftLatch.setDirection(Servo.Direction.FORWARD);
-        rightLatch.setDirection(Servo.Direction.FORWARD);
-        centerLatch.setDirection(Servo.Direction.FORWARD);
+//        leftLatch.setDirection(Servo.Direction.FORWARD);
+//        rightLatch.setDirection(Servo.Direction.FORWARD);
+//        centerLatch.setDirection(Servo.Direction.FORWARD);
         leftElbow.setDirection(Servo.Direction.FORWARD);
         rightElbow.setDirection(Servo.Direction.FORWARD);
-        shooterServo.setDirection(Servo.Direction.FORWARD);
-        pitchServo.setDirection(Servo.Direction.FORWARD);
+//        shooterServo.setDirection(Servo.Direction.FORWARD);
+//        pitchServo.setDirection(Servo.Direction.FORWARD);
     }
 
     @Override
     public void loop() {
-        leftLatch.setPosition(leftLatchTarget);
-        rightLatch.setPosition(rightLatchTarget);
-        centerLatch.setPosition(centerLatchTarget);
+//        leftLatch.setPosition(leftLatchTarget);
+//        rightLatch.setPosition(rightLatchTarget);
+//        centerLatch.setPosition(centerLatchTarget);
         leftElbow.setPosition(leftElbowTarget);
         rightElbow.setPosition(rightElbowTarget);
-        shooterServo.setPosition(shooterTarget);
-        pitchServo.setPosition(pitchTarget);
+//        shooterServo.setPosition(shooterTarget);
+//        pitchServo.setPosition(pitchTarget);
     }
 }

@@ -22,27 +22,30 @@ public class TBHTuner extends OpMode {
 
     public DcMotorEx shooterMotor;
 
-        @Override
-        public void init() {
+    @Override
+    public void init() {
             telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
             controller = new TBHController(0, 1);
 
             shooterMotor = hardwareMap.get(DcMotorEx.class, "shooterMotor");
             shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            shooterMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        }
+            // shooterMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            // shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        // TODO: max velocity is 2800 ticks/s, best kG value 0.00001
+    }
 
         @Override
         public void loop() {
             controller.setGain(kG);
             // TODO: keep this in mind
             // theoretically, since there are 2pi radians in a circle, max rpm = 2pi * (6000/60) = 200pi or about 628 rad/s.
-            double currentVel = shooterMotor.getVelocity(AngleUnit.RADIANS);
+            double currentVel = shooterMotor.getVelocity();
             controller.setTarget(target);
             double power = controller.calculate(currentVel);
             shooterMotor.setPower(power);
+
+            telemetry.addData("power", power);
 
             telemetry.addData("current velocity", currentVel);
             telemetry.addData("target", target);
