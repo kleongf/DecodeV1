@@ -53,6 +53,10 @@ public class BetterShooter extends Subsystem {
         targetVelocity = t;
     }
 
+    public double getCurrentVelocity() {
+        return shooterMotor.getVelocity();
+    }
+
     public void setTargetVelocityInPerSec(double t) {
         // v = r * omega
         // omega = velocity (ticks) /
