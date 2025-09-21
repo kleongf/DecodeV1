@@ -26,6 +26,12 @@ import java.util.Objects;
 
 @TeleOp(name="first good teleop GOOD?")
 public class GoodTeleop extends OpMode {
+    // TODO; future enhancements include:
+    // shooting automatically when in the tape and the wheels are moving at a tolerable speed and azimuth
+    // auto driving to setpoints (a consistent shooting setpoint AND human player)
+    // auto driving to the closest point in the tape, maintaining heading
+    // limelight relocalization
+
     private int state = 1;
     private VoltageCompFollower follower;
     private double longitudinalSpeed = 1.0, lateralSpeed = 1.0, rotationSpeed = 1.0;
