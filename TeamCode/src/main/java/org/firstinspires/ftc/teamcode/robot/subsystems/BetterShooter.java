@@ -11,6 +11,7 @@ import static org.firstinspires.ftc.teamcode.robot.constants.RobotConstantsTele.
 
 public class BetterShooter extends Subsystem {
     private double targetVelocity = 0;
+    private boolean isShooting = false;
     private double radius = 1.45;
     private double targetAngle = Math.toRadians(30);
     public boolean shooterOn = false;
@@ -31,6 +32,13 @@ public class BetterShooter extends Subsystem {
     @Override
     public void update() {
         if (shooterOn) {
+            // if is shooting: actively shooting 3 balls
+            if (isShooting && shooterMotor.getVelocity() < targetVelocity) {
+                // max power unless less than target
+                shooterMotor.setPower(1);
+                return;
+            }
+            // if not less than target and/or shooting (we don't care)
             controller.setTarget(targetVelocity);
             double power = controller.calculate(shooterMotor.getVelocity());
             shooterMotor.setPower(power);
@@ -38,11 +46,11 @@ public class BetterShooter extends Subsystem {
     }
 
     public void openLatch() {
-        latchServo.setPosition(0.5);
+        latchServo.setPosition(LATCH_OPEN);
     }
 
     public void closeLatch() {
-        latchServo.setPosition(0.1);
+        latchServo.setPosition(LATCH_CLOSED);
     }
     // note: in radians
     public void setShooterPitch(double angle) {
