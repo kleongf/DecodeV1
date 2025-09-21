@@ -36,10 +36,15 @@ public class ShooterTuner extends OpMode {
     public void loop() {
         shooter.setTargetVelocity(shooterSpeedTicks);
         // TODO: fix degree/radian disputes across shooter opmodes
-        shooter.setShooterPitch(shooterAngleDegrees);
+        shooter.setShooterPitch(Math.toRadians(shooterAngleDegrees));
+        // uh no this is bad
         // if i want shooter to stay focused on target, we should set its heading to goal-current (right hand pos)
-        turret.setTarget(goalPose.getHeading()-follower.getPose().getHeading());
-        double distanceToTarget = Math.hypot((follower.getPose().getX()- goalPose.getX()), follower.getPose().getY()- goalPose.getY());
+        double dx = goalPose.getX()-follower.getPose().getX();
+        double dy = goalPose.getY()-follower.getPose().getY();
+
+        double azimuth = Math.atan2(-dx, dy) - follower.getPose().getHeading() + Math.toRadians(90);
+        turret.setTarget(azimuth);
+        double distanceToTarget = Math.hypot(dx, dy);
 
         telemetry.addData("current velocity", shooter.getCurrentVelocity());
         telemetry.addData("distance to target", distanceToTarget);

@@ -12,6 +12,9 @@ public class SOTM2 {
     public SOTM2(Pose goal) {
         this.goal = goal;
         // TODO: add tuned values here for theta and velocity
+        thetaLUT = new LUT();
+        thetaLUT.addData(10, Math.toRadians(60));
+        velocityLUT = new LUT();
     }
     private double calculateLinearVelocity(double ticksPerSecond) {
         return (ticksPerSecond * 2 * Math.PI / 28.0) * radius * speedCoefficient;

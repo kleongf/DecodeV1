@@ -34,7 +34,7 @@ public class IntakeTeleop extends OpMode {
         gp1.update();
 
         if (gp1.leftBumperPressed()) {
-            intake.intakeOn = !intake.intakeOn;
+            intake.setIntakeOn(!intake.isIntakeOn());
         }
 
         intake.update();

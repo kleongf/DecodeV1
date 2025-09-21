@@ -59,7 +59,7 @@ public class GoodTeleop extends OpMode {
         gp1.update();
         gp2.update();
 
-        if (gp1.rightBumperPressed() && !robot.isBusy()) {
+        if (gp1.rightBumperPressed()) {
             Objects.requireNonNull(stateMap.get(state % 3)).start();
             state++;
         }

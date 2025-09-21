@@ -14,7 +14,7 @@ public class BetterShooter extends Subsystem {
     private boolean isShooting = false;
     private double radius = 1.45;
     private double targetAngle = Math.toRadians(30);
-    public boolean shooterOn = false;
+    private boolean shooterOn = false;
     private Servo latchServo;
     private Servo pitchServo;
     private DcMotorEx shooterMotor;
@@ -65,6 +65,10 @@ public class BetterShooter extends Subsystem {
 
     public double getCurrentVelocity() {
         return shooterMotor.getVelocity();
+    }
+
+    public void setShooterOn(boolean x) {
+        shooterOn = x;
     }
 
     @Override

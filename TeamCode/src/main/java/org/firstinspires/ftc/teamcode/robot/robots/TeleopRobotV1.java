@@ -43,32 +43,33 @@ public class TeleopRobotV1 {
         turret = new Turret(hardwareMap);
         subsystems.add(turret);
 
+        // you know what I actually think that keeping the shooter on the entire time is a better idea
+        // but we can playe with it
+
         commands = new ArrayList<>();
         prepareIntake = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            shooter.shooterOn = false;
-                            intake.intakeOn = true;
+                            shooter.setShooterOn(false);
+                            intake.setIntakeOn(true);
                             intake.intakeDown();
                             shooter.closeLatch();
                         })
                         .maxTime(500)
-                        .onExit(() -> isBusy = false)
         );
         commands.add(prepareIntake);
 
         prepareShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            intake.intakeOn = false;
-                            shooter.shooterOn = true;
+                            intake.setIntakeOn(false);
+                            shooter.setShooterOn(true);
                             intake.intakeLock();
                             shooter.closeLatch();
                             // TODO: placeholder for now, will be removed
                             shooter.setTargetVelocity(2000);
                         })
                         .maxTime(500)
-                        .onExit(() -> isBusy = false)
         );
         commands.add(prepareShooting);
 
@@ -76,13 +77,12 @@ public class TeleopRobotV1 {
                 new State()
                         .onEnter(() -> {
                             // saying everything so that in the event of a back button, we can do to prev state and run it
-                            intake.intakeOn = true;
-                            shooter.shooterOn = true;
+                            intake.setIntakeOn(true);;
+                            shooter.setShooterOn(true);
                             shooter.openLatch();
                             intake.intakeLock();
                         })
                         .maxTime(500)
-                        .onExit(() -> isBusy = false)
         );
         commands.add(startShooting);
     }

@@ -11,7 +11,7 @@ public class BetterIntake extends Subsystem {
     public Servo leftElbow;
     public Servo rightElbow;
     public DcMotorEx intakeMotor;
-    public boolean intakeOn;
+    private boolean intakeOn;
     public BetterIntake(HardwareMap hardwareMap) {
         leftElbow = hardwareMap.get(Servo.class, "leftElbow");
         rightElbow = hardwareMap.get(Servo.class, "rightElbow");
@@ -42,5 +42,13 @@ public class BetterIntake extends Subsystem {
     public void intakeLock() {
         leftElbow.setPosition(INTAKE_LOCK);
         rightElbow.setPosition(INTAKE_LOCK);
+    }
+
+    public void setIntakeOn(boolean x){
+        intakeOn = x;
+    }
+
+    public boolean isIntakeOn() {
+        return intakeOn;
     }
 }
