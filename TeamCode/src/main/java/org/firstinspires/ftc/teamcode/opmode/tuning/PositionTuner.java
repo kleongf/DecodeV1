@@ -21,7 +21,7 @@ public class PositionTuner extends OpMode {
     public static double leftElbowTarget = 0;
     public static double rightElbowTarget = 0;
     public static double shooterTarget = 0;
-    public static double pitchTarget = 0;
+    public static double pitchTarget = 0.19;
 
     @Override
     public void init() {
@@ -34,7 +34,8 @@ public class PositionTuner extends OpMode {
         rightElbow = hardwareMap.get(Servo.class, "rightElbow");
 //        shooterServo = hardwareMap.get(Servo.class, "shooterServo");
 //
-//        pitchServo = hardwareMap.get(Servo.class, "pitchServo");
+        pitchServo = hardwareMap.get(Servo.class, "pitchServo");
+        // TODO: pitchServo down: 0.19, up ~ 0.7
 
 //        leftLatch.setDirection(Servo.Direction.FORWARD);
 //        rightLatch.setDirection(Servo.Direction.FORWARD);
@@ -42,7 +43,7 @@ public class PositionTuner extends OpMode {
         leftElbow.setDirection(Servo.Direction.FORWARD);
         rightElbow.setDirection(Servo.Direction.FORWARD);
 //        shooterServo.setDirection(Servo.Direction.FORWARD);
-//        pitchServo.setDirection(Servo.Direction.FORWARD);
+        pitchServo.setDirection(Servo.Direction.FORWARD);
     }
 
     @Override
@@ -53,6 +54,6 @@ public class PositionTuner extends OpMode {
         leftElbow.setPosition(leftElbowTarget);
         rightElbow.setPosition(rightElbowTarget);
 //        shooterServo.setPosition(shooterTarget);
-//        pitchServo.setPosition(pitchTarget);
+        pitchServo.setPosition(pitchTarget);
     }
 }
