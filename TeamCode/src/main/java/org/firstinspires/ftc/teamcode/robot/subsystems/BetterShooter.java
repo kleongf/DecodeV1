@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.util.controllers.TBHController;
+import static org.firstinspires.ftc.teamcode.robot.constants.RobotConstantsTele.*;
 
 public class BetterShooter extends Subsystem {
     private double targetVelocity = 0;
@@ -43,10 +44,11 @@ public class BetterShooter extends Subsystem {
     public void closeLatch() {
         latchServo.setPosition(0.1);
     }
-
+    // note: in radians
     public void setShooterPitch(double angle) {
         // idk play with this
-        pitchServo.setPosition(0.1 + angle/Math.toRadians(90));
+        double ticksPerRadian = (PITCH_SERVO_F-PITCH_SERVO_I)/(PITCH_F-PITCH_I);
+        pitchServo.setPosition(PITCH_SERVO_MIN + angle * ticksPerRadian);
     }
 
     public void setTargetVelocity(double t) {
@@ -55,11 +57,6 @@ public class BetterShooter extends Subsystem {
 
     public double getCurrentVelocity() {
         return shooterMotor.getVelocity();
-    }
-
-    public void setTargetVelocityInPerSec(double t) {
-        // v = r * omega
-        // omega = velocity (ticks) /
     }
 
     @Override

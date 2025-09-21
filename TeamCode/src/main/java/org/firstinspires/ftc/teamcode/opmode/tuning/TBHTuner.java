@@ -21,6 +21,7 @@ public class TBHTuner extends OpMode {
     public static int target = 0;
 
     public DcMotorEx shooterMotor;
+    public DcMotorEx shooterMotor2;
 
     @Override
     public void init() {
@@ -30,6 +31,9 @@ public class TBHTuner extends OpMode {
             shooterMotor = hardwareMap.get(DcMotorEx.class, "shooterMotor");
             shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooterMotor2 = hardwareMap.get(DcMotorEx.class, "shooterMotor2");
+        shooterMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooterMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             // shooterMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             // shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         // TODO: max velocity is 2800 ticks/s, best kG value 0.00001
@@ -44,6 +48,7 @@ public class TBHTuner extends OpMode {
             controller.setTarget(target);
             double power = controller.calculate(currentVel);
             shooterMotor.setPower(power);
+            shooterMotor2.setPower(power);
 
             telemetry.addData("power", power);
 

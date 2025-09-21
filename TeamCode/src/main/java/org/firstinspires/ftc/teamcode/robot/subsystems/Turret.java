@@ -12,7 +12,7 @@ public class Turret extends Subsystem {
     public DcMotorEx turretMotor;
     public PIDFController turretController;
     public double target;
-    private double ticksPerRevolution = 112; // 28*4 idk
+    private double ticksPerRevolution = 140; // 28*5 idk
     private double ticksPerRadian = ticksPerRevolution / (2 * Math.PI);
     ;
     public Turret(HardwareMap hardwareMap) {
@@ -23,6 +23,7 @@ public class Turret extends Subsystem {
         turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         turretController = new PIDFController(1, 0, 0.01, 0);
+        // might need feedforward
     }
 
     @Override

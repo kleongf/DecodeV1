@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.robot.subsystems.BulkRead;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Turret;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 
@@ -19,13 +20,13 @@ public class TeleopRobotV1 {
     private final BulkRead bulkRead;
     private final BetterIntake intake;
     public final BetterShooter shooter;
+    public final Turret turret;
 
     private final ArrayList<StateMachine> commands;
     public StateMachine prepareIntake;
     public StateMachine prepareShooting;
     public StateMachine startShooting;
-    public StateMachine shootGreen;
-    public StateMachine shootPurple;
+
     // button: start and stop intaking
     // shooter always spinning
     // button: releases the latch, starts spinning intake (since thats what powers it up)
@@ -39,6 +40,8 @@ public class TeleopRobotV1 {
         subsystems.add(intake);
         shooter = new BetterShooter(hardwareMap);
         subsystems.add(shooter);
+        turret = new Turret(hardwareMap);
+        subsystems.add(turret);
 
         commands = new ArrayList<>();
         prepareIntake = new StateMachine(
@@ -49,7 +52,8 @@ public class TeleopRobotV1 {
                             intake.intakeDown();
                             shooter.closeLatch();
                         })
-                        .maxTime(1000)
+                        .maxTime(500)
+                        .onExit(() -> isBusy = false)
         );
         commands.add(prepareIntake);
 
@@ -57,21 +61,28 @@ public class TeleopRobotV1 {
                 new State()
                         .onEnter(() -> {
                             intake.intakeOn = false;
-                            intake.intakeUp();
                             shooter.shooterOn = true;
+                            intake.intakeLock();
+                            shooter.closeLatch();
+                            // TODO: placeholder for now, will be removed
                             shooter.setTargetVelocity(2000);
                         })
-                        .maxTime(1000)
+                        .maxTime(500)
+                        .onExit(() -> isBusy = false)
         );
         commands.add(prepareShooting);
 
         startShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
+                            // saying everything so that in the event of a back button, we can do to prev state and run it
                             intake.intakeOn = true;
+                            shooter.shooterOn = true;
                             shooter.openLatch();
+                            intake.intakeLock();
                         })
-                        .maxTime(1000)
+                        .maxTime(500)
+                        .onExit(() -> isBusy = false)
         );
         commands.add(startShooting);
     }
@@ -93,6 +104,10 @@ public class TeleopRobotV1 {
         for (Subsystem subsystem: subsystems) {
             subsystem.start();
         }
+    }
+
+    public boolean isBusy() {
+        return isBusy;
     }
 }
 

@@ -12,22 +12,30 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobot;
 import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobotV1;
+import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
+import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import org.firstinspires.ftc.teamcode.util.misc.Target;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-@TeleOp(name="first good teleop")
+
+import java.util.HashMap;
+import java.util.Objects;
+
+@TeleOp(name="first good teleop GOOD?")
 public class GoodTeleop extends OpMode {
     private int state = 1;
     private VoltageCompFollower follower;
     private double longitudinalSpeed = 1.0, lateralSpeed = 1.0, rotationSpeed = 1.0;
     private TeleopRobotV1 robot;
     private final Pose startPose = new Pose(32, 7, Math.toRadians(90));
+    private final Pose goalPose = new Pose(12, 132, Math.toRadians(45));
     private SmartGamepad gp1;
     private SmartGamepad gp2;
-
+    private SOTM2 sotm2;
+    private HashMap<Integer, StateMachine> stateMap;
 
     @Override
     public void init() {
@@ -39,37 +47,41 @@ public class GoodTeleop extends OpMode {
         gp1 = new SmartGamepad(gamepad1);
         gp2 = new SmartGamepad(gamepad2);
 
-        try {
-            sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        robot.initPositions();
+        sotm2 = new SOTM2(goalPose);
+
+        stateMap = new HashMap<>();
+        stateMap.put(1, robot.prepareIntake);
+        stateMap.put(2, robot.prepareShooting);
+        stateMap.put(3, robot.startShooting);
     }
     @Override
     public void loop() {
-        // TODO: have a robot is busy thing so that commands dont collide
         gp1.update();
         gp2.update();
 
-        if (gp1.rightBumperPressed()) {
-            if (state == 1) {
-                robot.prepareIntake.start();
-                state = 2;
-            } else if (state ==2) {
-                robot.prepareShooting.start();
-                state = 3;
-            } else if (state == 3) {
-                robot.startShooting.start();
-                state = 1;
-            }
+        if (gp1.rightBumperPressed() && !robot.isBusy()) {
+            Objects.requireNonNull(stateMap.get(state % 3)).start();
+            state++;
         }
+
+        // very cool back button should work
+        if (gp1.leftBumperPressed()) {
+            Objects.requireNonNull(stateMap.get(state-1 % 3)).start();
+            state--;
+        }
+
+        double[] values = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), follower.getVelocity());
+
+        robot.turret.setTarget(values[0]);
+        robot.shooter.setShooterPitch(values[1]);
+        robot.shooter.setTargetVelocity(values[2]);
 
         follower.setTeleOpMovementVectors(
                     gp1.getLeftStickY() * longitudinalSpeed,
                     gp1.getLeftStickX() * lateralSpeed,
                     gp1.getRightStickX() * rotationSpeed
         );
+
         follower.update();
         robot.update();
     }
@@ -77,6 +89,7 @@ public class GoodTeleop extends OpMode {
     @Override
     public void start() {
         // TODO: In the future, initPositions() should go here so we don't move on init
+        robot.initPositions();
         follower.startTeleopDrive();
         robot.start();
     }

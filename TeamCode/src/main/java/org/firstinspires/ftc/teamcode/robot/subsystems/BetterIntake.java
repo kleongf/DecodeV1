@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import static org.firstinspires.ftc.teamcode.robot.constants.RobotConstantsTele.*;
 
 public class BetterIntake extends Subsystem {
     public Servo leftElbow;
@@ -29,18 +30,17 @@ public class BetterIntake extends Subsystem {
 
     @Override
     public void start() {
-        leftElbow.setPosition(0.12);
-        rightElbow.setPosition(0.12);
-    }
-
-
-    public void intakeUp() {
-        leftElbow.setPosition(0.44);
-        rightElbow.setPosition(0.44);
+        leftElbow.setPosition(INTAKE_DOWN);
+        rightElbow.setPosition(INTAKE_DOWN);
     }
 
     public void intakeDown() {
-        leftElbow.setPosition(0.12);
-        rightElbow.setPosition(0.12);
+        leftElbow.setPosition(INTAKE_DOWN);
+        rightElbow.setPosition(INTAKE_DOWN);
+    }
+    // locks the balls?
+    public void intakeLock() {
+        leftElbow.setPosition(INTAKE_LOCK);
+        rightElbow.setPosition(INTAKE_LOCK);
     }
 }

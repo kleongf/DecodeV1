@@ -26,7 +26,9 @@ public class SOTM2 {
         double dyCorr = dy - robotVelocity.getYComponent() * t;
         double distCorr = Math.hypot(dxCorr, dyCorr);
 
-        double azimuth = Math.atan2(dyCorr, dxCorr);
+        // coord system conversion to turret angle pov
+
+        double azimuth = Math.atan2(-dxCorr, dyCorr) - robotPose.getHeading() + Math.toRadians(90);
         double theta = thetaLUT.getValue(distCorr);
         double velocity = velocityLUT.getValue(distCorr);
 
