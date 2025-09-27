@@ -15,6 +15,7 @@ public class SOTM2 {
         thetaLUT = new LUT();
         thetaLUT.addData(10, Math.toRadians(60));
         velocityLUT = new LUT();
+        velocityLUT.addData(10, 0);
     }
     private double calculateLinearVelocity(double ticksPerSecond) {
         return (ticksPerSecond * 2 * Math.PI / 28.0) * radius * speedCoefficient;
