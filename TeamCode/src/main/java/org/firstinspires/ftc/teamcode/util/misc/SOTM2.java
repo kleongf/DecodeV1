@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.util.misc;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.Vector;
 
+import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
+
 public class SOTM2 {
     private Pose goal;
     private LUT thetaLUT;
@@ -12,10 +14,36 @@ public class SOTM2 {
     public SOTM2(Pose goal) {
         this.goal = goal;
         // TODO: add tuned values here for theta and velocity
+        // also these go from 0 to 20, where 20 is our max for some reason (25-45)
         thetaLUT = new LUT();
-        thetaLUT.addData(10, Math.toRadians(60));
+        thetaLUT.addData(12, Math.toRadians(0));
+        thetaLUT.addData(22, Math.toRadians(0));
+        thetaLUT.addData(32, Math.toRadians(5));
+        thetaLUT.addData(42, Math.toRadians(15));
+        thetaLUT.addData(52, Math.toRadians(20));
+        thetaLUT.addData(62, Math.toRadians(20));
+        thetaLUT.addData(72, Math.toRadians(20));
+        thetaLUT.addData(82, Math.toRadians(20));
+        thetaLUT.addData(92, Math.toRadians(20));
+        thetaLUT.addData(102, Math.toRadians(20));
+        thetaLUT.addData(112, Math.toRadians(20));
+        thetaLUT.addData(122, Math.toRadians(20));
+        thetaLUT.addData(132, Math.toRadians(20));
+
         velocityLUT = new LUT();
-        velocityLUT.addData(10, 0);
+        velocityLUT.addData(133, 2600);
+        velocityLUT.addData(122, 2500);
+        velocityLUT.addData(112, 2400);
+        velocityLUT.addData(102, 2300);
+        velocityLUT.addData(92, 2200);
+        velocityLUT.addData(82, 2150);
+        velocityLUT.addData(72, 2100);
+        velocityLUT.addData(62, 2000);
+        velocityLUT.addData(52, 1900);
+        velocityLUT.addData(42, 1800);
+        velocityLUT.addData(32, 1600);
+        velocityLUT.addData(22, 1500);
+        velocityLUT.addData(12, 1500);
     }
     private double calculateLinearVelocity(double ticksPerSecond) {
         return (ticksPerSecond * 2 * Math.PI / 28.0) * radius * speedCoefficient;
@@ -25,16 +53,27 @@ public class SOTM2 {
         double dy = goal.getY() - robotPose.getY();
         double dist = Math.hypot(dx, dy);
 
-        double t = dist / (calculateLinearVelocity(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)));
-        double dxCorr = dx - robotVelocity.getXComponent() * t;
-        double dyCorr = dy - robotVelocity.getYComponent() * t;
-        double distCorr = Math.hypot(dxCorr, dyCorr);
+        System.out.println(dist);
 
-        // coord system conversion to turret angle pov
+//        double t = dist / (calculateLinearVelocity(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)));
+//        double dxCorr = dx - robotVelocity.getXComponent() * t;
+//        double dyCorr = dy - robotVelocity.getYComponent() * t;
+//        double distCorr = Math.hypot(dxCorr, dyCorr);
+//
+//        // coord system conversion to turret angle pov
+//
+ //        double azimuth = Math.atan2(-dxCorr, dyCorr) - robotPose.getHeading() + Math.toRadians(90);
+//        double theta = thetaLUT.getValue(distCorr);
+//        double velocity = velocityLUT.getValue(distCorr);1111
+        double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90);
+        System.out.println(robotPose.getHeading());
+        // System.out.println(Math.atan2(-dx, dy));
+        double theta = thetaLUT.getValue(dist);
+        double velocity = velocityLUT.getValue(dist);
+        System.out.println(theta);
+        System.out.println(velocity);
 
-        double azimuth = Math.atan2(-dxCorr, dyCorr) - robotPose.getHeading() + Math.toRadians(90);
-        double theta = thetaLUT.getValue(distCorr);
-        double velocity = velocityLUT.getValue(distCorr);
+
 
         return new double[] {azimuth, theta, velocity};
     }

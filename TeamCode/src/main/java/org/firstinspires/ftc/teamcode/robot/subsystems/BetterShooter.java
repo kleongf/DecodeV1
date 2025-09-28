@@ -6,42 +6,41 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.util.controllers.TBHController;
+import org.firstinspires.ftc.teamcode.util.controllers.FeedForwardController;
 import static org.firstinspires.ftc.teamcode.robot.constants.RobotConstantsTele.*;
 
 public class BetterShooter extends Subsystem {
     private double targetVelocity = 0;
     private boolean isShooting = false;
     private double radius = 1.45;
-    private double targetAngle = Math.toRadians(30);
+    private double targetAngle = Math.toRadians(25);
     private boolean shooterOn = false;
     private Servo latchServo;
     private Servo pitchServo;
     private DcMotorEx shooterMotor;
-    private TBHController controller;
+    private DcMotorEx shooterMotor2;
+    private FeedForwardController controller;
     public BetterShooter(HardwareMap hardwareMap) {
         shooterMotor = hardwareMap.get(DcMotorEx.class, "shooterMotor");
-        shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooterMotor2 = hardwareMap.get(DcMotorEx.class, "shooterMotor2");
+        shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         latchServo = hardwareMap.get(Servo.class, "latchServo");
 
         pitchServo = hardwareMap.get(Servo.class, "pitchServo");
-        controller = new TBHController(0.00001, 1);
+        // controller = new TBHController(0.00001, 1);
+        // 2800 ticks when power is 1, and speed is proportional to voltage
+        controller = new FeedForwardController((1.0/2800.0), 0, 0.001);
     }
     @Override
     public void update() {
         if (shooterOn) {
-            // if is shooting: actively shooting 3 balls
-            if (isShooting && shooterMotor.getVelocity() < targetVelocity) {
-                // max power unless less than target
-                shooterMotor.setPower(1);
-                return;
-            }
-            // if not less than target and/or shooting (we don't care)
-            controller.setTarget(targetVelocity);
-            double power = controller.calculate(shooterMotor.getVelocity());
+            double power = controller.calculate(shooterMotor.getVelocity(), targetVelocity);
             shooterMotor.setPower(power);
+            shooterMotor2.setPower(power);
         }
     }
 

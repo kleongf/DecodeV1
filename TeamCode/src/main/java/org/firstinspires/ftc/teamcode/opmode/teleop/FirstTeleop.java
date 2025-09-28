@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-@TeleOp(name="first teleop BAD")
+@TeleOp(name="first teleop BAD`")
 public class FirstTeleop extends OpMode {
     private VoltageCompFollower follower;
     private boolean isAutoDriving = false;
