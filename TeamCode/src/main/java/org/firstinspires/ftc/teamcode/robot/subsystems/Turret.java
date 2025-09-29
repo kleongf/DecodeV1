@@ -24,7 +24,7 @@ public class Turret extends Subsystem {
         turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // i changed this to heading pidf controller
 
-        turretController = new PIDFController(2, 0, 0.06, 0);
+        turretController = new PIDFController(0.005, 0, 0.00015, 0);
         // might need feedforward
     }
 
@@ -32,13 +32,13 @@ public class Turret extends Subsystem {
     public void update() {
         // i need to do something so it doesn't overdo it or make a 360.
         // was not anglewrapped before
-        double current = turretMotor.getCurrentPosition() / ticksPerRadian;
+        //double current = turretMotor.getCurrentPosition() / ticksPerRadian;
         // was not anglewrapped before
         // TODO: new idea (and retune pids: convert new angle to ticks and set it)
-//        double c = turretMotor.getCurrentPosition();
-//        double t = target * ticksPerRadian;
-//        double power = turretController.calculate(c, t);
-        double power = turretController.calculate(current, target);
+        double c = turretMotor.getCurrentPosition();
+        double t = target * ticksPerRadian;
+        double power = turretController.calculate(c, t);
+        //double power = turretController.calculate(current, target);
         turretMotor.setPower(power);
     }
 
