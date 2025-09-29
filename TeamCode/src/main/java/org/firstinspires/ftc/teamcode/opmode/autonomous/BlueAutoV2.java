@@ -18,53 +18,109 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="blue auto v1")
-public class BlueAutoV1 extends OpMode {
+@Autonomous(name="blue auto far v2: 15 balls")
+public class BlueAutoV2 extends OpMode {
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM2 sotm2;
-    private final Pose startPose = new Pose(56, 6, Math.toRadians(180));
-    private final Pose goalPose = new Pose(12, 132, Math.toRadians(45));
-    // actually nvm, i am going to chain drivethird and intakethrid together
-    private PathChain shootFirst, intakeSecond, shootSecond, intakeThird, shootThird, intakeFourth, shootFourth, park;
+    private final Pose startPose = new Pose(56, 8, Math.toRadians(180));
+    private final Pose shootPose = new Pose(60, 84, Math.toRadians(180));
+    private final Pose goalPose = new Pose(9, 132, Math.toRadians(45));
+    private PathChain shootFirst, intakeSecond, shootSecond, intakeThird, openGate, shootThird, intakeFourth, shootFourth, intakeFifth, shootFifth, park;
 
     public void buildPaths() {
         shootFirst = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(56.000, 6.000), new Pose(60.000, 84.000)))
+                .addPath(
+                        // Path 1
+                        new BezierLine(new Pose(56.000, 8.000), new Pose(60.000, 84.000))
+                )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         intakeSecond = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(60.000, 84.000), new Pose(22.000, 84.000)))
+                .addPath(
+                        // Path 2
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(20.000, 84.000))
+                )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootSecond = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(22.000, 84.000), new Pose(60.000, 84.000)))
+                .addPath(
+                        // Path 3
+                        new BezierLine(new Pose(20.000, 84.000), new Pose(60.000, 84.000))
+                )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         intakeThird = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(60.000, 84.000), new Pose(42.000, 60.000)))
+                .addPath(
+                        // Path 4
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 60.000))
+                )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
-                .addPath(new BezierLine(new Pose(42.000, 60.000), new Pose(22.000, 60.000)))
+                .addPath(
+                        // Path 5
+                        new BezierLine(new Pose(45.000, 60.000), new Pose(20.000, 60.000))
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+        openGate = follower.pathBuilder()
+                .addPath(
+                        // Path 6
+                        new BezierLine(new Pose(20.000, 60.000), new Pose(15.000, 70.000))
+                )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootThird = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(22.000, 60.000), new Pose(60.000, 84.000)))
+                .addPath(
+                        // Path 7
+                        new BezierLine(new Pose(15.000, 70.000), new Pose(60.000, 84.000))
+                )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         intakeFourth = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(60.000, 84.000), new Pose(42.000, 36.000)))
+                .addPath(
+                        // Path 8
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 36.000))
+                )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
-                .addPath(new BezierLine(new Pose(42.000, 36.000), new Pose(22.000, 36.000)))
+                .addPath(
+                        // Path 9
+                        new BezierLine(new Pose(45.000, 36.000), new Pose(20.000, 36.000))
+                )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootFourth = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(22.000, 36.000), new Pose(60.000, 84.000)))
+                .addPath(
+                        // Path 10
+                        new BezierLine(new Pose(20.000, 36.000), new Pose(60.000, 84.000))
+                )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
+        intakeFifth = follower.pathBuilder()
+                .addPath(
+                        // Path 11
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(9.000, 30.000))
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
+                .addPath(
+                        // Path 12
+                        new BezierLine(new Pose(9.000, 30.000), new Pose(9.000, 9.000))
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(270))
+                .build();
+        shootFifth = follower.pathBuilder()
+                .addPath(
+                        // Path 13
+                        new BezierLine(new Pose(9.000, 9.000), new Pose(56.000, 8.000))
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(270))
+                .build();
         park = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(60.000, 84.000), new Pose(60.000, 60.000)))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addPath(
+                        // Path 14
+                        new BezierLine(new Pose(56.000, 8.000), new Pose(56.000, 40.000))
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(270))
                 .build();
     }
 
@@ -108,6 +164,9 @@ public class BlueAutoV1 extends OpMode {
                         .onEnter(() -> robot.prepareShooting.start())
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
+                        .onEnter(() -> follower.followPath(openGate, true))
+                        .maxTime(2000),
+                new State()
                         .onEnter(() -> follower.followPath(shootThird, true))
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -124,6 +183,26 @@ public class BlueAutoV1 extends OpMode {
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
                         .onEnter(() -> follower.followPath(shootFourth, true))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.startShooting.start())
+                        .transition(new Transition(() -> robot.startShooting.isFinished())),
+                new State()
+                        .onEnter(() -> {
+                            robot.prepareIntake.start();
+                            follower.followPath(intakeFifth, true);
+                            double[] values2 = sotm2.calculateAzimuthThetaVelocity(startPose, new Vector());
+
+                            robot.turret.setTarget(values2[0]);
+                            robot.shooter.setShooterPitch(values2[1]);
+                            robot.shooter.setTargetVelocity(values2[2]);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.prepareShooting.start())
+                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootFifth, true))
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
@@ -150,7 +229,7 @@ public class BlueAutoV1 extends OpMode {
     @Override
     public void start() {
         // constant values. shooter is never turned off after start.
-        double[] values = sotm2.calculateAzimuthThetaVelocity(startPose, new Vector());
+        double[] values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
 
         robot.turret.setTarget(values[0]);
         robot.shooter.setShooterPitch(values[1]);

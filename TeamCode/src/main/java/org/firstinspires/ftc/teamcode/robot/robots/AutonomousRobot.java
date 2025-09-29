@@ -52,7 +52,7 @@ public class AutonomousRobot {
                             intake.intakeDown();
                             shooter.closeLatch();
                         })
-                        .maxTime(500)
+                        .maxTime(300)
         );
         commands.add(prepareIntake);
 
@@ -63,18 +63,20 @@ public class AutonomousRobot {
                             intake.intakeLock();
                             shooter.closeLatch();
                         })
-                        .maxTime(500)
+                        .maxTime(300)
         );
         commands.add(prepareShooting);
 
         startShooting = new StateMachine(
                 new State()
+                        .onEnter(shooter::openLatch)
+                        .maxTime(100),
+                new State()
                         .onEnter(() -> {
-                            intake.setIntakeOn(true);;
-                            shooter.openLatch();
+                            intake.setIntakeOn(true);
                             intake.intakeLock();
                         })
-                        .maxTime(1500)
+                        .maxTime(1000)
         );
         commands.add(startShooting);
     }
