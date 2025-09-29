@@ -39,7 +39,7 @@ public class SmartGamepad {
     public boolean leftBumperPressed() {return gamepad.leftBumperWasPressed();}
 
     public boolean rightBumperPressed() {
-        return gamepad.leftBumperWasPressed();
+        return gamepad.rightBumperWasPressed();
     }
 
     public boolean dpadUpPressed() {

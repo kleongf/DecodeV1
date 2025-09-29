@@ -22,7 +22,7 @@ public class TurretTuner extends OpMode {
 
     public static double target = 0;
     public static double errorThreshold = Math.toRadians(3);
-    private double ticksPerRevolution = 140; // 28*5 idk
+    private double ticksPerRevolution = 1918; // 383.6*5 idk
     private double ticksPerRadian = ticksPerRevolution / (2 * Math.PI);
 
     public DcMotorEx turretMotor;
@@ -43,17 +43,19 @@ public class TurretTuner extends OpMode {
     public void loop() {
         controller.setPIDF(kP, 0, kD, 0);
         double currentPos = turretMotor.getCurrentPosition() / ticksPerRadian;
-        double power = controller.calculate(MathFunctions.angleWrap(currentPos), MathFunctions.angleWrap(Math.toRadians(target)));
-        if (Math.abs(MathFunctions.angleWrap(currentPos)-MathFunctions.angleWrap(Math.toRadians(target))) > errorThreshold) {
-            double error = MathFunctions.angleWrap(Math.toRadians(target))-MathFunctions.angleWrap(currentPos);
-            power += kF * Math.signum(error);
-        }
+        //double targetPos = Math.toRadians(target);
+        double power = controller.calculate(currentPos, Math.toRadians(target));
+//        if (Math.abs(MathFunctions.angleWrap(currentPos)-MathFunctions.angleWrap(Math.toRadians(target))) > errorThreshold) {
+//            double error = MathFunctions.angleWrap(Math.toRadians(target))-MathFunctions.angleWrap(currentPos);
+//            power += kF * Math.signum(error);
+//        }
         turretMotor.setPower(power);
 
         telemetry.addData("power", power);
-
+        telemetry.addData("ticks", turretMotor.getCurrentPosition());
         telemetry.addData("current position", MathFunctions.angleWrap(currentPos));
         telemetry.addData("target", Math.toRadians(target));
+        telemetry.addData("ticks back to target", Math.toRadians(target) * ticksPerRadian);
         telemetry.update();
     }
 

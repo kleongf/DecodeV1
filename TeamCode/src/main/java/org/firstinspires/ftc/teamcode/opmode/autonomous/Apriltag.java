@@ -17,7 +17,6 @@ public class Apriltag extends OpMode {
     @Override
     public void loop() {
         robot.update();
-        telemetry.addData("ID", robot.vision.getId());
         telemetry.update();
     }
 

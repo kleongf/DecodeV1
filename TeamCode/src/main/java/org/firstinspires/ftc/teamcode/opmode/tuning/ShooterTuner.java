@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.subsystems.BetterShooter;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Turret;
+import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 
 @Config
 @TeleOp(name="Shooter Tuner")
@@ -21,8 +23,9 @@ public class ShooterTuner extends OpMode {
     private Turret turret;
     public static double shooterAngleDegrees = 30;
     public static double shooterSpeedTicks = 0;
-    private Pose startPose = new Pose(54, 8, Math.toRadians(90));
+    private Pose startPose = new Pose(56, 6, Math.toRadians(180));
     private Pose goalPose = new Pose(12, 132, Math.toRadians(135));
+    private SOTM2 sotm2;
 
     @Override
     public void init() {
@@ -30,6 +33,7 @@ public class ShooterTuner extends OpMode {
         follower.setStartingPose(startPose);
         shooter = new BetterShooter(hardwareMap);
         turret = new Turret(hardwareMap);
+        sotm2 = new SOTM2(goalPose);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
     @Override
@@ -42,12 +46,17 @@ public class ShooterTuner extends OpMode {
         double dx = goalPose.getX()-follower.getPose().getX();
         double dy = goalPose.getY()-follower.getPose().getY();
 
-        double azimuth = Math.atan2(-dx, dy) - follower.getPose().getHeading() + Math.toRadians(90);
-        turret.setTarget(azimuth);
+        double[] tgt = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), new Vector());
+        turret.setTarget(tgt[0]);
+
         double distanceToTarget = Math.hypot(dx, dy);
+
+        shooter.update();
+        turret.update();
 
         telemetry.addData("current velocity", shooter.getCurrentVelocity());
         telemetry.addData("distance to target", distanceToTarget);
         telemetry.update();
+
     }
 }
