@@ -29,7 +29,7 @@ import java.util.Objects;
 
 @TeleOp(name="first good teleop: blue")
 public class GoodTeleop extends OpMode {
-    private int state = 1;
+    private int state = 0;
     private boolean isAutoDriving = false;
     private Drivetrain drivetrain;
     private double longitudinalSpeed = 0.5, lateralSpeed = 0.5, rotationSpeed = 0.5;

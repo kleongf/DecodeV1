@@ -25,6 +25,8 @@ public class BetterIntake extends Subsystem {
     public void update() {
         if (intakeOn) {
             intakeMotor.setPower(1);
+        } else {
+            intakeMotor.setPower(0);
         }
     }
 
