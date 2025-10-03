@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.robot.robots;
 
-import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.robot.subsystems.BetterIntake;
@@ -8,7 +7,6 @@ import org.firstinspires.ftc.teamcode.robot.subsystems.BetterShooter;
 import org.firstinspires.ftc.teamcode.robot.subsystems.BulkRead;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Turret;
-import org.firstinspires.ftc.teamcode.robot.constants.RobotConstantsAuto.*;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 
@@ -60,7 +58,7 @@ public class AutonomousRobot {
                 new State()
                         .onEnter(() -> {
                             intake.setIntakeOn(false);
-                            intake.intakeLock();
+                            intake.intakePush();
                             shooter.closeLatch();
                         })
                         .maxTime(300)
@@ -74,7 +72,7 @@ public class AutonomousRobot {
                 new State()
                         .onEnter(() -> {
                             intake.setIntakeOn(true);
-                            intake.intakeLock();
+                            intake.intakePush();
                         })
                         .maxTime(1000)
         );
@@ -87,7 +85,7 @@ public class AutonomousRobot {
         shooter.setShooterPitch(Math.toRadians(30));
         shooter.setShooterOn(true);
         intake.setIntakeOn(false);
-        intake.intakeLock();
+        intake.intakePush();
         turret.setTarget(0);
     }
 

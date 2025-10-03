@@ -32,7 +32,7 @@ public class GoodTeleop extends OpMode {
     private int state = 0;
     private boolean isAutoDriving = false;
     private Drivetrain drivetrain;
-    private double longitudinalSpeed = 0.5, lateralSpeed = 0.5, rotationSpeed = 0.5;
+    private double longitudinalSpeed = 0.5, lateralSpeed = 0.5, rotationSpeed = 0.3;
     private TeleopRobotV1 robot;
     private final Pose startPose = new Pose(56, 6, Math.toRadians(180));
     private final Pose goalPose = new Pose(9, 132, Math.toRadians(45));
@@ -60,6 +60,8 @@ public class GoodTeleop extends OpMode {
         stateMap.put(0, robot.prepareIntake);
         stateMap.put(1, robot.prepareShooting);
         stateMap.put(2, robot.startShooting);
+
+
     }
     @Override
     public void loop() {

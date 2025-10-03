@@ -6,14 +6,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.robot.subsystems.BetterIntake;
 import org.firstinspires.ftc.teamcode.robot.subsystems.BetterShooter;
 import org.firstinspires.ftc.teamcode.robot.subsystems.BulkRead;
-import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Turret;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 
 import java.util.ArrayList;
+import java.util.Timer;
 
 public class TeleopRobotV1 {
     public boolean isBusy = false;
@@ -27,6 +26,8 @@ public class TeleopRobotV1 {
     public StateMachine prepareIntake;
     public StateMachine prepareShooting;
     public StateMachine startShooting;
+    //timers
+    public Timer shootTimer;
 
     // button: start and stop intaking
     // shooter always spinning
@@ -63,20 +64,38 @@ public class TeleopRobotV1 {
                 new State()
                         .onEnter(() -> {
                             intake.setIntakeOn(false);
-                            intake.intakeLock();
+                            //intake.intakePush();
                             shooter.closeLatch();
                         })
                         .maxTime(500)
         );
         commands.add(prepareShooting);
 
+        shootTimer = new Timer();
+
         startShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            // saying everything so that in the event of a back button, we can do to prev state and run it
-                            intake.setIntakeOn(true);;
+                            // ??? saying everything so that in the event of a back button, we can do to prev state and run it
                             shooter.openLatch();
-                            intake.intakeLock();
+                            intake.setIntakeOn(true);
+                            intake.intakePushMid();
+                        })
+                        .maxTime(750)
+                        .minTime(500),
+                new State()
+                        .onEnter(() -> {
+                            shooter.openLatch();
+                            intake.setIntakeOn(true);
+                            intake.intakePush();
+
+                        })
+                        .minTime(500)
+                        .maxTime(750),
+                new State()
+                        .onEnter(() -> {
+                            intake.setIntakeOn(false);
+                            intake.intakeDown();
                         })
                         .maxTime(500)
         );

@@ -41,9 +41,13 @@ public class BetterIntake extends Subsystem {
         rightElbow.setPosition(INTAKE_DOWN);
     }
     // locks the balls?
-    public void intakeLock() {
-        leftElbow.setPosition(INTAKE_LOCK);
-        rightElbow.setPosition(INTAKE_LOCK);
+    public void intakePush() {
+        leftElbow.setPosition(INTAKE_PUSH);
+        rightElbow.setPosition(INTAKE_PUSH);
+    }
+    public void intakePushMid() {
+        leftElbow.setPosition(INTAKE_PUSH_MID);
+        rightElbow.setPosition(INTAKE_PUSH_MID);
     }
 
     public void setIntakeOn(boolean x){
