@@ -15,9 +15,7 @@ public class LimelightLocalizer extends Subsystem {
     private int id = 21;
     private double heading = Math.toRadians(0);
     private Pose currentPose = new Pose(0, 0, Math.toRadians(0));
-    // 21: GPP
-    // 22: PGP
-    // 23: PPG
+
     public LimelightLocalizer(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         // apriltag vision pipeline is pipeline 4
