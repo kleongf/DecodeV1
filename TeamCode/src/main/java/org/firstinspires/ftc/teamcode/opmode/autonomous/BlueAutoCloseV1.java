@@ -18,8 +18,9 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="blue auto close side v1")
+@Autonomous(name="blue auto close side v1+blackboard")
 public class BlueAutoCloseV1 extends OpMode {
+    public static final String END_POSE_KEY = "END_POSE";
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
@@ -212,6 +213,9 @@ public class BlueAutoCloseV1 extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy()))
         );
 
+        Object endPose = blackboard.getOrDefault(END_POSE_KEY, new Pose(56.000, 40.000, Math.toRadians(270)));
+        blackboard.put(END_POSE_KEY, endPose);
+
         try {
             sleep(500);
         } catch (InterruptedException e) {
@@ -238,5 +242,12 @@ public class BlueAutoCloseV1 extends OpMode {
 
         stateMachine.start();
         robot.start();
+    }
+
+    // TODO: when we stop, save position to blackboard
+    @Override
+    public void stop() {
+        Object endPose = blackboard.getOrDefault(END_POSE_KEY, follower.getPose());
+        blackboard.put(END_POSE_KEY, endPose);
     }
 }

@@ -10,39 +10,39 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
 
-public class LimelightLocalizer extends Subsystem {
+public class LimelightLocalizer {
     private final Limelight3A limelight;
-    private int id = 21;
-    private double heading = Math.toRadians(0);
-    private Pose currentPose = new Pose(0, 0, Math.toRadians(0));
+    private final double errorThreshold = 8;
 
     public LimelightLocalizer(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        // apriltag vision pipeline is pipeline 4
-        limelight.pipelineSwitch(4);
+        limelight.pipelineSwitch(3);
         limelight.start();
     }
+    private double metersToInches(double meters) {
+        return meters * 39.3701;
+    }
 
-    @Override
-    public void update() {
-        limelight.updateRobotOrientation(heading);
+    private Pose toPinpointPose(Pose3D llpose, Pose originalPose) {
+        double x = 72 - (metersToInches(llpose.getPosition().x));
+        double y = 72 - (metersToInches(llpose.getPosition().y));
+        return new Pose(x, y, originalPose.getHeading());
+    }
+
+    public Pose update(Pose pinpointPose) {
         LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
-            Pose3D botpose_mt2 = result.getBotpose_MT2();
-            if (botpose_mt2 != null) {
-                double x = botpose_mt2.getPosition().x;
-                double y = botpose_mt2.getPosition().y;
-                currentPose = new Pose(x, y, heading);
+            Pose3D botPose = result.getBotpose();
+            Pose convertedBotPose = toPinpointPose(botPose, pinpointPose);
+            // checking if they are similar
+            if (Math.hypot(convertedBotPose.getX()-pinpointPose.getX(), convertedBotPose.getY()- pinpointPose.getY()) < errorThreshold) {
+                return convertedBotPose;
             }
         }
+        return pinpointPose;
     }
 
-    @Override
     public void start() {
         limelight.start();
-    }
-
-    public void setHeading(double heading) {
-        this.heading = heading;
     }
 }
