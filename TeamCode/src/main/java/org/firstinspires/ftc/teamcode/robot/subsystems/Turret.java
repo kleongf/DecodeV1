@@ -15,7 +15,7 @@ public class Turret extends Subsystem {
     public double target = 0;
     private double ticksPerRevolution = 1918; // 383.6*5 idk
     private double ticksPerRadian = ticksPerRevolution / (2 * Math.PI);
-    ;
+
     public Turret(HardwareMap hardwareMap) {
         turretMotor = hardwareMap.get(DcMotorEx.class, "turretMotor");
         turretMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -36,6 +36,7 @@ public class Turret extends Subsystem {
         // was not anglewrapped before
         // TODO: new idea (and retune pids: convert new angle to ticks and set it)
         double c = turretMotor.getCurrentPosition();
+        // TODO: maybe anglewrap the target?
         double t = target * ticksPerRadian;
         double power = turretController.calculate(c, t);
         //double power = turretController.calculate(current, target);

@@ -34,7 +34,7 @@ public class GoodTeleop extends OpMode {
     private Drivetrain drivetrain;
     private double longitudinalSpeed = 0.5, lateralSpeed = 0.5, rotationSpeed = 0.3;
     private TeleopRobotV1 robot;
-    private final Pose startPose = new Pose(56, 6, Math.toRadians(180));
+    private final Pose startPose = new Pose(54, 6, Math.toRadians(180));
     private final Pose goalPose = new Pose(9, 132, Math.toRadians(45));
     private final Pose shootPoseClose = new Pose(60, 84, Math.toRadians(180));
     private final Pose shootPoseFar = new Pose(56, 8, Math.toRadians(180));
@@ -143,7 +143,8 @@ public class GoodTeleop extends OpMode {
     public void start() {
         // TODO: In the future, initPositions() should go here so we don't move on init
         robot.initPositions();
-        robot.shooter.setShooterOn(true);
+        // TODO: was on but it was annoying
+        robot.shooter.setShooterOn(false);
         robot.start();
     }
 }
