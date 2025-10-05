@@ -26,7 +26,7 @@ public class BlueAutoCloseV2 extends OpMode {
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM2 sotm2;
-    private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
+    private final Pose startPose = new Pose(30, 138, Math.toRadians(270));
     private final Pose shootPoseNear = new Pose(49, 85, Math.toRadians(180));
     private final Pose shootPoseFar = new Pose(60, 22, Math.toRadians(180));
 
