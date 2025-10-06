@@ -57,5 +57,7 @@ public class FConstants {
         FollowerConstants.useVoltageCompensationInTeleOp = true;
         FollowerConstants.nominalVoltage = 12.7;
         FollowerConstants.cacheInvalidateSeconds = 0.05;
+        FollowerConstants.holdPointHeadingScaling = 1;
+        FollowerConstants.holdPointTranslationalScaling = 1;
     }
 }

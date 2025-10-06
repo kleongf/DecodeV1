@@ -23,10 +23,16 @@ public class LimelightLocalizer {
         return meters * 39.3701;
     }
 
-    private Pose toPinpointPose(Pose3D llpose, Pose originalPose) {
-        double x = 72 - (metersToInches(llpose.getPosition().x));
-        double y = 72 - (metersToInches(llpose.getPosition().y));
-        return new Pose(x, y, originalPose.getHeading());
+    private Pose toPinpointPose(Pose3D llpose, Pose pinpointPose) {
+        double x = 72 + (metersToInches(llpose.getPosition().y));
+        double y = 72 - (metersToInches(llpose.getPosition().x));
+        return new Pose(x, y, pinpointPose.getHeading());
+    }
+
+    private double[] xy(Pose3D llpose) {
+        double x = 72 + (metersToInches(llpose.getPosition().y));
+        double y = 72 - (metersToInches(llpose.getPosition().x));
+        return new double[] {x, y};
     }
 
     public Pose update(Pose pinpointPose) {
@@ -35,12 +41,26 @@ public class LimelightLocalizer {
             Pose3D botPose = result.getBotpose();
             Pose convertedBotPose = toPinpointPose(botPose, pinpointPose);
             // checking if they are similar
-            if (Math.hypot(convertedBotPose.getX()-pinpointPose.getX(), convertedBotPose.getY()- pinpointPose.getY()) < errorThreshold) {
+            if (convertedBotPose.getX() == 72 && convertedBotPose.getY() == 72) {
+                return pinpointPose;
+            }
+            if (Math.hypot(convertedBotPose.getX()-pinpointPose.getX(), convertedBotPose.getY()-pinpointPose.getY()) < errorThreshold) {
                 return convertedBotPose;
             }
         }
         return pinpointPose;
     }
+
+    public double[] getXY() {
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            Pose3D botPose = result.getBotpose();
+            double[] xy = xy(botPose);
+            return xy;
+        }
+        return new double[] {0, 0};
+    }
+
 
     public void start() {
         limelight.start();

@@ -43,6 +43,7 @@ public class AutonomousRobot {
 
 
         commands = new ArrayList<>();
+        // prepares to intake: turns intake on and puts it down
         prepareIntake = new StateMachine(
                 new State()
                         .onEnter(() -> {
@@ -50,18 +51,18 @@ public class AutonomousRobot {
                             intake.intakeDown();
                             shooter.closeLatch();
                         })
-                        .maxTime(500)
+                        .maxTime(300)
         );
         commands.add(prepareIntake);
-
+        // prepares to shoot by locking intake
         prepareShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            // intake.setIntakeOn(false);
-                            //intake.intakePush();
+                            intake.setIntakeOn(false);
+                            intake.intakePushMid();
                             shooter.closeLatch();
                         })
-                        .maxTime(500)
+                        .maxTime(200)
         );
         commands.add(prepareShooting);
 
@@ -73,17 +74,24 @@ public class AutonomousRobot {
                             intake.setIntakeOn(true);
                             intake.intakePushMid();
                         })
-                        .maxTime(750)
-                        .minTime(500),
+                        .maxTime(500),
                 new State()
                         .onEnter(() -> {
                             shooter.openLatch();
                             intake.setIntakeOn(true);
                             intake.intakePush();
+
                         })
-                        .minTime(500)
-                        .maxTime(750)
+                        .maxTime(500),
+                new State()
+                        .onEnter(() -> {
+                            intake.intakeDown();
+
+                        })
+                        .maxTime(200)
+
         );
+
         commands.add(startShooting);
     }
 

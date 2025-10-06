@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.robot.subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.hardware.Drivetrain;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
+import org.firstinspires.ftc.teamcode.util.misc.ClosestPoint;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import java.util.HashMap;
 import java.util.Objects;
@@ -24,6 +25,7 @@ import java.util.Objects;
 public class GoodTeleop extends OpMode {
     private Timer localizationTimer;
     private LimelightLocalizer limelightLocalizer;
+    private ClosestPoint closestPoint;
     private int state = 0;
     private boolean isAutoDriving = false;
     private Drivetrain drivetrain;
@@ -59,12 +61,15 @@ public class GoodTeleop extends OpMode {
         stateMap.put(2, robot.startShooting);
         localizationTimer = new Timer();
         limelightLocalizer = new LimelightLocalizer(hardwareMap);
+        limelightLocalizer.start();
+
+        closestPoint = new ClosestPoint();
     }
     @Override
     public void loop() {
         // we are moving slowly AND its been over 10 seconds
         if (localizationTimer.getElapsedTimeSeconds() > 10 && drivetrain.follower.getVelocity().getMagnitude() < 10) {
-            drivetrain.follower.setStartingPose(limelightLocalizer.update(drivetrain.follower.getPose()));
+            drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(drivetrain.follower.getPose()));
             localizationTimer.resetTimer();
         }
 
@@ -115,6 +120,23 @@ public class GoodTeleop extends OpMode {
             drivetrain.follower.breakFollowing();
             drivetrain.follower.followPath(driveFar, true);
         }
+        // TODO: add another one to drive to latch thingy
+        if (gp1.aPressed()) {
+            PathChain driveToClosestPoint = drivetrain.follower.pathBuilder()
+                    .addPath(
+                            new Path(
+                                    new BezierLine(
+                                            new Point(drivetrain.follower.getPose()),
+                                            new Point(closestPoint.closestPose(drivetrain.follower.getPose()))
+                                    )
+                            )
+                    )
+                    .setConstantHeadingInterpolation(drivetrain.follower.getPose().getHeading())
+                    .build();
+            isAutoDriving = true;
+            drivetrain.follower.breakFollowing();
+            drivetrain.follower.followPath(driveToClosestPoint, true);
+        }
 
         double[] values = sotm2.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
 
@@ -146,8 +168,8 @@ public class GoodTeleop extends OpMode {
     public void start() {
         // TODO: In the future, initPositions() should go here so we don't move on init
         robot.initPositions();
-        // TODO: was on but it was annoying
-        robot.shooter.setShooterOn(false);
+
+        robot.shooter.setShooterOn(true);
         robot.start();
     }
 }
