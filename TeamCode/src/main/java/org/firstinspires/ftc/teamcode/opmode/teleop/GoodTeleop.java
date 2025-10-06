@@ -154,7 +154,7 @@ public class GoodTeleop extends OpMode {
                 drivetrain.follower.breakFollowing();
             }
         } else {
-            drivetrain.setMovementVectors(gp1.getLeftStickY()*longitudinalSpeed,
+            drivetrain.setFieldCentricMovementVectors(gp1.getLeftStickY()*longitudinalSpeed,
                     gp1.getLeftStickX()*lateralSpeed,
                     gp1.getRightStickX()*rotationSpeed);
         }
