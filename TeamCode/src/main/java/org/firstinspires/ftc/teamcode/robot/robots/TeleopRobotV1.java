@@ -56,18 +56,18 @@ public class TeleopRobotV1 {
                             intake.intakeDown();
                             shooter.closeLatch();
                         })
-                        .maxTime(500)
+                        .maxTime(100)
         );
         commands.add(prepareIntake);
-
+        // prepare to shoot by locking intake
         prepareShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
                             intake.setIntakeOn(false);
-                            //intake.intakePush();
+                            intake.intakePushMid();
                             shooter.closeLatch();
                         })
-                        .maxTime(500)
+                        .maxTime(100)
         );
         commands.add(prepareShooting);
 
@@ -81,8 +81,7 @@ public class TeleopRobotV1 {
                             intake.setIntakeOn(true);
                             intake.intakePushMid();
                         })
-                        .maxTime(750)
-                        .minTime(500),
+                        .maxTime(500),
                 new State()
                         .onEnter(() -> {
                             shooter.openLatch();
@@ -90,14 +89,13 @@ public class TeleopRobotV1 {
                             intake.intakePush();
 
                         })
-                        .minTime(500)
-                        .maxTime(750),
+                        .maxTime(500),
                 new State()
                         .onEnter(() -> {
                             intake.setIntakeOn(false);
                             intake.intakeDown();
                         })
-                        .maxTime(500)
+                        .maxTime(100)
         );
         commands.add(startShooting);
     }

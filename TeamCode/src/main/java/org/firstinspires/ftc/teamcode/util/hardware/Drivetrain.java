@@ -52,6 +52,25 @@ public class Drivetrain {
         br.setPower(backRightPower);
     }
 
+    public void setFieldCentricMovementVectors(double forward, double strafe, double heading) {
+        double botHeading = follower.getPose().getHeading();
+        double x = strafe * Math.cos(-botHeading) - forward * Math.sin(-botHeading);
+        x *= 1.1;
+        double y = - (strafe * Math.sin(-botHeading) + forward * Math.cos(-botHeading));
+        double rx = heading;
+
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower = (y + x + rx) / denominator;
+        double backLeftPower = (y - x + rx) / denominator;
+        double frontRightPower = (y - x - rx) / denominator;
+        double backRightPower = (y + x - rx) / denominator;
+
+        fl.setPower(frontLeftPower);
+        bl.setPower(backLeftPower);
+        fr.setPower(frontRightPower);
+        br.setPower(backRightPower);
+    }
+
     public void setStartingPose(Pose p) {
         follower.setStartingPose(p);
     }

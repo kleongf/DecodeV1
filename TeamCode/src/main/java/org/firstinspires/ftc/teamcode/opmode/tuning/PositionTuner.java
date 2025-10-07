@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.robot.constants.RobotConstantsAuto;
+import org.firstinspires.ftc.teamcode.robot.constants.RobotConstantsTele;
+
 @Config
 @TeleOp(name="Position Tuner")
 public class PositionTuner extends OpMode {
@@ -15,13 +18,13 @@ public class PositionTuner extends OpMode {
     public Servo rightElbow;
     public Servo shooterServo;
     public Servo pitchServo;
-    public static double latchTarget = 0;
+    public static double latchTarget = RobotConstantsTele.LATCH_CLOSED;
     public static double rightLatchTarget = 0;
     public static double centerLatchTarget = 0;
-    public static double leftElbowTarget = 0;
-    public static double rightElbowTarget = 0;
+    public static double leftElbowTarget = RobotConstantsTele.INTAKE_DOWN;
+    public static double rightElbowTarget = RobotConstantsTele.INTAKE_DOWN;
     public static double shooterTarget = 0;
-    public static double pitchTarget = 0;
+    public static double pitchTarget = RobotConstantsTele.PITCH_SERVO_MIN;
 
     @Override
     public void init() {

@@ -18,13 +18,14 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="blue auto far v2: 15 balls")
-public class BlueAutoV2 extends OpMode {
+@Autonomous(name="blue auto close side v1+blackboard")
+public class BlueAutoCloseV1 extends OpMode {
+    public static final String END_POSE_KEY = "END_POSE";
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM2 sotm2;
-    private final Pose startPose = new Pose(56, 8, Math.toRadians(180));
+    private final Pose startPose = new Pose(30, 138, Math.toRadians(270));
     private final Pose shootPose = new Pose(60, 84, Math.toRadians(180));
     private final Pose goalPose = new Pose(9, 132, Math.toRadians(45));
     private PathChain shootFirst, intakeSecond, shootSecond, intakeThird, openGate, shootThird, intakeFourth, shootFourth, intakeFifth, shootFifth, park;
@@ -32,10 +33,10 @@ public class BlueAutoV2 extends OpMode {
     public void buildPaths() {
         shootFirst = follower.pathBuilder()
                 .addPath(
-                        // Path 1
-                        new BezierLine(new Pose(56.000, 8.000), new Pose(60.000, 84.000))
+                        // Path 14
+                        new BezierLine(new Pose(30.000, 138.000), new Pose(60.000, 84.000))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180))
                 .build();
         intakeSecond = follower.pathBuilder()
                 .addPath(
@@ -212,6 +213,9 @@ public class BlueAutoV2 extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy()))
         );
 
+        Object endPose = blackboard.getOrDefault(END_POSE_KEY, new Pose(56.000, 40.000, Math.toRadians(270)));
+        blackboard.put(END_POSE_KEY, endPose);
+
         try {
             sleep(500);
         } catch (InterruptedException e) {
@@ -238,5 +242,12 @@ public class BlueAutoV2 extends OpMode {
 
         stateMachine.start();
         robot.start();
+    }
+
+    // TODO: when we stop, save position to blackboard
+    @Override
+    public void stop() {
+        Object endPose = blackboard.getOrDefault(END_POSE_KEY, follower.getPose());
+        blackboard.put(END_POSE_KEY, endPose);
     }
 }
