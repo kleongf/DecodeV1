@@ -16,34 +16,32 @@ public class SOTM2 {
         // TODO: add tuned values here for theta and velocity
         // also these go from 0 to 20, where 20 is our max for some reason (25-45)
         thetaLUT = new LUT();
-        thetaLUT.addData(12, Math.toRadians(0));
-        thetaLUT.addData(22, Math.toRadians(0));
-        thetaLUT.addData(32, Math.toRadians(0));
-        thetaLUT.addData(42, Math.toRadians(7));
-        thetaLUT.addData(52, Math.toRadians(10));
-        thetaLUT.addData(62, Math.toRadians(12));
-        thetaLUT.addData(72, Math.toRadians(15));
-        thetaLUT.addData(82, Math.toRadians(20));
-        thetaLUT.addData(92, Math.toRadians(20));
-        thetaLUT.addData(102, Math.toRadians(20));
-        thetaLUT.addData(112, Math.toRadians(20));
-        thetaLUT.addData(122, Math.toRadians(20));
-        thetaLUT.addData(133, Math.toRadians(20));
+        thetaLUT.addData(24, Math.toRadians(0));
+        thetaLUT.addData(34, Math.toRadians(8));
+        thetaLUT.addData(44, Math.toRadians(11));
+        thetaLUT.addData(54, Math.toRadians(13));
+        thetaLUT.addData(64, Math.toRadians(13));
+        thetaLUT.addData(74, Math.toRadians(13));
+        thetaLUT.addData(84, Math.toRadians(14));
+        thetaLUT.addData(94, Math.toRadians(14));
+        thetaLUT.addData(104, Math.toRadians(15));
+        thetaLUT.addData(114, Math.toRadians(16));
+        thetaLUT.addData(124, Math.toRadians(16));
+        thetaLUT.addData(134, Math.toRadians(16));
 
         velocityLUT = new LUT();
-        velocityLUT.addData(133, 2400);
-        velocityLUT.addData(122, 2250);
-        velocityLUT.addData(112, 2125);
-        velocityLUT.addData(102, 2000);
-        velocityLUT.addData(92, 1900);
-        velocityLUT.addData(82, 1800);
-        velocityLUT.addData(72, 1700);
-        velocityLUT.addData(62, 1600);
-        velocityLUT.addData(52, 1500);
-        velocityLUT.addData(42, 1420);
-        velocityLUT.addData(32, 1400);
-        velocityLUT.addData(22, 1500);
-        velocityLUT.addData(12, 1500);
+        velocityLUT.addData(134, 2250);
+        velocityLUT.addData(124, 2150);
+        velocityLUT.addData(114, 2050);
+        velocityLUT.addData(104, 1950);
+        velocityLUT.addData(94, 1850);
+        velocityLUT.addData(84, 1750);
+        velocityLUT.addData(74, 1680);
+        velocityLUT.addData(64, 1640);
+        velocityLUT.addData(54, 1600);
+        velocityLUT.addData(44, 1550);
+        velocityLUT.addData(34, 1450);
+        velocityLUT.addData(24, 1430);
     }
     private double calculateLinearVelocity(double ticksPerSecond) {
         return (ticksPerSecond * 2 * Math.PI / 28.0) * radius * speedCoefficient;
