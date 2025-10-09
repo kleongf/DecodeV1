@@ -149,12 +149,13 @@ public class GoodTeleop extends OpMode {
         telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
 
         if (isAutoDriving) {
-            if (!drivetrain.follower.isBusy() || gamepad1.leftStickButtonWasPressed() || gamepad1.rightStickButtonWasPressed()) {
+            // TODO: add button to automatically break following
+            if (!drivetrain.follower.isBusy()) {
                 isAutoDriving = false;
                 drivetrain.follower.breakFollowing();
             }
         } else {
-            drivetrain.setFieldCentricMovementVectors(gp1.getLeftStickY()*longitudinalSpeed,
+            drivetrain.setFieldCentricMovementVectors(-gp1.getLeftStickY()*longitudinalSpeed,
                     gp1.getLeftStickX()*lateralSpeed,
                     gp1.getRightStickX()*rotationSpeed);
         }

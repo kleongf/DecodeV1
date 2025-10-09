@@ -78,10 +78,12 @@ public class TeleopRobotV1 {
                         .onEnter(() -> {
                             // ??? saying everything so that in the event of a back button, we can do to prev state and run it
                             shooter.openLatch();
-                            intake.setIntakeOn(true);
                             intake.intakePushMid();
                         })
-                        .maxTime(500),
+                        .maxTime(300),
+                new State()
+                        .onEnter(() -> intake.setIntakeOn(true))
+                        .maxTime(200),
                 new State()
                         .onEnter(() -> {
                             shooter.openLatch();

@@ -55,8 +55,8 @@ public class Drivetrain {
     public void setFieldCentricMovementVectors(double forward, double strafe, double heading) {
         double botHeading = follower.getPose().getHeading();
         double x = strafe * Math.cos(-botHeading) - forward * Math.sin(-botHeading);
-        x *= 1.1;
-        double y = - (strafe * Math.sin(-botHeading) + forward * Math.cos(-botHeading));
+//        x *= 1.1;
+        double y = strafe * Math.sin(-botHeading) + forward * Math.cos(-botHeading);
         double rx = heading;
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
