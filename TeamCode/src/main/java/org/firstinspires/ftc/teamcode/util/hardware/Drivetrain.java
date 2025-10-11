@@ -8,13 +8,18 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.util.controllers.PIDFController;
+import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
 
 public class Drivetrain {
     private DcMotorEx fl, bl, fr, br;
     private HardwareMap hardwareMap;
     public Follower follower;
+    private PIDFController headingController;
+    private double targetHeading = 0;
 
     public Drivetrain(HardwareMap hardwareMap) {
+        this.headingController = new PIDFController(1, 0, 0.02, 0); // same as pedro
         this.hardwareMap = hardwareMap;
         fl = this.hardwareMap.get(DcMotorEx.class, "front_left_drive");
         bl = this.hardwareMap.get(DcMotorEx.class, "back_left_drive");
@@ -69,6 +74,26 @@ public class Drivetrain {
         bl.setPower(backLeftPower);
         fr.setPower(frontRightPower);
         br.setPower(backRightPower);
+    }
+
+    public void setHeadingLockFieldCentricMovementVectors(double forward, double strafe, double heading) {
+        double botHeading = follower.getPose().getHeading();
+        double x = strafe * Math.cos(-botHeading) - forward * Math.sin(-botHeading);
+        double y = strafe * Math.sin(-botHeading) + forward * Math.cos(-botHeading);
+        double rx = Math.abs(heading) > 0.005 ? heading : -headingController.calculate(MathFunctions.angleWrap(follower.getPose().getHeading()), MathFunctions.angleWrap(targetHeading));
+
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower = (y + x + rx) / denominator;
+        double backLeftPower = (y - x + rx) / denominator;
+        double frontRightPower = (y - x - rx) / denominator;
+        double backRightPower = (y + x - rx) / denominator;
+
+        fl.setPower(frontLeftPower);
+        bl.setPower(backLeftPower);
+        fr.setPower(frontRightPower);
+        br.setPower(backRightPower);
+
+        targetHeading = follower.getPose().getHeading();
     }
 
     public void setStartingPose(Pose p) {

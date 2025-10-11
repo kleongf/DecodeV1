@@ -17,6 +17,7 @@ public class BetterIntake extends Subsystem {
         rightElbow = hardwareMap.get(Servo.class, "rightElbow");
 
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }

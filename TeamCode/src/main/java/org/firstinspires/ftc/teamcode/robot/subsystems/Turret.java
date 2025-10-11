@@ -20,7 +20,7 @@ public class Turret extends Subsystem {
         turretMotor = hardwareMap.get(DcMotorEx.class, "turretMotor");
         turretMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         // tODO: dont always reset encoder
-        turretMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        // turretMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // i changed this to heading pidf controller
 
@@ -46,6 +46,11 @@ public class Turret extends Subsystem {
     @Override
     public void start() {
 
+    }
+
+    public void resetEncoder() {
+        turretMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void setTarget(double x) {

@@ -39,6 +39,7 @@ public class AutonomousRobot {
         shooter = new BetterShooter(hardwareMap);
         subsystems.add(shooter);
         turret = new Turret(hardwareMap);
+        turret.resetEncoder();
         subsystems.add(turret);
 
 
@@ -58,7 +59,7 @@ public class AutonomousRobot {
         prepareShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            intake.setIntakeOn(false);
+                            intake.setIntakeOn(true);
                             intake.intakePushMid();
                             shooter.closeLatch();
                         })
@@ -71,22 +72,24 @@ public class AutonomousRobot {
                         .onEnter(() -> {
                             // ??? saying everything so that in the event of a back button, we can do to prev state and run it
                             shooter.openLatch();
-                            intake.setIntakeOn(true);
+                            intake.setIntakeOn(false);
                             intake.intakePushMid();
                         })
-                        .maxTime(500),
+                        .maxTime(400),
+                new State()
+                        .onEnter(() -> intake.setIntakeOn(true))
+                        .maxTime(300),
                 new State()
                         .onEnter(() -> {
                             shooter.openLatch();
                             intake.setIntakeOn(true);
                             intake.intakePush();
-
                         })
                         .maxTime(500),
                 new State()
                         .onEnter(() -> {
+                            //intake.setIntakeOn(false);
                             intake.intakeDown();
-
                         })
                         .maxTime(200)
 
@@ -98,10 +101,10 @@ public class AutonomousRobot {
     public void initPositions() {
         shooter.closeLatch();
         shooter.setTargetVelocity(0);
-        shooter.setShooterPitch(Math.toRadians(30));
+        shooter.setShooterPitch(Math.toRadians(0));
         shooter.setShooterOn(true);
         intake.setIntakeOn(false);
-        intake.intakePush();
+        intake.intakePushMid();
         turret.setTarget(0);
     }
 

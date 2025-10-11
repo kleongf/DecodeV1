@@ -33,7 +33,7 @@ public class BetterShooter extends Subsystem {
         pitchServo = hardwareMap.get(Servo.class, "pitchServo");
         // controller = new TBHController(0.00001, 1);
         // 2800 ticks when power is 1, and speed is proportional to voltage
-        controller = new FeedForwardController((1.0/2800.0), 0, 0.001);
+        controller = new FeedForwardController((1.0/2850.0), 0, 0.005);
     }
     @Override
     public void update() {

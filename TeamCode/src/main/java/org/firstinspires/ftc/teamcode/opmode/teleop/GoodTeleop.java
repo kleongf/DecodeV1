@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
-import static org.firstinspires.ftc.teamcode.opmode.autonomous.BlueAutoCloseV1.END_POSE_KEY;
+import static org.firstinspires.ftc.teamcode.opmode.autonomous.BlueAutoCloseV3.END_POSE_KEY;
 import static java.lang.Thread.sleep;
 
 import com.pedropathing.localization.Pose;
@@ -31,9 +31,9 @@ public class GoodTeleop extends OpMode {
     private Drivetrain drivetrain;
     private double longitudinalSpeed = 0.5, lateralSpeed = 0.5, rotationSpeed = 0.3;
     private TeleopRobotV1 robot;
-    // TODO: try blackboard
-    // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY);
-    private final Pose startPose = new Pose(54, 6, Math.toRadians(180));
+    // TODO: try blackboard AHHHH
+    private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY);
+    // private final Pose startPose = new Pose(54, 6, Math.toRadians(180));
     private final Pose goalPose = new Pose(9, 132, Math.toRadians(45));
     private final Pose shootPoseClose = new Pose(60, 84, Math.toRadians(180));
     private final Pose shootPoseFar = new Pose(56, 8, Math.toRadians(180));
@@ -44,6 +44,7 @@ public class GoodTeleop extends OpMode {
 
     @Override
     public void init() {
+        // TODO: teleoprobot no reset encoder for turret
         drivetrain = new Drivetrain(hardwareMap);
         drivetrain.setStartingPose(startPose);
 
@@ -121,7 +122,7 @@ public class GoodTeleop extends OpMode {
             drivetrain.follower.followPath(driveFar, true);
         }
         // TODO: add another one to drive to latch thingy
-        if (gp1.aPressed()) {
+        if (gp1.bPressed()) {
             PathChain driveToClosestPoint = drivetrain.follower.pathBuilder()
                     .addPath(
                             new Path(
@@ -136,6 +137,17 @@ public class GoodTeleop extends OpMode {
             isAutoDriving = true;
             drivetrain.follower.breakFollowing();
             drivetrain.follower.followPath(driveToClosestPoint, true);
+        }
+
+        // safety for autodrive
+        if (gamepad1.leftStickButtonWasPressed() || gamepad1.rightStickButtonWasPressed()) {
+            isAutoDriving = false;
+            drivetrain.follower.breakFollowing();
+        }
+
+        // relocalization
+        if (gp1.dpadUpPressed()) {
+            drivetrain.follower.setCurrentPoseWithOffset(new Pose(138, 6, Math.toRadians(90)));
         }
 
         double[] values = sotm2.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
@@ -154,8 +166,9 @@ public class GoodTeleop extends OpMode {
                 isAutoDriving = false;
                 drivetrain.follower.breakFollowing();
             }
+
         } else {
-            drivetrain.setFieldCentricMovementVectors(-gp1.getLeftStickY()*longitudinalSpeed,
+            drivetrain.setHeadingLockFieldCentricMovementVectors(-gp1.getLeftStickY()*longitudinalSpeed,
                     gp1.getLeftStickX()*lateralSpeed,
                     gp1.getRightStickX()*rotationSpeed);
         }
