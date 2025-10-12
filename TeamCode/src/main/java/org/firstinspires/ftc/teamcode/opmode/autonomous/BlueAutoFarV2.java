@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous;
 import static java.lang.Thread.sleep;
 
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
@@ -18,89 +19,98 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="blue auto far side v2")
+@Autonomous(name="blue auto fart side v2")
 public class BlueAutoFarV2 extends OpMode {
+    public static final String END_POSE_KEY = "END_POSE";
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM2 sotm2;
     private final Pose startPose = new Pose(54, 6, Math.toRadians(90));
     private final Pose shootPose = new Pose(60, 84, Math.toRadians(180));
-    private final Pose goalPose = new Pose(9, 132, Math.toRadians(45));
+    private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
     private PathChain shootFirst, intakeSecond, shootSecond, openGate, shootThird, intakeFourth, shootFourth, intakeFifth, shootFifth, park;
 
     public void buildPaths() {
         shootFirst = follower.pathBuilder()
                 .addPath(
                         // Path 1
-                        new BezierLine(new Pose(54.000, 6.000), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(54, 6), new Pose(60.000, 84.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
                 .build();
         intakeSecond = follower.pathBuilder()
                 .addPath(
                         // Path 2
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 60.000))
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 58.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .addPath(
                         // Path 3
-                        new BezierLine(new Pose(45.000, 60.000), new Pose(10.000, 60.000))
+                        new BezierLine(new Pose(45.000, 58.000), new Pose(6.000, 58.000))
                 )
+                .addParametricCallback(0.1, () -> follower.setMaxPower(0.6))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootSecond = follower.pathBuilder()
                 .addPath(
                         // Path 4
-                        new BezierLine(new Pose(10.000, 60.000), new Pose(60.000, 84.000))
+                        new BezierCurve(new Pose(6.000, 58.000), new Pose(60, 60), new Pose(60.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         openGate = follower.pathBuilder()
                 .addPath(
-                        // Path 5
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(8.000, 64.000))
+                        // Path 2
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 57))
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(150))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(126))
+                .addPath(
+                        // Path 5
+                        new BezierLine(new Pose(45, 57), new Pose(3, 57))
+                )
+                .setConstantHeadingInterpolation( Math.toRadians(126))
                 .build();
         shootThird = follower.pathBuilder()
                 .addPath(
                         // Path 6
-                        new BezierLine(new Pose(8.000, 64.000), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(3, 57), new Pose(60, 84))
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(150), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(126), Math.toRadians(180))
                 .build();
 
         intakeFourth = follower.pathBuilder()
                 .addPath(
                         // Path 7
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(12.000, 84.000))
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(12.000, 80.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addParametricCallback(0.1, () -> follower.setMaxPower(0.6))
                 .build();
         shootFourth = follower.pathBuilder()
                 .addPath(
                         // Path 8
-                        new BezierLine(new Pose(12.000, 84.000), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(12.000, 80.000), new Pose(60.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         intakeFifth = follower.pathBuilder()
                 .addPath(
                         // Path 9
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 36.000))
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 32.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .addPath(
                         // Path 10
-                        new BezierLine(new Pose(45.000, 36.000), new Pose(10.000, 36.000))
+                        new BezierLine(new Pose(45.000, 34.000), new Pose(6, 32.000))
                 )
+                .addParametricCallback(0.1, () -> follower.setMaxPower(0.6))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootFifth = follower.pathBuilder()
                 .addPath(
                         // Path 11
-                        new BezierLine(new Pose(10.000, 36.000), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(6, 32.000), new Pose(60.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
@@ -117,13 +127,14 @@ public class BlueAutoFarV2 extends OpMode {
     public void init() {
         follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
+        follower.setMaxPower(0.75);
         robot = new AutonomousRobot(hardwareMap);
         sotm2 = new SOTM2(goalPose);
         buildPaths();
 
         stateMachine = new StateMachine(
                 new State()
-                        .onEnter(() -> follower.followPath(shootFirst, true))
+                        .onEnter(() -> {follower.followPath(shootFirst, true); robot.prepareShooting.start();})
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
@@ -132,10 +143,11 @@ public class BlueAutoFarV2 extends OpMode {
                         .onEnter(() -> {
                             robot.prepareIntake.start();
                             follower.followPath(intakeSecond, true);
+
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> robot.prepareShooting.start())
+                        .onEnter(() -> {robot.prepareShooting.start(); follower.setMaxPower(0.75);})
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
                         .onEnter(() -> follower.followPath(shootSecond, true))
@@ -152,7 +164,7 @@ public class BlueAutoFarV2 extends OpMode {
                 new State()
                         .maxTime(2000),
                 new State()
-                        .onEnter(() -> robot.prepareShooting.start())
+                        .onEnter(() -> {robot.prepareShooting.start(); follower.setMaxPower(0.75);})
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
                         .onEnter(() -> follower.followPath(shootThird, true))
@@ -167,7 +179,7 @@ public class BlueAutoFarV2 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> robot.prepareShooting.start())
+                        .onEnter(() -> {robot.prepareShooting.start(); follower.setMaxPower(0.75);})
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
                         .onEnter(() -> follower.followPath(shootFourth, true))
@@ -182,7 +194,7 @@ public class BlueAutoFarV2 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> robot.prepareShooting.start())
+                        .onEnter(() -> {robot.prepareShooting.start(); follower.setMaxPower(0.75);})
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
                         .onEnter(() -> follower.followPath(shootFifth, true))
@@ -207,6 +219,9 @@ public class BlueAutoFarV2 extends OpMode {
         stateMachine.update();
         follower.update();
         robot.update();
+
+        telemetry.addData("Pose", follower.getPose());
+        telemetry.update();
     }
 
     @Override
@@ -221,5 +236,11 @@ public class BlueAutoFarV2 extends OpMode {
 
         stateMachine.start();
         robot.start();
+    }
+
+    @Override
+    public void stop() {
+        Object endPose = blackboard.getOrDefault(END_POSE_KEY, follower.getPose());
+        blackboard.put(END_POSE_KEY, endPose);
     }
 }

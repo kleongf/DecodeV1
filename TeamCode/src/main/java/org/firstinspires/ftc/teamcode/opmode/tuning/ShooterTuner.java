@@ -21,10 +21,10 @@ public class ShooterTuner extends OpMode {
     private Follower follower;
     private BetterShooter shooter;
     private Turret turret;
-    public static double shooterAngleDegrees = 30;
+    public static double shooterAngleDegrees = 20;
     public static double shooterSpeedTicks = 0;
     private Pose startPose = new Pose(54, 6, Math.toRadians(180));
-    private Pose goalPose = new Pose(9, 132, Math.toRadians(45));
+    private Pose goalPose = new Pose(6, 132, Math.toRadians(45));
     private SOTM2 sotm2;
 
     @Override
@@ -33,6 +33,7 @@ public class ShooterTuner extends OpMode {
         follower.setStartingPose(startPose);
         shooter = new BetterShooter(hardwareMap);
         turret = new Turret(hardwareMap);
+        turret.resetEncoder();
         sotm2 = new SOTM2(goalPose);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }

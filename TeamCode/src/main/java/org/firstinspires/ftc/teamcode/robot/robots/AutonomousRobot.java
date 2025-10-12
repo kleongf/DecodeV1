@@ -49,6 +49,7 @@ public class AutonomousRobot {
                 new State()
                         .onEnter(() -> {
                             intake.setIntakeOn(true);
+                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;
                             intake.intakeDown();
                             shooter.closeLatch();
                         })
@@ -59,7 +60,8 @@ public class AutonomousRobot {
         prepareShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            intake.setIntakeOn(true);
+                            intake.state = BetterIntake.IntakeState.INTAKE_SLOW;
+                            intake.setIntakeOn(false);
                             intake.intakePushMid();
                             shooter.closeLatch();
                         })
@@ -72,12 +74,13 @@ public class AutonomousRobot {
                         .onEnter(() -> {
                             // ??? saying everything so that in the event of a back button, we can do to prev state and run it
                             shooter.openLatch();
+                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
                             intake.setIntakeOn(false);
                             intake.intakePushMid();
                         })
                         .maxTime(400),
                 new State()
-                        .onEnter(() -> intake.setIntakeOn(true))
+                        .onEnter(() -> intake.state = BetterIntake.IntakeState.INTAKE_FAST)
                         .maxTime(300),
                 new State()
                         .onEnter(() -> {
@@ -91,7 +94,7 @@ public class AutonomousRobot {
                             //intake.setIntakeOn(false);
                             intake.intakeDown();
                         })
-                        .maxTime(200)
+                        .maxTime(1)
 
         );
 

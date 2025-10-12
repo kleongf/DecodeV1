@@ -32,9 +32,9 @@ public class GoodTeleop extends OpMode {
     private double longitudinalSpeed = 0.5, lateralSpeed = 0.5, rotationSpeed = 0.3;
     private TeleopRobotV1 robot;
     // TODO: try blackboard AHHHH
-    private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY);
+    private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
     // private final Pose startPose = new Pose(54, 6, Math.toRadians(180));
-    private final Pose goalPose = new Pose(9, 132, Math.toRadians(45));
+    private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
     private final Pose shootPoseClose = new Pose(60, 84, Math.toRadians(180));
     private final Pose shootPoseFar = new Pose(56, 8, Math.toRadians(180));
     private SmartGamepad gp1;
@@ -185,5 +185,11 @@ public class GoodTeleop extends OpMode {
 
         robot.shooter.setShooterOn(true);
         robot.start();
+    }
+
+    @Override
+    public void stop() {
+        Object endPose = blackboard.getOrDefault(END_POSE_KEY, drivetrain.follower.getPose());
+        blackboard.put(END_POSE_KEY, endPose);
     }
 }

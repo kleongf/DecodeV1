@@ -29,7 +29,7 @@ public class TurretFollowTest extends OpMode {
     private BetterShooter shooter;
     private final Pose startPose = new Pose(54, 6, Math.toRadians(180));
     // i don't think angle matters here in the sotm calculation
-    private final Pose goalPose = new Pose(9, 132, Math.toRadians(45));
+    private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
     @Override
     public void loop() {
 
@@ -62,10 +62,12 @@ public class TurretFollowTest extends OpMode {
         follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         turret = new Turret(hardwareMap);
+        turret.resetEncoder();
         shooter = new BetterShooter(hardwareMap);
         shooter.setShooterOn(true);
         intake = new BetterIntake(hardwareMap);
         intake.setIntakeOn(true);
+        intake.state = BetterIntake.IntakeState.INTAKE_FAST;
         intake.intakeDown();
         sotm2 = new SOTM2(goalPose);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());

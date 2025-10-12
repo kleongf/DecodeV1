@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous;
 import static java.lang.Thread.sleep;
 
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
@@ -27,8 +28,8 @@ public class BlueAutoCloseV3 extends OpMode {
     private SOTM2 sotm2;
     private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
     private final Pose shootPose = new Pose(60, 84, Math.toRadians(180));
-    private final Pose goalPose = new Pose(9, 135, Math.toRadians(45));
-    private PathChain shootFirst, intakeSecond, shootSecond, openGate, shootThird, intakeFourth, shootFourth, intakeFifth, shootFifth, park;
+    private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
+    private PathChain shootFirst, intakeSecond, shootSecond, openGate, intakeThird, shootThird, intakeFourth, shootFourth, intakeFifth, shootFifth, park;
 
     public void buildPaths() {
         shootFirst = follower.pathBuilder()
@@ -54,28 +55,47 @@ public class BlueAutoCloseV3 extends OpMode {
         shootSecond = follower.pathBuilder()
                 .addPath(
                         // Path 4
-                        new BezierLine(new Pose(6.000, 58.000), new Pose(60.000, 84.000))
+                        new BezierCurve(new Pose(6.000, 58.000), new Pose(60, 60), new Pose(60.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         openGate = follower.pathBuilder()
                 .addPath(
-                        // Path 2
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 59))
+                        new BezierLine(new Pose(60, 84), new Pose(50, 74))
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(140))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
                 .addPath(
-                        // Path 5
-                        new BezierLine(new Pose(45, 59), new Pose(4, 58))
+                        new BezierLine(new Pose(50, 74), new Pose(14, 74))
                 )
-                .setConstantHeadingInterpolation( Math.toRadians(136))
+                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(270))
+//                .addPath(
+//                        // Path 2
+//                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 59))
+//                )
+//                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(126))
+//                .addPath(
+//                        // Path 5
+//                        new BezierLine(new Pose(45, 59), new Pose(5, 59))
+//                )
+//                .setConstantHeadingInterpolation( Math.toRadians(126))
+                .build();
+        intakeThird = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(14.000, 74.000),
+                                new Pose(22.787, 63.574),
+                                new Pose(5.362, 56.681),
+                                new Pose(6.000, 9.000)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(270))
                 .build();
         shootThird = follower.pathBuilder()
                 .addPath(
                         // Path 6
-                        new BezierLine(new Pose(4, 58), new Pose(60, 84))
+                        new BezierLine(new Pose(6, 9), new Pose(60, 84))
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(136), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180))
                 .build();
 
         intakeFourth = follower.pathBuilder()
@@ -157,11 +177,29 @@ public class BlueAutoCloseV3 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
+                            follower.followPath(intakeFifth, true);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> {robot.prepareShooting.start(); follower.setMaxPower(0.75);})
+                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootFifth, true))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.startShooting.start())
+                        .transition(new Transition(() -> robot.startShooting.isFinished())),
+                new State()
+                        .onEnter(() -> {
+                            robot.prepareIntake.start();
                             follower.followPath(openGate, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .maxTime(2000),
+                new State()
+                        .onEnter(() -> follower.followPath(intakeThird, true))
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> {robot.prepareShooting.start(); follower.setMaxPower(0.75);})
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
@@ -171,6 +209,7 @@ public class BlueAutoCloseV3 extends OpMode {
                 new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
+
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
@@ -182,21 +221,6 @@ public class BlueAutoCloseV3 extends OpMode {
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
                         .onEnter(() -> follower.followPath(shootFourth, true))
-                        .transition(new Transition(() -> !follower.isBusy())),
-                new State()
-                        .onEnter(() -> robot.startShooting.start())
-                        .transition(new Transition(() -> robot.startShooting.isFinished())),
-                new State()
-                        .onEnter(() -> {
-                            robot.prepareIntake.start();
-                            follower.followPath(intakeFifth, true);
-                        })
-                        .transition(new Transition(() -> !follower.isBusy())),
-                new State()
-                        .onEnter(() -> {robot.prepareShooting.start(); follower.setMaxPower(0.75);})
-                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
-                new State()
-                        .onEnter(() -> follower.followPath(shootFifth, true))
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
@@ -218,6 +242,9 @@ public class BlueAutoCloseV3 extends OpMode {
         stateMachine.update();
         follower.update();
         robot.update();
+
+        telemetry.addData("Pose", follower.getPose());
+        telemetry.update();
     }
 
     @Override

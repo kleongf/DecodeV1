@@ -62,6 +62,8 @@ public class LimelightPoseTest extends OpMode {
         follower.setStartingPose(startPose);
         intake = new BetterIntake(hardwareMap);
         intake.setIntakeOn(true);
+        intake.state = BetterIntake.IntakeState.INTAKE_FAST;
+        intake.intakeDown();
     }
 
     @Override

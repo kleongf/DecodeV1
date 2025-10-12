@@ -8,6 +8,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 import static org.firstinspires.ftc.teamcode.robot.constants.RobotConstantsTele.*;
 
 public class BetterIntake extends Subsystem {
+    public enum IntakeState {
+        INTAKE_FAST,
+        INTAKE_SLOW,
+        INTAKE_OFF
+    }
+    public IntakeState state = IntakeState.INTAKE_OFF;
     public Servo leftElbow;
     public Servo rightElbow;
     public DcMotorEx intakeMotor;
@@ -24,11 +30,22 @@ public class BetterIntake extends Subsystem {
 
     @Override
     public void update() {
-        if (intakeOn) {
-            intakeMotor.setPower(1);
-        } else {
-            intakeMotor.setPower(0);
+        switch (state) {
+            case INTAKE_FAST:
+                intakeMotor.setPower(1);
+                break;
+            case INTAKE_SLOW:
+                intakeMotor.setPower(0.5);
+                break;
+            case INTAKE_OFF:
+                intakeMotor.setPower(0);
+                break;
         }
+//        if (intakeOn) {
+//            intakeMotor.setPower(1);
+//        } else {
+//            intakeMotor.setPower(0);
+//        }
     }
 
     @Override

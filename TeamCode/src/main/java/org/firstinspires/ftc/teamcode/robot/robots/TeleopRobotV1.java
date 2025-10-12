@@ -52,6 +52,7 @@ public class TeleopRobotV1 {
         prepareIntake = new StateMachine(
                 new State()
                         .onEnter(() -> {
+                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;
                             intake.setIntakeOn(true);
                             intake.intakeDown();
                             shooter.closeLatch();
@@ -63,6 +64,7 @@ public class TeleopRobotV1 {
         prepareShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
+                            intake.state = BetterIntake.IntakeState.INTAKE_SLOW;
                             intake.setIntakeOn(false);
                             intake.intakePushMid();
                             shooter.closeLatch();
@@ -76,14 +78,16 @@ public class TeleopRobotV1 {
         startShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
+
                             // ??? saying everything so that in the event of a back button, we can do to prev state and run it
                             shooter.openLatch();
                             intake.intakePushMid();
+                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
                         })
-                        .maxTime(300),
+                        .maxTime(400),
                 new State()
-                        .onEnter(() -> intake.setIntakeOn(true))
-                        .maxTime(200),
+                        .onEnter(() -> {intake.setIntakeOn(true); intake.state = BetterIntake.IntakeState.INTAKE_FAST;})
+                        .maxTime(300),
                 new State()
                         .onEnter(() -> {
                             shooter.openLatch();
@@ -95,6 +99,7 @@ public class TeleopRobotV1 {
                 new State()
                         .onEnter(() -> {
                             intake.setIntakeOn(false);
+                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
                             intake.intakeDown();
                         })
                         .maxTime(100)

@@ -21,8 +21,8 @@ public class TurretTuner extends OpMode {
     public static double kF = 0;
 
     public static double target = 0;
-    public static double errorThreshold = Math.toRadians(3);
-    private double ticksPerRevolution = 1918; // 383.6*5 idk
+    public static double errorThreshold = 10;
+    private double ticksPerRevolution = 1931; // 383.6*5 idk
     private double ticksPerRadian = ticksPerRevolution / (2 * Math.PI);
 
     public DcMotorEx turretMotor;
@@ -39,23 +39,39 @@ public class TurretTuner extends OpMode {
 
     }
 
+    private double weirdAngleWrap(double radians) {
+        while (radians > 0) {
+            radians -= 2 * Math.PI;
+        }
+        while (radians < -2 * Math.PI) {
+            radians += 2 * Math.PI;
+        }
+        // keep in mind that the result is in radians
+        return radians;
+    }
+
     @Override
     public void loop() {
         controller.setPIDF(kP, 0, kD, 0);
-        double currentPos = turretMotor.getCurrentPosition() / ticksPerRadian;
-        //double targetPos = Math.toRadians(target);
-        double power = controller.calculate(currentPos, Math.toRadians(target));
-//        if (Math.abs(MathFunctions.angleWrap(currentPos)-MathFunctions.angleWrap(Math.toRadians(target))) > errorThreshold) {
-//            double error = MathFunctions.angleWrap(Math.toRadians(target))-MathFunctions.angleWrap(currentPos);
-//            power += kF * Math.signum(error);
-//        }
+        double c = turretMotor.getCurrentPosition();
+        // TODO: maybe anglewrap the target?
+        double t = weirdAngleWrap(target) * ticksPerRadian;
+        double power = controller.calculate(c, t);
+
+//        double currentPos = turretMotor.getCurrentPosition() / ticksPerRadian;
+//        //double targetPos = Math.toRadians(target);
+//        double power = controller.calculate(currentPos, Math.toRadians(target));
+        if (Math.abs(c-t) > errorThreshold) {
+            double error = t-c;
+            power += kF * Math.signum(error);
+        }
         turretMotor.setPower(power);
 
         telemetry.addData("power", power);
         telemetry.addData("ticks", turretMotor.getCurrentPosition());
-        telemetry.addData("current position", MathFunctions.angleWrap(currentPos));
-        telemetry.addData("target", Math.toRadians(target));
-        telemetry.addData("ticks back to target", Math.toRadians(target) * ticksPerRadian);
+        telemetry.addData("current position", c);
+        telemetry.addData("target", target);
+        // telemetry.addData("ticks back to target", Math.toRadians(target) * ticksPerRadian);
         telemetry.update();
     }
 
