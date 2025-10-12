@@ -14,6 +14,8 @@ public class BetterIntake extends Subsystem {
         INTAKE_OFF
     }
     public IntakeState state = IntakeState.INTAKE_OFF;
+    public Servo rightGateServo;
+    public Servo leftGateServo;
     public Servo leftElbow;
     public Servo rightElbow;
     public DcMotorEx intakeMotor;
@@ -21,6 +23,9 @@ public class BetterIntake extends Subsystem {
     public BetterIntake(HardwareMap hardwareMap) {
         leftElbow = hardwareMap.get(Servo.class, "leftElbow");
         rightElbow = hardwareMap.get(Servo.class, "rightElbow");
+
+        rightGateServo = hardwareMap.get(Servo.class, "rightGateServo");
+        //leftGateServo = hardwareMap.get(Servo.class, "leftGateServo");//todo: not until we get it installed
 
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -52,6 +57,8 @@ public class BetterIntake extends Subsystem {
     public void start() {
         leftElbow.setPosition(INTAKE_DOWN);
         rightElbow.setPosition(INTAKE_DOWN);
+
+        rightGateMid();
     }
 
     public void intakeDown() {
@@ -63,11 +70,29 @@ public class BetterIntake extends Subsystem {
         leftElbow.setPosition(INTAKE_PUSH);
         rightElbow.setPosition(INTAKE_PUSH);
     }
+    public void intakeHigh(){
+        leftElbow.setPosition(INTAKE_HIGH);
+        rightElbow.setPosition(INTAKE_HIGH);
+    }
     public void intakePushMid() {
         leftElbow.setPosition(INTAKE_PUSH_MID);
         rightElbow.setPosition(INTAKE_PUSH_MID);
     }
-
+    public void rightGateUp(){
+        rightGateServo.setPosition(GATE_UP);
+    }
+    public void rightGateDown(){
+        rightGateServo.setPosition(GATE_DOWN);
+    }
+    public void rightGateMid(){
+        rightGateServo.setPosition(GATE_MID);
+    }
+//    public void leftGateUp(){//todo: not yet
+//        leftGateServo.setPosition(GATE_UP);
+//    }
+//    public void leftGateDown(){
+//        leftGateServo.setPosition(GATE_DOWN);
+//    }
     public void setIntakeOn(boolean x){
         intakeOn = x;
     }

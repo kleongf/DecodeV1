@@ -16,13 +16,16 @@ public class AutonomousRobot {
     public boolean isBusy = false;
     private final ArrayList<Subsystem> subsystems;
     private final BulkRead bulkRead;
-    private final BetterIntake intake;
+    public final BetterIntake intake;
     public final BetterShooter shooter;
     public final Turret turret;
 
     private final ArrayList<StateMachine> commands;
     public StateMachine prepareIntake;
+    public StateMachine gateIntake;
+    public StateMachine gateIntakeDown;
     public StateMachine prepareShooting;
+    public StateMachine stopIntake;
     public StateMachine startShooting;
 
     // button: start and stop intaking
@@ -44,11 +47,27 @@ public class AutonomousRobot {
 
 
         commands = new ArrayList<>();
+        gateIntake = new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            intake.intakeHigh();
+                            intake.rightGateDown();;
+                        })
+                        .maxTime(500)
+        );
+        commands.add(gateIntake);
+        gateIntakeDown = new StateMachine(
+                new State()
+                        .onEnter(() ->intake.intakeDown())
+                        .maxTime(500)
+        );
+        commands.add(gateIntakeDown);
         // prepares to intake: turns intake on and puts it down
         prepareIntake = new StateMachine(
                 new State()
                         .onEnter(() -> {
                             intake.setIntakeOn(true);
+                            intake.rightGateMid();
                             intake.state = BetterIntake.IntakeState.INTAKE_FAST;
                             intake.intakeDown();
                             shooter.closeLatch();
@@ -60,6 +79,7 @@ public class AutonomousRobot {
         prepareShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
+                            intake.rightGateMid();
                             intake.state = BetterIntake.IntakeState.INTAKE_SLOW;
                             intake.setIntakeOn(false);
                             intake.intakePushMid();
@@ -67,6 +87,13 @@ public class AutonomousRobot {
                         })
                         .maxTime(200)
         );
+        stopIntake = new StateMachine(
+                new State()
+                        .onEnter(() -> intake.state = BetterIntake.IntakeState.INTAKE_OFF)
+                        .maxTime(100)
+        );
+        commands.add(stopIntake);
+
         commands.add(prepareShooting);
 
         startShooting = new StateMachine(
@@ -74,7 +101,6 @@ public class AutonomousRobot {
                         .onEnter(() -> {
                             // ??? saying everything so that in the event of a back button, we can do to prev state and run it
                             shooter.openLatch();
-                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
                             intake.setIntakeOn(false);
                             intake.intakePushMid();
                         })
@@ -109,6 +135,7 @@ public class AutonomousRobot {
         intake.setIntakeOn(false);
         intake.intakePushMid();
         turret.setTarget(0);
+        intake.rightGateMid();
     }
 
     public void update() {

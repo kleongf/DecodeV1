@@ -30,7 +30,7 @@ public class BlueAutoCloseV2 extends OpMode {
     private final Pose shootPoseNear = new Pose(49, 85, Math.toRadians(180));
     private final Pose shootPoseFar = new Pose(60, 22, Math.toRadians(180));
 
-    private final Pose goalPose = new Pose(9, 132, Math.toRadians(45));
+    private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
 
     private PathChain shootPreload, intakeSecond, shootSecond, openGate1, shootGateCycle1, openGate2, shootGateCycle2, intakeFirst, shootFirst, intakeThird, shootThird;
     public void buildPaths() {
@@ -44,8 +44,8 @@ public class BlueAutoCloseV2 extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 new Pose(49, 85),
-                                new Pose(53, 65),
-                                new Pose(22, 57)
+                                new Pose(53, 50),
+                                new Pose(6, 53)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
@@ -53,7 +53,7 @@ public class BlueAutoCloseV2 extends OpMode {
         shootSecond = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(22, 60),
+                                new Pose(6, 53),
                                 new Pose(53, 65),
                                 new Pose(49, 85)
                         )
@@ -62,81 +62,89 @@ public class BlueAutoCloseV2 extends OpMode {
                 .build();
         openGate1 = follower.pathBuilder()
                 .addPath(
+                        // Path 1
                         new BezierCurve(
-                                new Pose(49, 85),
-                                new Pose(34, 65),
-                                new Pose(6, 58.3)
+                                new Pose(49.000, 85.000),
+                                new Pose(42.000, 50.000),
+                                new Pose(3.500, 59.00)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(150))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(125))
                 .build();
         shootGateCycle1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(6, 58.3),
+                                new Pose(3.5, 59),
                                 new Pose(42, 73),
                                 new Pose(49, 85)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(150), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(125), Math.toRadians(180))
                 .build();
         openGate2 = follower.pathBuilder()
                 .addPath(
+                        // Path 1
                         new BezierCurve(
-                                new Pose(49, 85),
-                                new Pose(34, 65),
-                                new Pose(6, 58.3)
+                                new Pose(49.000, 85.000),
+                                new Pose(42.000, 50.000),
+                                new Pose(3.500, 59.000)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(150))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(1205))
                 .build();
         shootGateCycle2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(6, 58.3),
+                                new Pose(3.5, 59.000),
                                 new Pose(42, 73),
                                 new Pose(49, 85)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(150), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(125), Math.toRadians(180))
                 .build();
         intakeFirst = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(49, 85), new Pose(22, 81)))
+                .addPath(new BezierLine(new Pose(49, 85), new Pose(15, 80)))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootFirst = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(22, 84), new Pose(49, 85)))
+                .addPath(new BezierLine(new Pose(15, 80), new Pose(49, 85)))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
         intakeThird = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
                                 new Pose(49, 85),
-                                new Pose(53, 38),
-                                new Pose(22, 32)
+                                new Pose(53, 27),
+                                new Pose(8, 30)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
         shootThird = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(22, 36), new Pose(60, 22)))
+                .addPath(new BezierLine(new Pose(6, 30), new Pose(60, 22)))
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
-
     }
 
     @Override
     public void init() {
         follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
+        follower.setMaxPower(.8);
         robot = new AutonomousRobot(hardwareMap);
         sotm2 = new SOTM2(goalPose);
         buildPaths();
 
         stateMachine = new StateMachine(
                 new State()
-                        .onEnter(() -> follower.followPath(shootPreload, true))
+                        .onEnter(() -> {
+                            follower.followPath(shootPreload, true);
+                            robot.prepareShooting.start();
+                        })
                         .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.stopIntake.start())
+                        .transition(new Transition(() -> robot.stopIntake.isFinished())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
@@ -153,6 +161,9 @@ public class BlueAutoCloseV2 extends OpMode {
                         .onEnter(() -> follower.followPath(shootSecond, true))
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
+                        .onEnter(() -> robot.stopIntake.start())
+                        .transition(new Transition(() -> robot.stopIntake.isFinished())),
+                new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
                 new State()
@@ -160,9 +171,15 @@ public class BlueAutoCloseV2 extends OpMode {
                             robot.prepareIntake.start();
                             follower.followPath(openGate1, true);//opens gate and intakes from same position hopefully
                         })
-                        .transition(new Transition(() -> !follower.isBusy()))
-                        .maxTime(3000)
-                        .minTime(2000),//probably can wait a lot less for balls to come out, this is to be safe
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.gateIntake.start())
+                        .transition(new Transition(() -> robot.gateIntake.isFinished())),
+                new State()
+                        .maxTime(250),
+                new State()
+                        .onEnter(() -> robot.gateIntakeDown.start())
+                        .transition(new Transition(() -> robot.gateIntakeDown.isFinished())),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
@@ -170,22 +187,34 @@ public class BlueAutoCloseV2 extends OpMode {
                         .onEnter(() -> follower.followPath(shootGateCycle1, true))
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
+                        .onEnter(() -> robot.stopIntake.start())
+                        .transition(new Transition(() -> robot.stopIntake.isFinished())),
+                new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
-                            follower.followPath(openGate2, true);
+                            follower.followPath(openGate2, true);//opens gate and intakes from same position hopefully
                         })
-                        .transition(new Transition(() -> !follower.isBusy()))
-                        .maxTime(3000)
-                        .minTime(2000),
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.gateIntake.start())
+                        .transition(new Transition(() -> robot.gateIntake.isFinished())),
+                new State()
+                        .maxTime(250),
+                new State()
+                        .onEnter(() -> robot.gateIntakeDown.start())
+                        .transition(new Transition(() -> robot.gateIntakeDown.isFinished())),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
                         .onEnter(() -> follower.followPath(shootGateCycle2, true))
                         .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.stopIntake.start())
+                        .transition(new Transition(() -> robot.stopIntake.isFinished())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
@@ -201,6 +230,9 @@ public class BlueAutoCloseV2 extends OpMode {
                 new State()
                         .onEnter(() -> follower.followPath(shootFirst, true))
                         .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.stopIntake.start())
+                        .transition(new Transition(() -> robot.stopIntake.isFinished())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
@@ -222,10 +254,13 @@ public class BlueAutoCloseV2 extends OpMode {
                 new State()
                         .onEnter(() -> follower.followPath(shootThird, true))
                         .transition(new Transition(() -> !follower.isBusy())),
+
                 new State()
-                        .onEnter(() -> robot.startShooting.start())
-                        .transition(new Transition(() -> robot.startShooting.isFinished()))
-                //no park rn cuz i don't understand rules
+                    .onEnter(() -> robot.stopIntake.start())
+                    .transition(new Transition(() -> robot.stopIntake.isFinished())),
+                new State()
+                    .onEnter(() -> robot.startShooting.start())
+                    .transition(new Transition(() -> robot.startShooting.isFinished()))
         );
 
         Object endPose = blackboard.getOrDefault(END_POSE_KEY, new Pose(60, 22, Math.toRadians(200)));
@@ -237,8 +272,6 @@ public class BlueAutoCloseV2 extends OpMode {
             throw new RuntimeException(e);
         }
         robot.initPositions();
-
-        follower.setMaxPower(0.75);
     }
     @Override
     public void loop() {
