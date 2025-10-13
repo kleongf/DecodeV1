@@ -217,7 +217,6 @@ public class BlueAutoCloseV3 extends OpMode {
                 new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
-
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();

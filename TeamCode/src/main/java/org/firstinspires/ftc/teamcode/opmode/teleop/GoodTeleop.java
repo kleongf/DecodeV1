@@ -150,15 +150,21 @@ public class GoodTeleop extends OpMode {
             drivetrain.follower.setCurrentPoseWithOffset(new Pose(138, 6, Math.toRadians(90)));
         }
 
-        double[] values = sotm2.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+        if(!(Math.floorMod(state, 3) == 0)) {
+            double[] values = sotm2.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+            robot.turret.setTarget(values[0]);
+            robot.shooter.setShooterPitch(values[1]);
+            robot.shooter.setTargetVelocity(values[2]);
 
-        robot.turret.setTarget(values[0]);
-        robot.shooter.setShooterPitch(values[1]);
-        robot.shooter.setTargetVelocity(values[2]);
+            telemetry.addData("pitch", values[1]);
+            telemetry.addData("velocity", values[2]);
+            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+        }
 
-        telemetry.addData("pitch", values[1]);
-        telemetry.addData("velocity", values[2]);
-        telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+
+
+
+
 
         if (isAutoDriving) {
             // TODO: add button to automatically break following

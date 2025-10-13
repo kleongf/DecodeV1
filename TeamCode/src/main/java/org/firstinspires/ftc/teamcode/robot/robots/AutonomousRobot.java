@@ -22,10 +22,10 @@ public class AutonomousRobot {
 
     private final ArrayList<StateMachine> commands;
     public StateMachine prepareIntake;
-    public StateMachine gateIntake;
+    public StateMachine gateIntake;//not used rn
     public StateMachine gateIntakeDown;
     public StateMachine prepareShooting;
-    public StateMachine stopIntake;
+    public StateMachine slowIntake;
     public StateMachine startShooting;
 
     // button: start and stop intaking
@@ -80,49 +80,56 @@ public class AutonomousRobot {
                 new State()
                         .onEnter(() -> {
                             intake.rightGateMid();
-                            intake.state = BetterIntake.IntakeState.INTAKE_SLOW;
+                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;
                             intake.setIntakeOn(false);
                             intake.intakePushMid();
                             shooter.closeLatch();
                         })
                         .maxTime(200)
         );
-        stopIntake = new StateMachine(
-                new State()
-                        .onEnter(() -> intake.state = BetterIntake.IntakeState.INTAKE_OFF)
-                        .maxTime(100)
-        );
-        commands.add(stopIntake);
-
         commands.add(prepareShooting);
+
+        slowIntake = new StateMachine(
+                new State()
+                        .maxTime(350),
+                new State()
+                        .onEnter(() -> intake.state = BetterIntake.IntakeState.INTAKE_SLOW)
+                        .maxTime(50)
+        );
+        commands.add(slowIntake);
+
 
         startShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
                             // ??? saying everything so that in the event of a back button, we can do to prev state and run it
-                            shooter.openLatch();
-                            intake.setIntakeOn(false);
+                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
                             intake.intakePushMid();
                         })
-                        .maxTime(400),
+                        .maxTime(150),
                 new State()
-                        .onEnter(() -> intake.state = BetterIntake.IntakeState.INTAKE_FAST)
+                        .onEnter(() -> {shooter.openLatch();})
+                        .maxTime(100),
+                new State()
+                        .onEnter(() -> {
+                            intake.setIntakeOn(true);
+                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;})
                         .maxTime(300),
                 new State()
                         .onEnter(() -> {
-                            shooter.openLatch();
                             intake.setIntakeOn(true);
                             intake.intakePush();
                         })
                         .maxTime(500),
                 new State()
                         .onEnter(() -> {
-                            //intake.setIntakeOn(false);
+                            intake.setIntakeOn(false);
+                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
                             intake.intakeDown();
                         })
-                        .maxTime(1)
-
+                        .maxTime(100)
         );
+        commands.add(startShooting);
 
         commands.add(startShooting);
     }
