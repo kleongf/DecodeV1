@@ -62,7 +62,8 @@ public class SOTM2 {
  //        double azimuth = Math.atan2(-dxCorr, dyCorr) - robotPose.getHeading() + Math.toRadians(90);
 //        double theta = thetaLUT.getValue(distCorr);
 //        double velocity = velocityLUT.getValue(distCorr);1111
-        double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90);
+        // TODO: offset added for blue side - will have to be subtracted for red side
+        double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90) + Math.toRadians(6);
         System.out.println(robotPose.getHeading());
         // System.out.println(Math.atan2(-dx, dy));
         double theta = thetaLUT.getValue(dist);
