@@ -50,8 +50,6 @@ public class SOTM2 {
         double dy = goal.getY() - robotPose.getY();
         double dist = Math.hypot(dx, dy);
 
-        System.out.println(dist);
-
 //        double t = dist / (calculateLinearVelocity(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)));
 //        double dxCorr = dx - robotVelocity.getXComponent() * t;
 //        double dyCorr = dy - robotVelocity.getYComponent() * t;
@@ -63,13 +61,16 @@ public class SOTM2 {
 //        double theta = thetaLUT.getValue(distCorr);
 //        double velocity = velocityLUT.getValue(distCorr);1111
         // TODO: offset added for blue side - will have to be subtracted for red side
-        double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90) + Math.toRadians(6);
-        System.out.println(robotPose.getHeading());
-        // System.out.println(Math.atan2(-dx, dy));
+        // actually maybe it shouldn't be a constant, it should be inversely proportional to distance.
+        // as distance increases, the offset decreases.
+        // so it's like 6 degrees * (dist - minDist)/maxdist if dist > minDist else 6 degrees
+        double minDist = 48;
+        double offset = dist > minDist ? Math.toRadians(6) * (minDist/dist) : Math.toRadians(6);
+
+        double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90) + offset;
         double theta = thetaLUT.getValue(dist);
         double velocity = velocityLUT.getValue(dist);
-        System.out.println(theta);
-        System.out.println(velocity);
+
 
 
 
