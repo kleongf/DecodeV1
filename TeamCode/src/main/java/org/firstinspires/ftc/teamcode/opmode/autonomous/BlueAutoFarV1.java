@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobot;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.fsm.Transition;
+import org.firstinspires.ftc.teamcode.util.misc.Mirrorer;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
@@ -27,7 +28,7 @@ public class BlueAutoFarV1 extends OpMode {
     private final Pose startPose = new Pose(54, 6, Math.toRadians(180));
     private final Pose shootPose = new Pose(60, 84, Math.toRadians(180));
     private final Pose goalPose = new Pose(9, 132, Math.toRadians(45));
-    private PathChain shootFirst, intakeSecond, shootSecond, intakeThird, openGate, shootThird, intakeFourth, shootFourth, intakeFifth, shootFifth, park;
+    private PathChain shootFirst, intakeSecond, shootSecond, intakeThird, openGate, shootThird, intakeFourth, shootFourth, intakeFifth, shootFifth, park, test;
 
     public void buildPaths() {
         shootFirst = follower.pathBuilder()
@@ -122,6 +123,8 @@ public class BlueAutoFarV1 extends OpMode {
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(270))
                 .build();
+        // EXAMPLE USE
+        test = Mirrorer.mirror(park);
     }
 
     @Override
