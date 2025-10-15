@@ -48,7 +48,7 @@ public class FConstants {
         FollowerConstants.pathEndTranslationalConstraint = 0.1;
         FollowerConstants.pathEndHeadingConstraint = 0.007;
 
-        FollowerConstants.maxPower = 1;
+        FollowerConstants.maxPower = 0.8; // I changed this because tippy
 
         FollowerConstants.useBrakeModeInTeleOp = true;
 
