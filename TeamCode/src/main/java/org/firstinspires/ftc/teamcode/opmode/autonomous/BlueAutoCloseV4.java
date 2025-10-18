@@ -75,7 +75,7 @@ public class BlueAutoCloseV4 extends OpMode {
         shootGate1 = follower.pathBuilder()
                 .addPath(
                         // Path 6
-                        new BezierLine(new Pose(13.000, 61.500), new Pose(60.000, 84.000))
+                        new BezierCurve(new Pose(13.000, 61.500), new Pose(56.872, 63.574), new Pose(60.000, 84.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
                 .build();
@@ -94,7 +94,7 @@ public class BlueAutoCloseV4 extends OpMode {
         shootGate2 = follower.pathBuilder()
                 .addPath(
                         // Path 6
-                        new BezierLine(new Pose(13.000, 61.500), new Pose(60.000, 84.000))
+                        new BezierCurve(new Pose(13.000, 61.500), new Pose(56.872, 63.574), new Pose(60.000, 84.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
                 .build();

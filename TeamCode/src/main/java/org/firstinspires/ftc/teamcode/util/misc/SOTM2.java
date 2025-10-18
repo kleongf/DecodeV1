@@ -65,7 +65,7 @@ public class SOTM2 {
         // as distance increases, the offset decreases.
         // so it's like 6 degrees * (dist - minDist)/maxdist if dist > minDist else 6 degrees
         double minDist = 48;
-        double offset = dist > minDist ? Math.toRadians(6) * (minDist/dist) : Math.toRadians(6);
+        double offset = dist > minDist ? Math.toRadians(4) * (minDist/dist) : Math.toRadians(4);
 
         double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90) + offset;
         double theta = thetaLUT.getValue(dist);
