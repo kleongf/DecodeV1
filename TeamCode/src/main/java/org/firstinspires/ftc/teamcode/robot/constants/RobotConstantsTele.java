@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.robot.constants;
 
 public class RobotConstantsTele {
-    public static double INTAKE_PUSH = 0.0;
+    public static double INTAKE_PUSH = 0.03;
     public static double INTAKE_PUSH_MID = 0.7;
     public static double INTAKE_DOWN = 0.77;
     public static double INTAKE_HIGH = 0.8;
