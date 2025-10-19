@@ -33,11 +33,12 @@ public class GoodTeleop extends OpMode {
     private double longitudinalSpeed = 1, lateralSpeed = 1, rotationSpeed = 0.5;
     private TeleopRobotV1 robot;
     // TODO: try blackboard AHHHH
-    private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
-    // private final Pose startPose = new Pose(54, 6, Math.toRadians(180));
+    // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
+    private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
     private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
     private final Pose shootPoseClose = new Pose(60, 84, Math.toRadians(180));
     private final Pose shootPoseFar = new Pose(56, 8, Math.toRadians(180));
+    private final Pose gatePose = new Pose(13, 70, Math.toRadians(270));
     private SmartGamepad gp1;
     private SmartGamepad gp2;
     private SOTM2 sotm2;
@@ -66,7 +67,12 @@ public class GoodTeleop extends OpMode {
         limelightLocalizer.start();
 
         closestPoint = new ClosestPoint();
+        // TODO: uncomment
+        robot.turret.resetEncoder();
+        robot.turret.kVAdded = true;
     }
+
+    // make a function that makes input more reactive in middle speeds
 
     private double normalizeInput(double input) {
         double k = 0.5;
@@ -93,22 +99,22 @@ public class GoodTeleop extends OpMode {
             state--;
             Objects.requireNonNull(stateMap.get(Math.floorMod(state, 3))).start();
         }
-
+        // TODO: note that x no longer goes to close, it goes to gate
         if (gp1.xPressed()) {
-            PathChain driveClose = drivetrain.follower.pathBuilder()
+            PathChain driveGate = drivetrain.follower.pathBuilder()
                     .addPath(
                             new Path(
                                     new BezierLine(
                                             new Point(drivetrain.follower.getPose()),
-                                            new Point(shootPoseClose)
+                                            new Point(gatePose)
                                     )
                             )
                     )
-                    .setLinearHeadingInterpolation(drivetrain.follower.getPose().getHeading(), shootPoseClose.getHeading())
+                    .setLinearHeadingInterpolation(drivetrain.follower.getPose().getHeading(), gatePose.getHeading())
                     .build();
             isAutoDriving = true;
             drivetrain.follower.breakFollowing();
-            drivetrain.follower.followPath(driveClose, true);
+            drivetrain.follower.followPath(driveGate, true);
         }
 
         if (gp1.yPressed()) {
@@ -165,15 +171,26 @@ public class GoodTeleop extends OpMode {
             telemetry.addData("pitch", values[1]);
             telemetry.addData("velocity", values[2]);
             telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+
+        } else {
+            robot.turret.setTarget(0);
         }
 
+        if(Math.floorMod(state, 3) == 1) {
+            telemetry.addData("in zone", robot.inShootingZone(drivetrain.follower.getPose()));
 
+            if (robot.inShootingZone(drivetrain.follower.getPose())
+                    && drivetrain.follower.getVelocity().getMagnitude() < 10
+                    && robot.turret.atTarget(30) // i just realized its ticks
+                    && robot.shooter.atTarget(21)
+            ) {
+                robot.startShooting.start();
+                state++;
+            }
 
-
-
+        }
 
         if (isAutoDriving) {
-            // TODO: add button to automatically break following
             if (!drivetrain.follower.isBusy()) {
                 isAutoDriving = false;
                 drivetrain.follower.breakFollowing();
@@ -185,6 +202,17 @@ public class GoodTeleop extends OpMode {
                     normalizeInput(gp1.getRightStickX()*rotationSpeed));
         }
 
+        // TODO: uncomment when we want automatic shooting
+
+//        if (robot.inShootingZone(drivetrain.follower.getPose())
+//                && drivetrain.follower.getVelocity().getMagnitude() < 10
+//                && robot.turret.atTarget(Math.toRadians(2))
+//                && robot.shooter.atTarget(30)
+//        ) {
+//            robot.startShooting.start();
+//            state++;
+//        }
+        robot.turret.setAngularVel(drivetrain.getTotalAngularVelocity());
         drivetrain.update();
         robot.update();
         telemetry.update();
@@ -194,14 +222,13 @@ public class GoodTeleop extends OpMode {
     public void start() {
         // TODO: In the future, initPositions() should go here so we don't move on init
         robot.initPositions();
-
         robot.shooter.setShooterOn(true);
         robot.start();
     }
 
     @Override
     public void stop() {
-        Object endPose = blackboard.getOrDefault(END_POSE_KEY, drivetrain.follower.getPose());
+        Object endPose = drivetrain.follower.getPose();
         blackboard.put(END_POSE_KEY, endPose);
     }
 }

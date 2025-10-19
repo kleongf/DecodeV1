@@ -25,7 +25,7 @@ public class FConstants {
 
         FollowerConstants.forwardZeroPowerAcceleration = (-38.04 + (-32) + (-40.17)) / 3.0;
         FollowerConstants.lateralZeroPowerAcceleration = ((-70.57) + (-66.93) + (-67.08)) / 3.0;
-
+        // values need some tuning. robot overshoots a lot -> reduce p
         FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0.0);
         FollowerConstants.useSecondaryTranslationalPID = true;
         FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.2,0,0.015,0.0); // Not being used, @see useSecondaryTranslationalPID

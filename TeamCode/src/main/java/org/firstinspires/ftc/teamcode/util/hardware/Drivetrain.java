@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.util.controllers.PIDFController;
@@ -17,6 +19,9 @@ public class Drivetrain {
     public Follower follower;
     private PIDFController headingController;
     private double targetHeading = 0;
+    private double prevHeading = 0;
+    private double angularVelocity = 0;
+    private ElapsedTime elapsedTime;
 
     public Drivetrain(HardwareMap hardwareMap) {
         this.headingController = new PIDFController(2,0,0.1,0); // strongar than pedro
@@ -38,7 +43,9 @@ public class Drivetrain {
 
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(new Pose(0, 0, 0));
+        elapsedTime = new ElapsedTime();
     }
+
 
     public void setMovementVectors(double forward, double strafe, double heading) {
         double y = -forward; // Remember, Y stick value is reversed
@@ -100,7 +107,17 @@ public class Drivetrain {
         follower.setStartingPose(p);
     }
 
+    public double getTotalAngularVelocity() {
+        // x/y because weird coord system
+        double maxVelocity = 160;
+        return angularVelocity + (follower.getVelocity().getMagnitude() / maxVelocity) * Math.atan2(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent());
+    }
+
+
     public void update() {
+        angularVelocity = elapsedTime.seconds() > 0 ? (follower.getPose().getHeading() - prevHeading) / elapsedTime.seconds() : 0;
+        prevHeading = follower.getPose().getHeading();
+        elapsedTime.reset();
         follower.update();
     }
 }

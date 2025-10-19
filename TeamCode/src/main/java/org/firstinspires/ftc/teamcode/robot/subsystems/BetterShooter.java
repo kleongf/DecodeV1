@@ -70,6 +70,10 @@ public class BetterShooter extends Subsystem {
         shooterOn = x;
     }
 
+    public boolean atTarget(double threshold) {
+        return Math.abs(shooterMotor.getVelocity()-targetVelocity) < threshold;
+    }
+
     @Override
     public void start() {}
 }
