@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
 import static java.lang.Thread.sleep;
 
+import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
@@ -58,6 +59,7 @@ public class BlueAutoCloseV4 extends OpMode {
                         new BezierLine(new Pose(10.000, 60.000), new Pose(60.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setPathEndTimeoutConstraint(200)
                 .build();
         openGate1 = follower.pathBuilder()
                 // strafe to gate to make the interpolation more consistent, so that we don't turn into gate.
@@ -68,16 +70,22 @@ public class BlueAutoCloseV4 extends OpMode {
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
                 .addPath(
                         // Path 5
-                        new BezierLine(new Pose(30.000, 61.000), new Pose(13.000, 61.500))
+                        new BezierLine(new Pose(30.000, 61), new Pose(12, 60.5))
                 )
+                .addParametricCallback(0.1, () -> follower.setMaxPower(0.7))
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.4))
+                .addParametricCallback(0.1, () -> {
+                    FollowerConstants.holdPointHeadingScaling = 1;
+                    FollowerConstants.holdPointTranslationalScaling = 1;})
                 .setConstantHeadingInterpolation(Math.toRadians(135))
                 .build();
         shootGate1 = follower.pathBuilder()
                 .addPath(
                         // Path 6
-                        new BezierCurve(new Pose(13.000, 61.500), new Pose(56.872, 63.574), new Pose(60.000, 84.000))
+                        new BezierCurve(new Pose(12, 60.5), new Pose(56.872, 63.574), new Pose(60.000, 84.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
+                .setPathEndTimeoutConstraint(200)
                 .build();
         openGate2 = follower.pathBuilder()
                 .addPath(
@@ -87,16 +95,23 @@ public class BlueAutoCloseV4 extends OpMode {
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
                 .addPath(
                         // Path 5
-                        new BezierLine(new Pose(30.000, 61.000), new Pose(13.000, 61.500))
+                        new BezierLine(new Pose(30.000, 61.000), new Pose(12, 60.5))
                 )
+                .setConstantHeadingInterpolation(Math.toRadians(135))
+                .addParametricCallback(0.1, () -> follower.setMaxPower(0.7))
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.4))
+                .addParametricCallback(0.1, () -> {
+                    FollowerConstants.holdPointHeadingScaling = 1;
+                    FollowerConstants.holdPointTranslationalScaling = 1;})
                 .setConstantHeadingInterpolation(Math.toRadians(135))
                 .build();
         shootGate2 = follower.pathBuilder()
                 .addPath(
                         // Path 6
-                        new BezierCurve(new Pose(13.000, 61.500), new Pose(56.872, 63.574), new Pose(60.000, 84.000))
+                        new BezierCurve(new Pose(12.500, 61), new Pose(56.872, 63.574), new Pose(60.000, 84.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
+                .setPathEndTimeoutConstraint(200)
                 .build();
         intakeSecond = follower.pathBuilder()
                 .addPath(
@@ -111,15 +126,16 @@ public class BlueAutoCloseV4 extends OpMode {
                         new BezierLine(new Pose(20.000, 84.000), new Pose(60.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setPathEndTimeoutConstraint(200)
                 .build();
         intakeThird = follower.pathBuilder()
                 .addPath(
                         // Path 7
                         new BezierCurve(
                                 new Pose(60.000, 84.000),
-                                new Pose(57.638, 33.511),
-                                new Pose(47.681, 35.426),
-                                new Pose(10.000, 36.000)
+                                new Pose(57.638, 30),
+                                new Pose(47.681, 30),
+                                new Pose(12.000, 36.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -127,9 +143,10 @@ public class BlueAutoCloseV4 extends OpMode {
         shootThird = follower.pathBuilder()
                 .addPath(
                         // Path 8
-                        new BezierLine(new Pose(10.000, 36.000), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(12.000, 36.000), new Pose(60.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setPathEndTimeoutConstraint(200)
                 .build();
     }
 
@@ -137,7 +154,7 @@ public class BlueAutoCloseV4 extends OpMode {
     public void init() {
         follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
-        follower.setMaxPower(.8);
+        // follower.setMaxPower(.8);
         robot = new AutonomousRobot(hardwareMap);
         sotm2 = new SOTM2(goalPose);
         buildPaths();
@@ -184,6 +201,9 @@ public class BlueAutoCloseV4 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.slowIntake.start();
+                            follower.setMaxPower(1);
+                            FollowerConstants.holdPointHeadingScaling = 0.35;
+                            FollowerConstants.holdPointTranslationalScaling = 0.35;
                             follower.followPath(shootGate1, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
@@ -204,6 +224,9 @@ public class BlueAutoCloseV4 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.slowIntake.start();
+                            follower.setMaxPower(1);
+                            FollowerConstants.holdPointHeadingScaling = 0.35;
+                            FollowerConstants.holdPointTranslationalScaling = 0.35;
                             follower.followPath(shootGate2, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
@@ -270,7 +293,7 @@ public class BlueAutoCloseV4 extends OpMode {
 
         robot.turret.setTarget(values[0]);
         robot.shooter.setShooterPitch(values[1]);
-        robot.shooter.setTargetVelocity(values[2]);
+        robot.shooter.setTargetVelocity(values[2]+50);
         robot.shooter.setShooterOn(true);
 
         stateMachine.start();

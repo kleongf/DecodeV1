@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
 import static java.lang.Thread.sleep;
 
+import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
@@ -19,107 +20,134 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="blue auto fart side v2")
+@Autonomous(name="blue auto far v2: 18")
 public class BlueAutoFarV2 extends OpMode {
     public static final String END_POSE_KEY = "END_POSE";
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM2 sotm2;
-    private final Pose startPose = new Pose(54, 6, Math.toRadians(90));
-    private final Pose shootPose = new Pose(60, 84, Math.toRadians(180));
-    private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
-    private PathChain shootFirst, intakeSecond, shootSecond, openGate, shootThird, intakeFourth, shootFourth, intakeFifth, shootFifth, park;
+    private final Pose startPose = new Pose(55, 8, Math.toRadians(90));
+    private final Pose shootPoseNear = new Pose(60, 84, Math.toRadians(180));
 
+    private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
+
+    private PathChain shootPreload, intakeFirst, shootFirst, openGate1, shootGate1, openGate2, shootGate2, intakeSecond, shootSecond, intakeThird, shootThird;
     public void buildPaths() {
-        shootFirst = follower.pathBuilder()
+        shootPreload = follower.pathBuilder()
                 .addPath(
                         // Path 1
-                        new BezierLine(new Pose(54, 6), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(55, 8), new Pose(60.000, 84.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
                 .build();
-        intakeSecond = follower.pathBuilder()
+
+        intakeFirst = follower.pathBuilder()
                 .addPath(
                         // Path 2
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 58.000))
+                        new BezierCurve(
+                                new Pose(60.000, 84.000),
+                                new Pose(58.979, 56.872),
+                                new Pose(47.872, 59.936),
+                                new Pose(10.000, 60.000)
+                        )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+        shootFirst = follower.pathBuilder()
                 .addPath(
                         // Path 3
-                        new BezierLine(new Pose(45.000, 58.000), new Pose(6.000, 58.000))
+                        new BezierLine(new Pose(10.000, 60.000), new Pose(60.000, 84.000))
                 )
-                .addParametricCallback(0.1, () -> follower.setMaxPower(0.6))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setPathEndTimeoutConstraint(200)
+                .build();
+        openGate1 = follower.pathBuilder()
+                // strafe to gate to make the interpolation more consistent, so that we don't turn into gate.
+                .addPath(
+                        // Path 4
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(30.000, 61.000))
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
+                .addPath(
+                        // Path 5
+                        new BezierLine(new Pose(30.000, 61), new Pose(12, 60.5))
+                )
+                .addParametricCallback(0.1, () -> follower.setMaxPower(0.7))
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.4))
+                .addParametricCallback(0.1, () -> {
+                    FollowerConstants.holdPointHeadingScaling = 1;
+                    FollowerConstants.holdPointTranslationalScaling = 1;})
+                .setConstantHeadingInterpolation(Math.toRadians(135))
+                .build();
+        shootGate1 = follower.pathBuilder()
+                .addPath(
+                        // Path 6
+                        new BezierCurve(new Pose(12, 60.5), new Pose(56.872, 63.574), new Pose(60.000, 84.000))
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
+                .setPathEndTimeoutConstraint(200)
+                .build();
+        openGate2 = follower.pathBuilder()
+                .addPath(
+                        // Path 4
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(30.000, 61.000))
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
+                .addPath(
+                        // Path 5
+                        new BezierLine(new Pose(30.000, 61.000), new Pose(12, 60.5))
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(135))
+                .addParametricCallback(0.1, () -> follower.setMaxPower(0.7))
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.4))
+                .addParametricCallback(0.1, () -> {
+                    FollowerConstants.holdPointHeadingScaling = 1;
+                    FollowerConstants.holdPointTranslationalScaling = 1;})
+                .setConstantHeadingInterpolation(Math.toRadians(135))
+                .build();
+        shootGate2 = follower.pathBuilder()
+                .addPath(
+                        // Path 6
+                        new BezierCurve(new Pose(12.500, 61), new Pose(56.872, 63.574), new Pose(60.000, 84.000))
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
+                .setPathEndTimeoutConstraint(200)
+                .build();
+        intakeSecond = follower.pathBuilder()
+                .addPath(
+                        // Path 9
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(20.000, 84.000))
+                )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootSecond = follower.pathBuilder()
                 .addPath(
-                        // Path 4
-                        new BezierCurve(new Pose(6.000, 58.000), new Pose(60, 60), new Pose(60.000, 84.000))
+                        // Path 10
+                        new BezierLine(new Pose(20.000, 84.000), new Pose(60.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setPathEndTimeoutConstraint(200)
                 .build();
-        openGate = follower.pathBuilder()
+        intakeThird = follower.pathBuilder()
                 .addPath(
-                        // Path 2
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 57))
+                        // Path 7
+                        new BezierCurve(
+                                new Pose(60.000, 84.000),
+                                new Pose(57.638, 30),
+                                new Pose(47.681, 30),
+                                new Pose(12.000, 36.000)
+                        )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(126))
-                .addPath(
-                        // Path 5
-                        new BezierLine(new Pose(45, 57), new Pose(3, 57))
-                )
-                .setConstantHeadingInterpolation( Math.toRadians(126))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootThird = follower.pathBuilder()
                 .addPath(
-                        // Path 6
-                        new BezierLine(new Pose(3, 57), new Pose(60, 84))
-                )
-                .setLinearHeadingInterpolation(Math.toRadians(126), Math.toRadians(180))
-                .build();
-
-        intakeFourth = follower.pathBuilder()
-                .addPath(
-                        // Path 7
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(12.000, 80.000))
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .addParametricCallback(0.1, () -> follower.setMaxPower(0.6))
-                .build();
-        shootFourth = follower.pathBuilder()
-                .addPath(
                         // Path 8
-                        new BezierLine(new Pose(12.000, 80.000), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(12.000, 36.000), new Pose(60.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-        intakeFifth = follower.pathBuilder()
-                .addPath(
-                        // Path 9
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(45.000, 32.000))
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .addPath(
-                        // Path 10
-                        new BezierLine(new Pose(45.000, 34.000), new Pose(6, 32.000))
-                )
-                .addParametricCallback(0.1, () -> follower.setMaxPower(0.6))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-        shootFifth = follower.pathBuilder()
-                .addPath(
-                        // Path 11
-                        new BezierLine(new Pose(6, 32.000), new Pose(60.000, 84.000))
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-        park = follower.pathBuilder()
-                .addPath(
-                        // Path 12
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(60.000, 60.000))
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setPathEndTimeoutConstraint(200)
                 .build();
     }
 
@@ -127,14 +155,17 @@ public class BlueAutoFarV2 extends OpMode {
     public void init() {
         follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
-        follower.setMaxPower(0.75);
+        // follower.setMaxPower(.8);
         robot = new AutonomousRobot(hardwareMap);
         sotm2 = new SOTM2(goalPose);
         buildPaths();
 
         stateMachine = new StateMachine(
                 new State()
-                        .onEnter(() -> {follower.followPath(shootFirst, true); robot.prepareShooting.start();})
+                        .onEnter(() -> {
+                            follower.followPath(shootPreload, true);
+                            robot.prepareShooting.start();
+                        })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
@@ -142,15 +173,17 @@ public class BlueAutoFarV2 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
-                            follower.followPath(intakeSecond, true);
-
+                            follower.followPath(intakeFirst, false);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> {robot.prepareShooting.start(); follower.setMaxPower(0.75);})
+                        .onEnter(() -> robot.prepareShooting.start())
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
-                        .onEnter(() -> follower.followPath(shootSecond, true))
+                        .onEnter(() -> {
+                            robot.slowIntake.start();
+                            follower.followPath(shootFirst, true);
+                        })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
@@ -158,16 +191,22 @@ public class BlueAutoFarV2 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
-                            follower.followPath(openGate, true);
+                            follower.followPath(openGate1, true);//opens gate and intakes from same position hopefully
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(2000),
+                        .maxTime(1750),
                 new State()
-                        .onEnter(() -> {robot.prepareShooting.start(); follower.setMaxPower(0.75);})
+                        .onEnter(() -> robot.prepareShooting.start())
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
-                        .onEnter(() -> follower.followPath(shootThird, true))
+                        .onEnter(() -> {
+                            robot.slowIntake.start();
+                            follower.setMaxPower(1);
+                            FollowerConstants.holdPointHeadingScaling = 0.35;
+                            FollowerConstants.holdPointTranslationalScaling = 0.35;
+                            follower.followPath(shootGate1, true);
+                        })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
@@ -175,14 +214,22 @@ public class BlueAutoFarV2 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
-                            follower.followPath(intakeFourth, true);
+                            follower.followPath(openGate2, true);//opens gate and intakes from same position hopefully
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> {robot.prepareShooting.start(); follower.setMaxPower(0.75);})
+                        .maxTime(1500),
+                new State()
+                        .onEnter(() -> robot.prepareShooting.start())
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
-                        .onEnter(() -> follower.followPath(shootFourth, true))
+                        .onEnter(() -> {
+                            robot.slowIntake.start();
+                            follower.setMaxPower(1);
+                            FollowerConstants.holdPointHeadingScaling = 0.35;
+                            FollowerConstants.holdPointTranslationalScaling = 0.35;
+                            follower.followPath(shootGate2, true);
+                        })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
@@ -190,22 +237,41 @@ public class BlueAutoFarV2 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
-                            follower.followPath(intakeFifth, true);
+                            follower.followPath(intakeSecond, false);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> {robot.prepareShooting.start(); follower.setMaxPower(0.75);})
+                        .onEnter(() -> robot.prepareShooting.start())
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
-                        .onEnter(() -> follower.followPath(shootFifth, true))
+                        .onEnter(() -> {
+                            robot.slowIntake.start();
+                            follower.followPath(shootSecond, true);
+                        })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
                 new State()
-                        .onEnter(() -> follower.followPath(park, true))
-                        .transition(new Transition(() -> !follower.isBusy()))
+                        .onEnter(() -> {
+                            robot.prepareIntake.start();
+                            follower.followPath(intakeThird, false);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.prepareShooting.start())
+                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
+                new State()
+                        .onEnter(() -> {
+                            robot.slowIntake.start();
+                            follower.followPath(shootThird, true);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.startShooting.start())
+                        .transition(new Transition(() -> robot.startShooting.isFinished()))
         );
+
 
         try {
             sleep(500);
@@ -219,25 +285,23 @@ public class BlueAutoFarV2 extends OpMode {
         stateMachine.update();
         follower.update();
         robot.update();
-
-        telemetry.addData("Pose", follower.getPose());
-        telemetry.update();
     }
 
     @Override
     public void start() {
         // constant values. shooter is never turned off after start.
-        double[] values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
+        double[] values = sotm2.calculateAzimuthThetaVelocity(shootPoseNear, new Vector());
 
         robot.turret.setTarget(values[0]);
         robot.shooter.setShooterPitch(values[1]);
-        robot.shooter.setTargetVelocity(values[2]);
+        robot.shooter.setTargetVelocity(values[2]+50);
         robot.shooter.setShooterOn(true);
 
         stateMachine.start();
         robot.start();
     }
 
+    // TODO: when we stop, save position to blackboard
     @Override
     public void stop() {
         Object endPose = blackboard.getOrDefault(END_POSE_KEY, follower.getPose());

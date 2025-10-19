@@ -92,12 +92,11 @@ public class TeleopRobotV1 {
                         .onEnter(() -> {
                             intake.setIntakeOn(true);
                             intake.state = BetterIntake.IntakeState.INTAKE_FAST;})
-                        .maxTime(350),
+                        .maxTime(100),
                 new State()
                         .onEnter(() -> {
                             intake.setIntakeOn(true);
                             intake.intakePush();
-
                         })
                         .maxTime(500),
                 new State()

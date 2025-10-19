@@ -29,7 +29,8 @@ public class GoodTeleop extends OpMode {
     private int state = 0;
     private boolean isAutoDriving = false;
     private Drivetrain drivetrain;
-    private double longitudinalSpeed = 0.5, lateralSpeed = 0.5, rotationSpeed = 0.3;
+    // was 0.5 0.5 0.3
+    private double longitudinalSpeed = 1, lateralSpeed = 1, rotationSpeed = 0.5;
     private TeleopRobotV1 robot;
     // TODO: try blackboard AHHHH
     private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
@@ -65,6 +66,11 @@ public class GoodTeleop extends OpMode {
         limelightLocalizer.start();
 
         closestPoint = new ClosestPoint();
+    }
+
+    private double normalizeInput(double input) {
+        double k = 0.5;
+        return k * Math.pow(input, 3) + (1-k) * input;
     }
     @Override
     public void loop() {
@@ -174,9 +180,9 @@ public class GoodTeleop extends OpMode {
             }
 
         } else {
-            drivetrain.setHeadingLockFieldCentricMovementVectors(-gp1.getLeftStickY()*longitudinalSpeed,
-                    gp1.getLeftStickX()*lateralSpeed,
-                    gp1.getRightStickX()*rotationSpeed);
+            drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(-gp1.getLeftStickY()*longitudinalSpeed),
+                    normalizeInput(gp1.getLeftStickX()*lateralSpeed),
+                    normalizeInput(gp1.getRightStickX()*rotationSpeed));
         }
 
         drivetrain.update();

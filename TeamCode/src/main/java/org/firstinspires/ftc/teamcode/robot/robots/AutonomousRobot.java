@@ -114,7 +114,7 @@ public class AutonomousRobot {
                         .onEnter(() -> {
                             intake.setIntakeOn(true);
                             intake.state = BetterIntake.IntakeState.INTAKE_FAST;})
-                        .maxTime(300),
+                        .maxTime(100),
                 new State()
                         .onEnter(() -> {
                             intake.setIntakeOn(true);

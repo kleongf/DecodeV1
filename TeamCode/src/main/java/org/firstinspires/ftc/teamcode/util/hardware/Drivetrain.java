@@ -19,7 +19,7 @@ public class Drivetrain {
     private double targetHeading = 0;
 
     public Drivetrain(HardwareMap hardwareMap) {
-        this.headingController = new PIDFController(1, 0, 0.02, 0); // same as pedro
+        this.headingController = new PIDFController(2,0,0.1,0); // strongar than pedro
         this.hardwareMap = hardwareMap;
         fl = this.hardwareMap.get(DcMotorEx.class, "front_left_drive");
         bl = this.hardwareMap.get(DcMotorEx.class, "back_left_drive");
