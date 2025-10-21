@@ -43,7 +43,7 @@ public class Drivetrain {
 
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         // TODO: change this
-        follower.setStartingPose(new Pose(0, 0, Math.toRadians(270)));
+        follower.setStartingPose(new Pose(0, 0, Math.toRadians(0)));
         elapsedTime = new ElapsedTime();
     }
 
@@ -89,7 +89,7 @@ public class Drivetrain {
         double botHeading = follower.getPose().getHeading();
         double x = strafe * Math.cos(-botHeading) - forward * Math.sin(-botHeading);
         double y = strafe * Math.sin(-botHeading) + forward * Math.cos(-botHeading);
-        double rx = -headingController.calculate(MathFunctions.angleWrap(follower.getPose().getHeading()));
+        double rx = -headingController.calculate(MathFunctions.angleWrap(follower.getPose().getHeading()), MathFunctions.angleWrap(targetHeading));
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontLeftPower = (y + x + rx) / denominator;
