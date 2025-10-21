@@ -77,7 +77,7 @@ public class GoodTeleop extends OpMode {
     private double normalizeInput(double input) {
         //double k = 0.5;
        // return k * Math.pow(input, 3) + (1-k) * input;
-        return Math.signum(input) * Math.pow(input, 2);
+        return Math.signum(input) * Math.sqrt(Math.abs(input));
     }
     @Override
     public void loop() {
