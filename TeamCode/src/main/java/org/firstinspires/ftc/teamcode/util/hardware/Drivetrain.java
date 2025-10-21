@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.util.controllers.HeadingPIDFController;
 import org.firstinspires.ftc.teamcode.util.controllers.PIDFController;
 import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
 
@@ -17,14 +18,14 @@ public class Drivetrain {
     private DcMotorEx fl, bl, fr, br;
     private HardwareMap hardwareMap;
     public Follower follower;
-    private PIDFController headingController;
+    private HeadingPIDFController headingController;
     private double targetHeading = 0;
     private double prevHeading = 0;
     private double angularVelocity = 0;
     private ElapsedTime elapsedTime;
 
     public Drivetrain(HardwareMap hardwareMap) {
-        this.headingController = new PIDFController(2,0,0.1,0); // strongar than pedro
+        this.headingController = new HeadingPIDFController(1,0,0.01,0); // strongar than pedro
         this.hardwareMap = hardwareMap;
         fl = this.hardwareMap.get(DcMotorEx.class, "front_left_drive");
         bl = this.hardwareMap.get(DcMotorEx.class, "back_left_drive");
