@@ -47,7 +47,6 @@ public class Drivetrain {
         elapsedTime = new ElapsedTime();
     }
 
-
     public void setMovementVectors(double forward, double strafe, double heading) {
         double y = -forward; // Remember, Y stick value is reversed
         double x = strafe * 1.1; // Counteract imperfect strafing
@@ -106,6 +105,7 @@ public class Drivetrain {
 
     public void setStartingPose(Pose p) {
         follower.setStartingPose(p);
+        targetHeading = p.getHeading();
     }
 
     public double getTotalAngularVelocity() {
