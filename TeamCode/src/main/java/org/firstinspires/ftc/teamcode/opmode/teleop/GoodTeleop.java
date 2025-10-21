@@ -69,7 +69,7 @@ public class GoodTeleop extends OpMode {
         closestPoint = new ClosestPoint();
         // TODO: uncomment
         robot.turret.resetEncoder();
-        robot.turret.kVAdded = true;
+        // robot.turret.kVAdded = true;
     }
 
     // make a function that makes input more reactive in middle speeds
