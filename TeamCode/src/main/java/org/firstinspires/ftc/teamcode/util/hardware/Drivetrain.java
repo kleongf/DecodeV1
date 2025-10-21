@@ -42,7 +42,8 @@ public class Drivetrain {
         br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
-        follower.setStartingPose(new Pose(0, 0, 0));
+        // TODO: change this
+        follower.setStartingPose(new Pose(0, 0, Math.toRadians(270)));
         elapsedTime = new ElapsedTime();
     }
 

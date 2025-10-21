@@ -207,7 +207,7 @@ public class GoodTeleop extends OpMode {
             }
 
         } else {
-            if (Math.abs(gp1.getLeftStickX()) > 0) {
+            if (Math.abs(gp1.getRightStickX()) > 0) {
                 drivetrain.setFieldCentricMovementVectors(normalizeInput(-gp1.getLeftStickY()*longitudinalSpeed),
                         normalizeInput(gp1.getLeftStickX()*lateralSpeed),
                         normalizeInput(gp1.getRightStickX()*rotationSpeed));
