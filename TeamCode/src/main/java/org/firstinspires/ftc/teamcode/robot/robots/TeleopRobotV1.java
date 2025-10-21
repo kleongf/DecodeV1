@@ -134,13 +134,13 @@ public class TeleopRobotV1 {
     }
     // future functions to help with automatic shooting if we fit constraints
 
-    private boolean inRightZone(Pose pose) {
+    private boolean inLeftZone(Pose pose) {
         // right side. robot pose must be above the line with slope -1
         double zoneY = 144 + -1 * pose.getX();
         return pose.getX() < 72 && pose.getY() > zoneY;
     }
 
-    private boolean inLeftZone(Pose pose) {
+    private boolean inRightZone(Pose pose) {
         // left side. robot pose must be above line with slope 1
         double zoneY = 72 + 1 * (pose.getX()-72);
         return pose.getX() >= 72 && pose.getY() > zoneY;

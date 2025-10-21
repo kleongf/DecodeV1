@@ -81,13 +81,15 @@ public class Drivetrain {
         bl.setPower(backLeftPower);
         fr.setPower(frontRightPower);
         br.setPower(backRightPower);
+
+        targetHeading = follower.getPose().getHeading();
     }
 
     public void setHeadingLockFieldCentricMovementVectors(double forward, double strafe, double heading) {
         double botHeading = follower.getPose().getHeading();
         double x = strafe * Math.cos(-botHeading) - forward * Math.sin(-botHeading);
         double y = strafe * Math.sin(-botHeading) + forward * Math.cos(-botHeading);
-        double rx = Math.abs(heading) > 0.005 ? heading : -headingController.calculate(MathFunctions.angleWrap(follower.getPose().getHeading()), MathFunctions.angleWrap(targetHeading));
+        double rx = -headingController.calculate(MathFunctions.angleWrap(follower.getPose().getHeading()));
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontLeftPower = (y + x + rx) / denominator;
@@ -99,8 +101,6 @@ public class Drivetrain {
         bl.setPower(backLeftPower);
         fr.setPower(frontRightPower);
         br.setPower(backRightPower);
-
-        targetHeading = follower.getPose().getHeading();
     }
 
     public void setStartingPose(Pose p) {

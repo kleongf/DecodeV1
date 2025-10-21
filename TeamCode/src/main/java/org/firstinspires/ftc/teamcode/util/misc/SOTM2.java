@@ -51,18 +51,18 @@ public class SOTM2 {
         double dist = Math.hypot(dx, dy);
 
         // add 20 degrees because thats the original dont ask why
-        double t = dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(20)));
-        t += 0.5; // it takes about 0.5 seconds to shoot
-
-        double dxCorr = dx + robotVelocity.getXComponent() * t;
-        double dyCorr = dy - robotVelocity.getYComponent() * t;
-        double distCorr = Math.hypot(dxCorr, dyCorr);
-
-        // coord system conversion to turret angle pov
-
-        double azimuth = Math.atan2(-dxCorr, dyCorr) - robotPose.getHeading() + Math.toRadians(90);
-        double theta = thetaLUT.getValue(distCorr);
-        double velocity = velocityLUT.getValue(distCorr);
+//        double t = dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(20)));
+//        t += 0.5; // it takes about 0.5 seconds to shoot
+//
+//        double dxCorr = dx + robotVelocity.getXComponent() * t;
+//        double dyCorr = dy - robotVelocity.getYComponent() * t;
+//        double distCorr = Math.hypot(dxCorr, dyCorr);
+//
+//        // coord system conversion to turret angle pov
+//
+//        double azimuth = Math.atan2(-dxCorr, dyCorr) - robotPose.getHeading() + Math.toRadians(90);
+//        double theta = thetaLUT.getValue(distCorr);
+//        double velocity = velocityLUT.getValue(distCorr);
         // TODO: offset added for blue side - will have to be subtracted for red side
         // actually maybe it shouldn't be a constant, it should be inversely proportional to distance.
         // as distance increases, the offset decreases.
@@ -70,9 +70,9 @@ public class SOTM2 {
         double minDist = 48;
         double offset = dist > minDist ? Math.toRadians(0) * (minDist/dist) : Math.toRadians(0);
 
-//        double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90) + offset;
-//        double theta = thetaLUT.getValue(dist);
-//        double velocity = velocityLUT.getValue(dist);
+        double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90) + offset;
+        double theta = thetaLUT.getValue(dist);
+        double velocity = velocityLUT.getValue(dist);
 
 
 

@@ -75,8 +75,9 @@ public class GoodTeleop extends OpMode {
     // make a function that makes input more reactive in middle speeds
 
     private double normalizeInput(double input) {
-        double k = 0.5;
-        return k * Math.pow(input, 3) + (1-k) * input;
+        //double k = 0.5;
+       // return k * Math.pow(input, 3) + (1-k) * input;
+        return Math.signum(input) * Math.pow(input, 2);
     }
     @Override
     public void loop() {
@@ -106,11 +107,20 @@ public class GoodTeleop extends OpMode {
                             new Path(
                                     new BezierLine(
                                             new Point(drivetrain.follower.getPose()),
-                                            new Point(gatePose)
+                                            new Point(gatePose.getX()+10, gatePose.getY())
                                     )
                             )
                     )
                     .setLinearHeadingInterpolation(drivetrain.follower.getPose().getHeading(), gatePose.getHeading())
+                    .addPath(
+                            new Path(
+                                    new BezierLine(
+                                            new Point(gatePose.getX()+10, gatePose.getY()),
+                                            new Point(gatePose)
+                                    )
+                            )
+                    )
+                    .setConstantHeadingInterpolation(gatePose.getHeading())
                     .build();
             isAutoDriving = true;
             drivetrain.follower.breakFollowing();
@@ -176,7 +186,7 @@ public class GoodTeleop extends OpMode {
             robot.turret.setTarget(0);
         }
 
-        if(Math.floorMod(state, 3) == 1) {
+        if (Math.floorMod(state, 3) == 1) {
             telemetry.addData("in zone", robot.inShootingZone(drivetrain.follower.getPose()));
 
             if (robot.inShootingZone(drivetrain.follower.getPose())
@@ -197,21 +207,17 @@ public class GoodTeleop extends OpMode {
             }
 
         } else {
-            drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(-gp1.getLeftStickY()*longitudinalSpeed),
-                    normalizeInput(gp1.getLeftStickX()*lateralSpeed),
-                    normalizeInput(gp1.getRightStickX()*rotationSpeed));
+            if (Math.abs(gp1.getLeftStickX()) > 0) {
+                drivetrain.setFieldCentricMovementVectors(normalizeInput(-gp1.getLeftStickY()*longitudinalSpeed),
+                        normalizeInput(gp1.getLeftStickX()*lateralSpeed),
+                        normalizeInput(gp1.getRightStickX()*rotationSpeed));
+            } else {
+                drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(-gp1.getLeftStickY()*longitudinalSpeed),
+                        normalizeInput(gp1.getLeftStickX()*lateralSpeed),
+                        normalizeInput(gp1.getRightStickX()*rotationSpeed));
+            }
         }
 
-        // TODO: uncomment when we want automatic shooting
-
-//        if (robot.inShootingZone(drivetrain.follower.getPose())
-//                && drivetrain.follower.getVelocity().getMagnitude() < 10
-//                && robot.turret.atTarget(Math.toRadians(2))
-//                && robot.shooter.atTarget(30)
-//        ) {
-//            robot.startShooting.start();
-//            state++;
-//        }
         robot.turret.setAngularVel(drivetrain.getTotalAngularVelocity());
         drivetrain.update();
         robot.update();
