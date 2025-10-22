@@ -224,11 +224,11 @@ public class BlueAutoCloseV5 extends OpMode {
                         .onEnter(() -> {
                             follower.followPath(shootSecond, true);
 
-                            double[] values2 = sotm2.calculateAzimuthThetaVelocity(new Pose(60, 84, Math.toRadians(270)), new Vector());//the close pose but at 270 degrees
+                            double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(60, 84, Math.toRadians(270)), new Vector());//the close pose but at 270 degrees
 
-                            robot.turret.setTarget(values2[0]);
-                            robot.shooter.setShooterPitch(values2[1]);
-                            robot.shooter.setTargetVelocity(values2[2]);
+                            robot.turret.setTarget(values[0]);
+                            robot.shooter.setShooterPitch(values[1]);
+                            robot.shooter.setTargetVelocity(values[2]+50);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -248,11 +248,11 @@ public class BlueAutoCloseV5 extends OpMode {
                             robot.slowIntake.start();
                             follower.followPath(shootCorner1, true);
 
-                            double[] values2 = sotm2.calculateAzimuthThetaVelocity(shootPoseFar, new Vector());//the close pose but at 270 degrees
+                            double[] values = sotm2.calculateAzimuthThetaVelocity(shootPoseFar, new Vector());//the close pose but at 270 degrees
 
-                            robot.turret.setTarget(values2[0]);
-                            robot.shooter.setShooterPitch(values2[1]);
-                            robot.shooter.setTargetVelocity(values2[2]);
+                            robot.turret.setTarget(values[0]);
+                            robot.shooter.setShooterPitch(values[1]);
+                            robot.shooter.setTargetVelocity(values[2]+50);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
