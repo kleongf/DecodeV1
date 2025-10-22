@@ -18,6 +18,7 @@ public class Turret extends Subsystem {
     private double ticksPerRevolution = 1931; // 383.6*5 idk
     private double ticksPerRadian = ticksPerRevolution / (2 * Math.PI);
     private double angularVel = 0;
+    private double feedforward = 0;
 
 
     public Turret(HardwareMap hardwareMap) {
@@ -59,7 +60,7 @@ public class Turret extends Subsystem {
             double error = t-c;
             power += 0.01 * Math.signum(error);
         }
-        // power += ff;
+        power += feedforward;
         //double power = turretController.calculate(current, target);
         turretMotor.setPower(power);
     }
@@ -69,7 +70,9 @@ public class Turret extends Subsystem {
 
     }
 
-
+    public void setFeedforward(double x) {
+        feedforward = x;
+    }
 
     private double weirdAngleWrap(double radians) {
         while (radians > 0) {

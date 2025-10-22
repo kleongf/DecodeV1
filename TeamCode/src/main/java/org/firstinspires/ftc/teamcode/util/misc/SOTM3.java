@@ -11,6 +11,7 @@ public class SOTM3 {
     private double radius = 0.036; // 36 mm radius, 72mm diameter wheel
     // accounts for compression, rotation, air resistance, etc. not all rotation is converted into linear motion.
     private double speedCoefficient = 0.7;
+    private double kV = 1.0;
     public SOTM3(Pose goal) {
         this.goal = goal;
         // TODO: add tuned values here for theta and velocity
@@ -46,10 +47,17 @@ public class SOTM3 {
         return (ticksPerSecond * 2 * Math.PI / 28.0) * radius * speedCoefficient * (39.3701);
     }
 
-    public double[] calculateAzimuthThetaVelocity(Pose robotPose, Vector robotVelocity) {
+    public double[] calculateAzimuthFeedforwardThetaVelocity(Pose robotPose, Vector robotVelocity) {
         double dx = goal.getX() - robotPose.getX();
         double dy = goal.getY() - robotPose.getY();
         double dist = Math.hypot(dx, dy);
+
+        double dt = 0.03; // looptime =about 30ms
+        double dxNext = goal.getX() - (robotPose.getX() + robotVelocity.getXComponent() * dt);
+        double dyNext = goal.getY() - (robotPose.getY() + robotVelocity.getYComponent() * dt);
+
+        // we should never run into weird domain issues unless odo is off, but be safe
+        double feedforward = kV * MathFunctions.normalizeAngle(Math.atan2(-dxNext, dyNext) - Math.atan2(-dx, dy));
 
         // get the velocity vector and project it onto the goal vector
 
@@ -71,6 +79,6 @@ public class SOTM3 {
         double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90);
         double theta = thetaLUT.getValue(dist);
 
-        return new double[] {azimuth, theta, velocity};
+        return new double[] {azimuth, feedforward, theta, velocity};
     }
 }

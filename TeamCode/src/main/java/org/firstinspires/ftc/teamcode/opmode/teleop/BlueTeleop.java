@@ -170,16 +170,18 @@ public class BlueTeleop extends OpMode {
         }
 
         if(!(Math.floorMod(state, 3) == 0)) {
-            double[] values = sotm3.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+            double[] values = sotm3.calculateAzimuthFeedforwardThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+            robot.turret.setFeedforward(values[1]);
             robot.turret.setTarget(values[0]);
-            robot.shooter.setShooterPitch(values[1]);
-            robot.shooter.setTargetVelocity(values[2]);
+            robot.shooter.setShooterPitch(values[2]);
+            robot.shooter.setTargetVelocity(values[3]);
 
             telemetry.addData("pitch", values[1]);
             telemetry.addData("velocity", values[2]);
             telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
 
         } else {
+            robot.turret.setFeedforward(0);
             robot.turret.setTarget(0);
         }
 
