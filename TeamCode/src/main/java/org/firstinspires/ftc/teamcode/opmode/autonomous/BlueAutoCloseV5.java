@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="PATHS ONLY legal blue auto close v5: 18")
+@Autonomous(name="legal blue auto close v5: 18")
 public class BlueAutoCloseV5 extends OpMode {
     public static final String END_POSE_KEY = "END_POSE";
     private VoltageCompFollower follower;
