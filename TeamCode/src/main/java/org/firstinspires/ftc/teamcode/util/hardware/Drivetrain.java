@@ -23,7 +23,7 @@ public class Drivetrain {
     private double prevHeading = 0;
     private double angularVelocity = 0;
     private ElapsedTime elapsedTime;
-    private double kp = 0.2;
+    private double kp = 1;
 
     public Drivetrain(HardwareMap hardwareMap) {
         this.headingController = new HeadingPIDFController(1,0,0.01,0); // strongar than pedro

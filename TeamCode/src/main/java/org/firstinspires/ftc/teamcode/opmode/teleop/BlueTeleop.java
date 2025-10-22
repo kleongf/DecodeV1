@@ -21,8 +21,8 @@ import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import java.util.HashMap;
 import java.util.Objects;
 
-@TeleOp(name="first good teleop: blue")
-public class GoodTeleop extends OpMode {
+@TeleOp(name="Blue good teleop", group="comp")
+public class BlueTeleop extends OpMode {
     private Timer localizationTimer;
     private LimelightLocalizer limelightLocalizer;
     private ClosestPoint closestPoint;
@@ -32,7 +32,7 @@ public class GoodTeleop extends OpMode {
     // was 0.5 0.5 0.3
     private double longitudinalSpeed = 1, lateralSpeed = 1, rotationSpeed = 0.5;
     private TeleopRobotV1 robot;
-    // TODO: try blackboard AHHHH
+    // TODO: UNCOMMENT IN COMP
     // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
     private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
     private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
@@ -58,34 +58,29 @@ public class GoodTeleop extends OpMode {
         sotm2 = new SOTM2(goalPose);
 
         stateMap = new HashMap<>();
-
         stateMap.put(0, robot.prepareIntake);
         stateMap.put(1, robot.prepareShooting);
         stateMap.put(2, robot.startShooting);
+
         localizationTimer = new Timer();
         limelightLocalizer = new LimelightLocalizer(hardwareMap);
         limelightLocalizer.start();
-
         closestPoint = new ClosestPoint();
         // TODO: uncomment
         robot.turret.resetEncoder();
-        // robot.turret.kVAdded = true;
     }
 
-    // make a function that makes input more reactive in middle speeds
-
     private double normalizeInput(double input) {
-        //double k = 0.5;
-       // return k * Math.pow(input, 3) + (1-k) * input;
         return Math.signum(input) * Math.sqrt(Math.abs(input));
     }
     @Override
     public void loop() {
         // we are moving slowly AND its been over 10 seconds
-        if (localizationTimer.getElapsedTimeSeconds() > 10 && drivetrain.follower.getVelocity().getMagnitude() < 10) {
-            drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(drivetrain.follower.getPose()));
-            localizationTimer.resetTimer();
-        }
+        // TODO: uncomment when we use limelight, but not for scrim
+//        if (localizationTimer.getElapsedTimeSeconds() > 10 && drivetrain.follower.getVelocity().getMagnitude() < 10) {
+//            drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(drivetrain.follower.getPose()));
+//            localizationTimer.resetTimer();
+//        }
 
         gp1.update();
         gp2.update();
@@ -189,15 +184,14 @@ public class GoodTeleop extends OpMode {
         if (Math.floorMod(state, 3) == 1) {
             telemetry.addData("in zone", robot.inShootingZone(drivetrain.follower.getPose()));
 
-            if (robot.inShootingZone(drivetrain.follower.getPose())
-                    && drivetrain.follower.getVelocity().getMagnitude() < 10
-                    && robot.turret.atTarget(30) // i just realized its ticks
-                    && robot.shooter.atTarget(21)
-            ) {
-                robot.startShooting.start();
-                state++;
-            }
-
+//            if (robot.inShootingZone(drivetrain.follower.getPose())
+//                    && drivetrain.follower.getVelocity().getMagnitude() < 10
+//                    && robot.turret.atTarget(30) // i just realized its ticks
+//                    && robot.shooter.atTarget(21)
+//            ) {
+//                robot.startShooting.start();
+//                state++;
+//            }
         }
 
         if (isAutoDriving) {

@@ -252,7 +252,7 @@ public class BlueAutoCloseV5 extends OpMode {
 
                             robot.turret.setTarget(values[0]);
                             robot.shooter.setShooterPitch(values[1]);
-                            robot.shooter.setTargetVelocity(values[2]+50);
+                            robot.shooter.setTargetVelocity(values[2]);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
