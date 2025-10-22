@@ -8,8 +8,9 @@ public class SOTM3 {
     private Pose goal;
     private LUT thetaLUT;
     private LUT velocityLUT;
-    private double radius = 0.036; // 36 mm radius, 72mm wheel
-    private double speedCoefficient = 0.6; // accounts for compression and stuff idk
+    private double radius = 0.036; // 36 mm radius, 72mm diameter wheel
+    // accounts for compression, rotation, air resistance, etc. not all rotation is converted into linear motion.
+    private double speedCoefficient = 0.7;
     public SOTM3(Pose goal) {
         this.goal = goal;
         // TODO: add tuned values here for theta and velocity
@@ -64,7 +65,7 @@ public class SOTM3 {
 
         // now subtract it from the velocity
         // v = r * omega, omega = v (inches to meters) / r (meters) -> divide by 2pi and the multiply by 28
-        double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28;
+        double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (1/speedCoefficient);
 
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
         double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90);
