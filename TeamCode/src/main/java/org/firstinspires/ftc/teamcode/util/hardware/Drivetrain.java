@@ -92,7 +92,7 @@ public class Drivetrain {
         double botHeading = follower.getPose().getHeading();
         double x = strafe * Math.cos(-botHeading) - forward * Math.sin(-botHeading);
         double y = strafe * Math.sin(-botHeading) + forward * Math.cos(-botHeading);
-        double rx = - kp * (MathFunctions.angleWrap(follower.getPose().getHeading()-targetHeading));
+        double rx = kp * (MathFunctions.angleWrap(follower.getPose().getHeading()-targetHeading));
                 // -headingController.calculate(MathFunctions.angleWrap(follower.getPose().getHeading()), MathFunctions.angleWrap(targetHeading));
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
