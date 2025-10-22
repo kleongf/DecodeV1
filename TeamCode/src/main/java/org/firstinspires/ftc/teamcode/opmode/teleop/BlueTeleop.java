@@ -18,6 +18,8 @@ import org.firstinspires.ftc.teamcode.util.hardware.Drivetrain;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.misc.ClosestPoint;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
+import org.firstinspires.ftc.teamcode.util.misc.SOTM3;
+
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -41,7 +43,7 @@ public class BlueTeleop extends OpMode {
     private final Pose gatePose = new Pose(13, 70, Math.toRadians(270));
     private SmartGamepad gp1;
     private SmartGamepad gp2;
-    private SOTM2 sotm2;
+    private SOTM3 sotm3;
     private HashMap<Integer, StateMachine> stateMap;
 
     @Override
@@ -55,7 +57,7 @@ public class BlueTeleop extends OpMode {
         gp1 = new SmartGamepad(gamepad1);
         gp2 = new SmartGamepad(gamepad2);
 
-        sotm2 = new SOTM2(goalPose);
+        sotm3 = new SOTM3(goalPose);
 
         stateMap = new HashMap<>();
         stateMap.put(0, robot.prepareIntake);
@@ -168,7 +170,7 @@ public class BlueTeleop extends OpMode {
         }
 
         if(!(Math.floorMod(state, 3) == 0)) {
-            double[] values = sotm2.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+            double[] values = sotm3.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
             robot.turret.setTarget(values[0]);
             robot.shooter.setShooterPitch(values[1]);
             robot.shooter.setTargetVelocity(values[2]);

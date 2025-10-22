@@ -44,6 +44,7 @@ public class SOTM3 {
     private double calculateLinearVelocityInches(double ticksPerSecond) {
         return (ticksPerSecond * 2 * Math.PI / 28.0) * radius * speedCoefficient * (39.3701);
     }
+
     public double[] calculateAzimuthThetaVelocity(Pose robotPose, Vector robotVelocity) {
         double dx = goal.getX() - robotPose.getX();
         double dy = goal.getY() - robotPose.getY();
@@ -51,10 +52,7 @@ public class SOTM3 {
 
         // get the velocity vector and project it onto the goal vector
 
-        // linear velocity, in/s
-        double shooterVelocity = (velocityLUT.getValue(dist)/28) * (Math.PI * 2) * radius * 39.3701 * speedCoefficient;
-
-        Vector v = MathFunctions.subtractVectors(robotPose.getVector(), goal.getVector());
+        Vector v = MathFunctions.subtractVectors(goal.getVector(), robotPose.getVector());
         Vector u = robotVelocity;
 
         // (u ⋅ v / |v|²) * v
@@ -62,13 +60,13 @@ public class SOTM3 {
 
         // if the vectors are in the same direction, then we should subtract the radial velocity
         // vectors are in the same direction if their dot product is positive, so dot it with the goal vector.
-        double velToGoal = MathFunctions.dotProduct(projuv, goal.getVector()) > 0 ? projuv.getMagnitude() : -projuv.getMagnitude();
+        double velToGoal = MathFunctions.dotProduct(projuv, v) > 0 ? projuv.getMagnitude() : -projuv.getMagnitude();
 
         // now subtract it from the velocity
         // v = r * omega, omega = v (inches to meters) / r (meters) -> divide by 2pi and the multiply by 28
         double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28;
 
-        double velocity = shooterVelocity - inchesToTicks;
+        double velocity = velocityLUT.getValue(dist) - inchesToTicks;
         double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90);
         double theta = thetaLUT.getValue(dist);
 
