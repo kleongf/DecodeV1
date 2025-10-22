@@ -23,9 +23,11 @@ public class Drivetrain {
     private double prevHeading = 0;
     private double angularVelocity = 0;
     private ElapsedTime elapsedTime;
+    private double kp = 0.2;
 
     public Drivetrain(HardwareMap hardwareMap) {
         this.headingController = new HeadingPIDFController(1,0,0.01,0); // strongar than pedro
+        // i give up on heading controller lol
         this.hardwareMap = hardwareMap;
         fl = this.hardwareMap.get(DcMotorEx.class, "front_left_drive");
         bl = this.hardwareMap.get(DcMotorEx.class, "back_left_drive");
@@ -90,7 +92,8 @@ public class Drivetrain {
         double botHeading = follower.getPose().getHeading();
         double x = strafe * Math.cos(-botHeading) - forward * Math.sin(-botHeading);
         double y = strafe * Math.sin(-botHeading) + forward * Math.cos(-botHeading);
-        double rx = -headingController.calculate(MathFunctions.angleWrap(follower.getPose().getHeading()), MathFunctions.angleWrap(targetHeading));
+        double rx = - kp * (MathFunctions.angleWrap(follower.getPose().getHeading()-targetHeading));
+                // -headingController.calculate(MathFunctions.angleWrap(follower.getPose().getHeading()), MathFunctions.angleWrap(targetHeading));
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontLeftPower = (y + x + rx) / denominator;
