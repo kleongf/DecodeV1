@@ -57,7 +57,8 @@ public class SOTM3 {
         double dyNext = goal.getY() - (robotPose.getY() + robotVelocity.getYComponent() * dt);
 
         // we should never run into weird domain issues unless odo is off, but be safe
-        double feedforward = kV * MathFunctions.normalizeAngle(Math.atan2(-dxNext, dyNext) - Math.atan2(-dx, dy));
+        double feedforward = 0;
+        // double feedforward = kV * MathFunctions.normalizeAngle(Math.atan2(-dxNext, dyNext) - Math.atan2(-dx, dy));
 
         // get the velocity vector and project it onto the goal vector
 
