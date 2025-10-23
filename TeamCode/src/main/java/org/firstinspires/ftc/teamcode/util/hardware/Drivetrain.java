@@ -24,6 +24,8 @@ public class Drivetrain {
     private double angularVelocity = 0;
     private ElapsedTime elapsedTime;
     private double kp = 1;
+    private double kd = 0.02;
+    private double lastError = 0;
 
     public Drivetrain(HardwareMap hardwareMap) {
         this.headingController = new HeadingPIDFController(1,0,0.02,0); // strongar than pedro
@@ -92,7 +94,10 @@ public class Drivetrain {
         double botHeading = follower.getPose().getHeading();
         double x = strafe * Math.cos(-botHeading) - forward * Math.sin(-botHeading);
         double y = strafe * Math.sin(-botHeading) + forward * Math.cos(-botHeading);
-        double rx = headingController.calculate(MathFunctions.angleWrap(follower.getPose().getHeading()), MathFunctions.angleWrap(targetHeading));
+        double error = MathFunctions.angleWrap(follower.getPose().getHeading()-targetHeading);
+        double rx = kp * (error) + kd * (error-lastError);
+        lastError = error;
+                // headingController.calculate(MathFunctions.angleWrap(follower.getPose().getHeading()), MathFunctions.angleWrap(targetHeading));
         // kp * (MathFunctions.angleWrap(follower.getPose().getHeading()-targetHeading));
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
