@@ -26,6 +26,7 @@ public class Drivetrain {
     private double kp = 1;
     private double kd = 0.02;
     private double lastError = 0;
+    private double lastTimeStamp = 0;
 
     public Drivetrain(HardwareMap hardwareMap) {
         this.headingController = new HeadingPIDFController(1,0,0.02,0); // strongar than pedro
@@ -94,9 +95,13 @@ public class Drivetrain {
         double botHeading = follower.getPose().getHeading();
         double x = strafe * Math.cos(-botHeading) - forward * Math.sin(-botHeading);
         double y = strafe * Math.sin(-botHeading) + forward * Math.cos(-botHeading);
+
+        double currentTimeStamp = (double) System.nanoTime() / 1E9;
+        if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
+        double period = currentTimeStamp - lastTimeStamp;
+
         double error = MathFunctions.angleWrap(follower.getPose().getHeading()-targetHeading);
-        double rx = kp * (error) + kd * (error-lastError);
-        lastError = error;
+        double rx = kp * (error) + kd * (error-lastError) / period;
                 // headingController.calculate(MathFunctions.angleWrap(follower.getPose().getHeading()), MathFunctions.angleWrap(targetHeading));
         // kp * (MathFunctions.angleWrap(follower.getPose().getHeading()-targetHeading));
 
@@ -110,6 +115,9 @@ public class Drivetrain {
         bl.setPower(backLeftPower);
         fr.setPower(frontRightPower);
         br.setPower(backRightPower);
+
+        lastError = error;
+        lastTimeStamp = currentTimeStamp;
     }
 
     public void setStartingPose(Pose p) {
