@@ -65,6 +65,10 @@ public class Turret extends Subsystem {
         turretMotor.setPower(power);
     }
 
+    public void setPDCoefficients(double p, double d) {
+        turretController.setPIDF(p, 0, d, 0);
+    }
+
     @Override
     public void start() {
 

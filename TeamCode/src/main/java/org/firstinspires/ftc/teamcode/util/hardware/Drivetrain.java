@@ -24,7 +24,7 @@ public class Drivetrain {
     private double angularVelocity = 0;
     private ElapsedTime elapsedTime;
     private double kp = 1;
-    private double kd = 0.02;
+    private double kd = 0.03;
     private double lastError = 0;
     private double lastTimeStamp = 0;
 
