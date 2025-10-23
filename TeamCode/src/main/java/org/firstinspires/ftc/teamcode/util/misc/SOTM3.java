@@ -10,7 +10,7 @@ public class SOTM3 {
     private LUT velocityLUT;
     private double radius = 0.036; // 36 mm radius, 72mm diameter wheel
     // accounts for compression, rotation, air resistance, etc. not all rotation is converted into linear motion.
-    private double speedCoefficient = 0.7;
+    private double speedCoefficient = 0.5;
     private double kV = 1.0;
     public SOTM3(Pose goal) {
         this.goal = goal;
