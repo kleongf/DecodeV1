@@ -206,13 +206,13 @@ public class BlueTeleop extends OpMode {
 
         } else {
             if (Math.abs(gp1.getRightStickX()) > 0) {
-                drivetrain.setFieldCentricMovementVectors(normalizeInput(-gp1.getLeftStickY()*longitudinalSpeed),
-                        normalizeInput(gp1.getLeftStickX()*lateralSpeed),
-                        normalizeInput(gp1.getRightStickX()*rotationSpeed));
+                drivetrain.setFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
+                        normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
+                        normalizeInput(-gp1.getRightStickX()*rotationSpeed));
             } else {
-                drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(-gp1.getLeftStickY()*longitudinalSpeed),
-                        normalizeInput(gp1.getLeftStickX()*lateralSpeed),
-                        normalizeInput(gp1.getRightStickX()*rotationSpeed));
+                drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
+                        normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
+                        normalizeInput(-gp1.getRightStickX()*rotationSpeed));
             }
         }
 
