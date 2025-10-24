@@ -46,7 +46,7 @@ public class BlueAutoCloseV6 extends OpMode {
                 .addPath(
                         new BezierLine(new Pose(60.000, 84.000), new Pose(20.000, 84.000))
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
         shootFirst = follower.pathBuilder()
                 .addPath(
@@ -96,7 +96,8 @@ public class BlueAutoCloseV6 extends OpMode {
                         // Path 7
                         new BezierCurve(
                                 new Pose(13.000, 60.000),
-                                new Pose(22.979, 71.234),
+                                new Pose(32.362, 57.255),
+                                new Pose(31.213, 71.809),
                                 new Pose(13.000, 70.000)
                         )
                 )
@@ -112,28 +113,28 @@ public class BlueAutoCloseV6 extends OpMode {
         intakeCorner1 = follower.pathBuilder()
                 .addPath(
                         // Path 9
-                        new BezierLine(new Pose(54.000, 10.000), new Pose(8.000, 18.000))
+                        new BezierLine(new Pose(54.000, 10.000), new Pose(13.000, 18.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootCorner1 = follower.pathBuilder()
                 .addPath(
                         // Path 10
-                        new BezierLine(new Pose(8.000, 18.000), new Pose(54.000, 10.000))
+                        new BezierLine(new Pose(13.000, 18.000), new Pose(54.000, 10.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         intakeCorner2 = follower.pathBuilder()
                 .addPath(
                         // Path 11
-                        new BezierLine(new Pose(54.000, 10.000), new Pose(8.000, 10.000))
+                        new BezierLine(new Pose(54.000, 10.000), new Pose(13.000, 10.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootCorner2 = follower.pathBuilder()
                 .addPath(
                         // Path 12
-                        new BezierLine(new Pose(8.000, 10.000), new Pose(54.000, 10.000))
+                        new BezierLine(new Pose(13.000, 10.000), new Pose(54.000, 10.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();

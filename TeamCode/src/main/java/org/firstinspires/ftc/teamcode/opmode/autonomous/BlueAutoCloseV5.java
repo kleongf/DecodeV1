@@ -45,7 +45,7 @@ public class BlueAutoCloseV5 extends OpMode {
                 .addPath(
                         new BezierLine(new Pose(60.000, 84.000), new Pose(20.000, 84.000))
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
         shootFirst = follower.pathBuilder()
                 .addPath(
