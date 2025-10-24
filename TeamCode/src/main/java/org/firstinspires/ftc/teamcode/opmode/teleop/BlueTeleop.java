@@ -32,7 +32,7 @@ public class BlueTeleop extends OpMode {
     private boolean isAutoDriving = false;
     private Drivetrain drivetrain;
     // was 0.5 0.5 0.3
-    private double longitudinalSpeed = 1, lateralSpeed = 1, rotationSpeed = 0.5;
+    private double longitudinalSpeed = 1, lateralSpeed = 1, rotationSpeed = 0.4;
     private TeleopRobotV1 robot;
     // TODO: UNCOMMENT IN COMP
     // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
@@ -208,11 +208,11 @@ public class BlueTeleop extends OpMode {
             if (Math.abs(gp1.getRightStickX()) > 0) {
                 drivetrain.setFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
                         normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
-                        normalizeInput(-gp1.getRightStickX()*rotationSpeed));
+                        normalizeInput(gp1.getRightStickX()*rotationSpeed));
             } else {
                 drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
                         normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
-                        normalizeInput(-gp1.getRightStickX()*rotationSpeed));
+                        normalizeInput(gp1.getRightStickX()*rotationSpeed));
             }
         }
 
