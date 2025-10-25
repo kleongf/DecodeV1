@@ -141,7 +141,7 @@ public class BlueTeleop extends OpMode {
             drivetrain.follower.breakFollowing();
             drivetrain.follower.followPath(driveFar, true);
         }
-        // TODO: add another one to drive to latch thingy
+
         if (gp1.bPressed()) {
             PathChain driveToClosestPoint = drivetrain.follower.pathBuilder()
                     .addPath(

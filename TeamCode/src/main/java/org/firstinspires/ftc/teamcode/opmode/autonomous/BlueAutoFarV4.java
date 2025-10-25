@@ -25,7 +25,7 @@ public class BlueAutoFarV4 extends OpMode {
     private AutonomousRobot robot;
     private SOTM2 sotm2;
     // TODO: change the startPose after using the (72, 72) position
-    private final Pose startPose = new Pose(54, 6, Math.toRadians(90));
+    private final Pose startPose = new Pose(54.5, 7, Math.toRadians(90));
     private final Pose shootPoseNear = new Pose(60, 84, Math.toRadians(180));
     private final Pose shootPoseFar = new Pose(54, 10, Math.toRadians(180));
 

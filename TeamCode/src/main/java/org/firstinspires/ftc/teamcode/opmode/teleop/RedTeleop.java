@@ -38,7 +38,7 @@ public class RedTeleop extends OpMode {
     private final Pose goalPose = Mirrorer.mirror(new Pose(0, 144, Math.toRadians(45)));
     private final Pose shootPoseClose = Mirrorer.mirror(new Pose(60, 84, Math.toRadians(180)));
     private final Pose shootPoseFar = Mirrorer.mirror(new Pose(56, 8, Math.toRadians(180)));
-    private final Pose gatePose = Mirrorer.mirror(new Pose(13, 70, Math.toRadians(90)));
+    private final Pose gatePose = Mirrorer.mirror(new Pose(14, 72, Math.toRadians(90)));
     private SmartGamepad gp1;
     private SmartGamepad gp2;
     private SOTM2 sotm2;
