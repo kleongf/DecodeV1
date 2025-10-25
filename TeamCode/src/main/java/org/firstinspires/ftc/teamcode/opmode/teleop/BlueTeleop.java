@@ -39,8 +39,9 @@ public class BlueTeleop extends OpMode {
     private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
     private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
     private final Pose shootPoseClose = new Pose(60, 84, Math.toRadians(180));
-    private final Pose shootPoseFar = new Pose(56, 8, Math.toRadians(180));
-    private final Pose gatePose = new Pose(13, 70, Math.toRadians(270));
+    private final Pose shootPoseFar = new Pose(54, 12, Math.toRadians(180));
+    // maybe 3?
+    private final Pose gatePose = new Pose(14, 72, Math.toRadians(270));
     private SmartGamepad gp1;
     private SmartGamepad gp2;
     private SOTM3 sotm3;
@@ -202,6 +203,7 @@ public class BlueTeleop extends OpMode {
             if (!drivetrain.follower.isBusy()) {
                 isAutoDriving = false;
                 drivetrain.follower.breakFollowing();
+                drivetrain.setTargetHeading(drivetrain.follower.getPose().getHeading());
             }
 
         } else {
@@ -220,6 +222,10 @@ public class BlueTeleop extends OpMode {
         drivetrain.update();
         robot.update();
         telemetry.update();
+
+        // 54.5, 7.5 is far spot
+
+        // 30, 136
     }
 
     @Override

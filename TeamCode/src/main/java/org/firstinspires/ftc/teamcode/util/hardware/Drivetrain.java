@@ -23,8 +23,8 @@ public class Drivetrain {
     private double prevHeading = 0;
     private double angularVelocity = 0;
     private ElapsedTime elapsedTime;
-    private double kp = 1;
-    private double kd = 0.03;
+    private double kp = 0.4;
+    private double kd = 0.015;
     private double lastError = 0;
     private double lastTimeStamp = 0;
 
@@ -129,6 +129,10 @@ public class Drivetrain {
         // x/y because weird coord system
         double maxVelocity = 160;
         return angularVelocity + (follower.getVelocity().getMagnitude() / maxVelocity) * Math.atan2(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent());
+    }
+
+    public void setTargetHeading(double x) {
+        targetHeading = x;
     }
 
 
