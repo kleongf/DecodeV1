@@ -70,6 +70,11 @@ public class BetterIntake extends Subsystem {
         leftElbow.setPosition(INTAKE_PUSH);
         rightElbow.setPosition(INTAKE_PUSH);
     }
+
+    public void intakeMid() {
+        leftElbow.setPosition(INTAKE_HALF);
+        rightElbow.setPosition(INTAKE_HALF);
+    }
     public void intakeHigh(){
         leftElbow.setPosition(INTAKE_HIGH);
         rightElbow.setPosition(INTAKE_HIGH);

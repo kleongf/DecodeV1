@@ -79,7 +79,11 @@ public class SOTM3 {
         double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (1/speedCoefficient);
 
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
-        double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90);
+
+        double minDist = 48;
+        double offset = dist > minDist ? Math.toRadians(-4) * (minDist/dist) : Math.toRadians(-4);
+
+        double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90) + offset;
         double theta = thetaLUT.getValue(dist);
 
         return new double[] {azimuth, feedforward, theta, velocity};

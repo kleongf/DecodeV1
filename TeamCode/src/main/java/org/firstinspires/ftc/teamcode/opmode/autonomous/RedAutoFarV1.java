@@ -16,30 +16,31 @@ import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobot;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.fsm.Transition;
+import org.firstinspires.ftc.teamcode.util.misc.Mirrorer;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="legal blue auto far v4: 18+park", group="comp")
-public class BlueAutoFarV4 extends OpMode {
+@Autonomous(name="legal red auto far v1: 18+park", group="comp")
+public class RedAutoFarV1 extends OpMode {
     public static final String END_POSE_KEY = "END_POSE";
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM2 sotm2;
     // TODO: change the startPose after using the (72, 72) position
-    private final Pose startPose = new Pose(54, 6, Math.toRadians(90));
-    private final Pose shootPoseNear = new Pose(60, 84, Math.toRadians(180));
-    private final Pose shootPoseFar = new Pose(54, 8, Math.toRadians(180));
+    private final Pose startPose = new Pose(89.5, 7, Math.toRadians(90));
+    private final Pose shootPoseNear = Mirrorer.mirror(new Pose(60, 84,Math.toRadians(180)));
+    private final Pose shootPoseFar = Mirrorer.mirror(new Pose(54, 10, Math.toRadians(180)));
 
-    private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
+    private final Pose goalPose = new Pose(144, 144, Math.toRadians(45));
 
     private PathChain shootPreload, intakeFirst, shootFirst, intakeThird, shootThird, intakeSecond, openGate, shootSecond, intakeCorner1, shootCorner1, intakeCorner2, shootCorner2, park;
     public void buildPaths() {
         shootPreload = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(54, 6), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(89.5, 7), new Pose(84.000, 84.000))
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(0))
                 .build();
         intakeFirst = follower.pathBuilder()
                 .addPath(
@@ -96,14 +97,14 @@ public class BlueAutoFarV4 extends OpMode {
                         new BezierCurve(
                                 new Pose(13.000, 60.000),
                                 new Pose(27.000, 55.915),
-                                new Pose(40.000, 69.000)
+                                new Pose(30.000, 72.000)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
                 .addPath(
                         new BezierCurve(
-                                new Pose(40, 69),
-                                new Pose(14, 69)
+                                new Pose(30, 72),
+                                new Pose(14, 72)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(270))
@@ -111,35 +112,35 @@ public class BlueAutoFarV4 extends OpMode {
         shootSecond = follower.pathBuilder()
                 .addPath(
                         // Path 8
-                        new BezierLine(new Pose(14.000, 69.000), new Pose(54.000, 8))
+                        new BezierLine(new Pose(14.000, 72.000), new Pose(54.000, 10.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180))
                 .build();
         intakeCorner1 = follower.pathBuilder()
                 .addPath(
                         // Path 9
-                        new BezierLine(new Pose(54.000, 8), new Pose(12.000, 8))
+                        new BezierLine(new Pose(54.000, 10.000), new Pose(15.000, 18.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootCorner1 = follower.pathBuilder()
                 .addPath(
                         // Path 10
-                        new BezierLine(new Pose(12.000, 8.000), new Pose(54.000, 8))
+                        new BezierLine(new Pose(15.000, 18.000), new Pose(54.000, 10.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         intakeCorner2 = follower.pathBuilder()
                 .addPath(
                         // Path 11
-                        new BezierLine(new Pose(54.000, 8), new Pose(12.000, 8))
+                        new BezierLine(new Pose(54.000, 10.000), new Pose(15.000, 10.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootCorner2 = follower.pathBuilder()
                 .addPath(
                         // Path 12
-                        new BezierLine(new Pose(12.000, 8), new Pose(54.000, 8))
+                        new BezierLine(new Pose(15.000, 10.000), new Pose(54.000, 10.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
@@ -150,6 +151,20 @@ public class BlueAutoFarV4 extends OpMode {
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
+
+        intakeFirst = Mirrorer.mirror(intakeFirst);
+        shootFirst = Mirrorer.mirror(shootFirst);
+        intakeThird = Mirrorer.mirror(intakeThird);
+        shootThird = Mirrorer.mirror(shootThird);
+        openGate = Mirrorer.mirror(openGate);
+        intakeSecond = Mirrorer.mirror(intakeSecond);
+        shootSecond = Mirrorer.mirror(shootSecond);
+        intakeCorner1 = Mirrorer.mirror(intakeCorner1);
+        shootCorner1 = Mirrorer.mirror(shootCorner1);
+        intakeCorner2 = Mirrorer.mirror(intakeCorner2);
+        shootCorner2 = Mirrorer.mirror(shootCorner2);
+        park = Mirrorer.mirror(park);
+
     }
 
     @Override
@@ -222,7 +237,7 @@ public class BlueAutoFarV4 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(2000), // when there are 9 balls a hard hit will do
+                        .maxTime(1000), // when there are 9 balls a hard hit will do
                 new State()
                         .onEnter(() -> {
                             follower.followPath(shootSecond, true);

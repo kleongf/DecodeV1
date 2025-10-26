@@ -60,6 +60,8 @@ public class Intake extends Subsystem {
         rightElbow.setPosition(0.1);
     }
 
+
+
     public void releaseLeft() {
         leftLatch.setPosition(0.5);
     }

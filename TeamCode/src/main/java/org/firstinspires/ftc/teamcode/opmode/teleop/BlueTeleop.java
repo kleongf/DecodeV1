@@ -31,12 +31,14 @@ public class BlueTeleop extends OpMode {
     private int state = 0;
     private boolean isAutoDriving = false;
     private Drivetrain drivetrain;
+    private double turretOffset = 0;
     // was 0.5 0.5 0.3
     private double longitudinalSpeed = 1, lateralSpeed = 1, rotationSpeed = 0.4;
     private TeleopRobotV1 robot;
     // TODO: UNCOMMENT IN COMP
+    // we don't trust blackboard
     // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
-    private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
+    private final Pose startPose = new Pose(60, 84, Math.toRadians(240));
     private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
     private final Pose shootPoseClose = new Pose(60, 84, Math.toRadians(180));
     private final Pose shootPoseFar = new Pose(54, 12, Math.toRadians(180));
@@ -44,7 +46,7 @@ public class BlueTeleop extends OpMode {
     private final Pose gatePose = new Pose(14, 72, Math.toRadians(270));
     private SmartGamepad gp1;
     private SmartGamepad gp2;
-    private SOTM3 sotm3;
+    private SOTM2 sotm3;
     private HashMap<Integer, StateMachine> stateMap;
 
     @Override
@@ -58,7 +60,7 @@ public class BlueTeleop extends OpMode {
         gp1 = new SmartGamepad(gamepad1);
         gp2 = new SmartGamepad(gamepad2);
 
-        sotm3 = new SOTM3(goalPose);
+        sotm3 = new SOTM2(goalPose);
 
         stateMap = new HashMap<>();
         stateMap.put(0, robot.prepareIntake);
@@ -70,7 +72,7 @@ public class BlueTeleop extends OpMode {
         limelightLocalizer.start();
         closestPoint = new ClosestPoint();
         // TODO: uncomment
-        robot.turret.resetEncoder();
+        // robot.turret.resetEncoder();
     }
 
     private double normalizeInput(double input) {
@@ -170,20 +172,35 @@ public class BlueTeleop extends OpMode {
             drivetrain.follower.setCurrentPoseWithOffset(new Pose(138, 6, Math.toRadians(90)));
         }
 
+        if (gp2.dpadUpPressed()) {
+            turretOffset += Math.toRadians(1);
+        }
+        if (gp2.dpadDownPressed()) {
+            turretOffset -= Math.toRadians(1);
+        }
+
         if(!(Math.floorMod(state, 3) == 0)) {
-            double[] values = sotm3.calculateAzimuthFeedforwardThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-            robot.turret.setFeedforward(values[1]);
-            robot.turret.setTarget(values[0]);
-            robot.shooter.setShooterPitch(values[2]);
-            robot.shooter.setTargetVelocity(values[3]);
+            double[] values = sotm3.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+            // robot.turret.setFeedforward(values[0]);
+            robot.turret.setTarget(values[0]+turretOffset);
+            robot.shooter.setShooterPitch(values[1]);
+            robot.shooter.setTargetVelocity(values[2]);
 
             telemetry.addData("pitch", values[1]);
             telemetry.addData("velocity", values[2]);
             telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
 
         } else {
+            double[] values = sotm3.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+            // robot.turret.setFeedforward(values[0]);
+            robot.turret.setTarget(0+turretOffset);
+            robot.shooter.setShooterPitch(values[1]);
+            robot.shooter.setTargetVelocity(values[2]);
+
+            telemetry.addData("pitch", values[1]);
+            telemetry.addData("velocity", values[2]);
+            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
             robot.turret.setFeedforward(0);
-            robot.turret.setTarget(0);
         }
 
         if (Math.floorMod(state, 3) == 1) {
@@ -217,6 +234,8 @@ public class BlueTeleop extends OpMode {
                         normalizeInput(gp1.getRightStickX()*rotationSpeed));
             }
         }
+
+        telemetry.addData("pose", drivetrain.follower.getPose());
 
         robot.turret.setAngularVel(drivetrain.getTotalAngularVelocity());
         drivetrain.update();

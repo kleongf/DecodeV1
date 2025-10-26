@@ -27,6 +27,7 @@ public class AutonomousRobot {
     public StateMachine prepareShooting;
     public StateMachine slowIntake;
     public StateMachine startShooting;
+    public StateMachine startShootingFar;
 
     // button: start and stop intaking
     // shooter always spinning
@@ -131,8 +132,46 @@ public class AutonomousRobot {
         );
         commands.add(startShooting);
 
-        commands.add(startShooting);
+        startShootingFar = new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            // ??? saying everything so that in the event of a back button, we can do to prev state and run it
+                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
+                            intake.intakePushMid();
+
+                        })
+                        .maxTime(200),
+                new State()
+                        .onEnter(() -> {shooter.openLatch();})
+                        .maxTime(100),
+                new State()
+                        .onEnter(() -> {
+                            intake.setIntakeOn(true);
+                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;})
+                        .maxTime(100),
+                new State()
+                        .onEnter(() -> {
+                            intake.setIntakeOn(true);
+                            intake.intakePushMid();
+                        })
+                        .maxTime(400),
+                new State()
+                        .onEnter(() -> {
+                            intake.intakePush();
+                        })
+                        .maxTime(300),
+                new State()
+                        .onEnter(() -> {
+                            intake.setIntakeOn(false);
+                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
+                            intake.intakeDown();
+                        })
+                        .maxTime(100)
+        );
+        commands.add(startShootingFar);
     }
+
+
 
     public void initPositions() {
         shooter.closeLatch();

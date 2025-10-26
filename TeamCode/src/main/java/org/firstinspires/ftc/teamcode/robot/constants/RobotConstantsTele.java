@@ -1,15 +1,16 @@
 package org.firstinspires.ftc.teamcode.robot.constants;
 
 public class RobotConstantsTele {
-    public static double INTAKE_PUSH = 0.01;
-    public static double INTAKE_PUSH_MID = 0.67;
-    public static double INTAKE_DOWN = 0.73;
-    public static double INTAKE_HIGH = 0.8;
+    public static double INTAKE_PUSH = 0.15;
+    public static double INTAKE_PUSH_MID = 0.84;
+    public static double INTAKE_DOWN = 0.91;
+    public static double INTAKE_HIGH = 0.91;
+    public static double INTAKE_HALF = 0.5;
     public static double PITCH_I = Math.toRadians(28);
-    public static double PITCH_F = Math.toRadians(50);
-    public static double PITCH_SERVO_MIN = 0.27;
-    public static double PITCH_SERVO_I = 0.27;
-    public static double PITCH_SERVO_F = 0.75;
+    public static double PITCH_F = Math.toRadians(51);
+    public static double PITCH_SERVO_MIN = 0.12;
+    public static double PITCH_SERVO_I = 0.12;
+    public static double PITCH_SERVO_F = 0.74;
     public static double LATCH_CLOSED = 0.58;
     public static double LATCH_OPEN = 0.2;
     public static double GATE_UP = 0.8;

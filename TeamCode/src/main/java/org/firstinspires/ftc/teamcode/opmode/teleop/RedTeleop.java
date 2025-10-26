@@ -19,6 +19,8 @@ import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.misc.ClosestPoint;
 import org.firstinspires.ftc.teamcode.util.misc.Mirrorer;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
+import org.firstinspires.ftc.teamcode.util.misc.SOTM3;
+
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -30,18 +32,22 @@ public class RedTeleop extends OpMode {
     private int state = 0;
     private boolean isAutoDriving = false;
     private Drivetrain drivetrain;
-    private double longitudinalSpeed = 1, lateralSpeed = 1, rotationSpeed = 0.5;
+    // was 0.5 0.5 0.3
+    private double longitudinalSpeed = 1, lateralSpeed = 1, rotationSpeed = 0.4;
     private TeleopRobotV1 robot;
     // TODO: UNCOMMENT IN COMP
+    // we don't trust blackboard
     // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
-    private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
-    private final Pose goalPose = Mirrorer.mirror(new Pose(0, 144, Math.toRadians(45)));
+    private final Pose startPose = Mirrorer.mirror(new Pose(60, 84, Math.toRadians(240)));
+    private final Pose goalPose = new Pose(144, 144, Math.toRadians(45));
     private final Pose shootPoseClose = Mirrorer.mirror(new Pose(60, 84, Math.toRadians(180)));
-    private final Pose shootPoseFar = Mirrorer.mirror(new Pose(56, 8, Math.toRadians(180)));
-    private final Pose gatePose = Mirrorer.mirror(new Pose(14, 72, Math.toRadians(90)));
+    private final Pose shootPoseFar = Mirrorer.mirror(new Pose(54, 12, Math.toRadians(180)));
+    // maybe 3?
+    private final Pose gatePose = Mirrorer.mirror(new Pose(14, 72, Math.toRadians(270)));
     private SmartGamepad gp1;
     private SmartGamepad gp2;
-    private SOTM2 sotm2;
+    private SOTM2 sotm3;
+    private double turretOffset = 0;
     private HashMap<Integer, StateMachine> stateMap;
 
     @Override
@@ -55,7 +61,8 @@ public class RedTeleop extends OpMode {
         gp1 = new SmartGamepad(gamepad1);
         gp2 = new SmartGamepad(gamepad2);
 
-        sotm2 = new SOTM2(goalPose);
+        sotm3 = new SOTM2(goalPose);
+        sotm3.isBlue = false;
 
         stateMap = new HashMap<>();
         stateMap.put(0, robot.prepareIntake);
@@ -66,8 +73,9 @@ public class RedTeleop extends OpMode {
         limelightLocalizer = new LimelightLocalizer(hardwareMap);
         limelightLocalizer.start();
         closestPoint = new ClosestPoint();
+
         // TODO: uncomment
-        robot.turret.resetEncoder();
+        // robot.turret.resetEncoder();
     }
 
     private double normalizeInput(double input) {
@@ -138,7 +146,7 @@ public class RedTeleop extends OpMode {
             drivetrain.follower.breakFollowing();
             drivetrain.follower.followPath(driveFar, true);
         }
-        // TODO: add another one to drive to latch thingy
+
         if (gp1.bPressed()) {
             PathChain driveToClosestPoint = drivetrain.follower.pathBuilder()
                     .addPath(
@@ -167,9 +175,18 @@ public class RedTeleop extends OpMode {
             drivetrain.follower.setCurrentPoseWithOffset(new Pose(6, 6, Math.toRadians(90)));
         }
 
+        if (gp2.dpadUpPressed()) {
+            turretOffset += Math.toRadians(1);
+        }
+        if (gp2.dpadDownPressed()) {
+            turretOffset -= Math.toRadians(1);
+        }
+
+
         if(!(Math.floorMod(state, 3) == 0)) {
-            double[] values = sotm2.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-            robot.turret.setTarget(values[0]);
+            double[] values = sotm3.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+            // robot.turret.setFeedforward(values[0]);
+            robot.turret.setTarget(values[0]+turretOffset);
             robot.shooter.setShooterPitch(values[1]);
             robot.shooter.setTargetVelocity(values[2]);
 
@@ -178,7 +195,16 @@ public class RedTeleop extends OpMode {
             telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
 
         } else {
-            robot.turret.setTarget(0);
+            double[] values = sotm3.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+            // robot.turret.setFeedforward(values[0]);
+            robot.turret.setTarget(0+turretOffset);
+            robot.shooter.setShooterPitch(values[1]);
+            robot.shooter.setTargetVelocity(values[2]);
+
+            telemetry.addData("pitch", values[1]);
+            telemetry.addData("velocity", values[2]);
+            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+            robot.turret.setFeedforward(0);
         }
 
         if (Math.floorMod(state, 3) == 1) {
@@ -198,24 +224,31 @@ public class RedTeleop extends OpMode {
             if (!drivetrain.follower.isBusy()) {
                 isAutoDriving = false;
                 drivetrain.follower.breakFollowing();
+                drivetrain.setTargetHeading(drivetrain.follower.getPose().getHeading());
             }
 
         } else {
             if (Math.abs(gp1.getRightStickX()) > 0) {
-                drivetrain.setFieldCentricMovementVectors(normalizeInput(-gp1.getLeftStickY()*longitudinalSpeed),
-                        normalizeInput(gp1.getLeftStickX()*lateralSpeed),
+                drivetrain.setFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
+                        normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
                         normalizeInput(gp1.getRightStickX()*rotationSpeed));
             } else {
-                drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(-gp1.getLeftStickY()*longitudinalSpeed),
-                        normalizeInput(gp1.getLeftStickX()*lateralSpeed),
+                drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
+                        normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
                         normalizeInput(gp1.getRightStickX()*rotationSpeed));
             }
         }
+
+        telemetry.addData("pose", drivetrain.follower.getPose());
 
         robot.turret.setAngularVel(drivetrain.getTotalAngularVelocity());
         drivetrain.update();
         robot.update();
         telemetry.update();
+
+        // 54.5, 7.5 is far spot
+
+        // 30, 136
     }
 
     @Override
