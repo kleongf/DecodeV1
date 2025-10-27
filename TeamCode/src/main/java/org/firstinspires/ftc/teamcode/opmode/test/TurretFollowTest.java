@@ -55,7 +55,6 @@ public class TurretFollowTest extends OpMode {
         telemetry.addData("shooter speed", shooter.getCurrentVelocity());
         telemetry.addData("turret at target? 1.5% error", turret.atTarget(30));
         telemetry.update();
-
     }
 
     @Override

@@ -60,7 +60,7 @@ public class Turret extends Subsystem {
             double error = t-c;
             power += 0.01 * Math.signum(error);
         }
-        power += feedforward;
+        // power += feedforward;
         //double power = turretController.calculate(current, target);
         turretMotor.setPower(power);
     }

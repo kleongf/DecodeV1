@@ -83,9 +83,9 @@ public class BlueAutoFarV5 extends OpMode {
                         // Path 6
                         new BezierCurve(
                                 new Pose(60.000, 84.000),
-                                new Pose(47.681, 58.021),
-                                new Pose(41.170, 58.213),
-                                new Pose(13.000, 60.000)
+                                new Pose(47.681, 55.021),
+                                new Pose(41.170, 55.213),
+                                new Pose(13.000, 58.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -95,15 +95,15 @@ public class BlueAutoFarV5 extends OpMode {
                 .addPath(
                         // Path 7
                         new BezierCurve(
-                                new Pose(13.000, 60.000),
+                                new Pose(13.000, 58.000),
                                 new Pose(27.000, 55.915),
-                                new Pose(40.000, 69.000)
+                                new Pose(34.000, 69.000)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
                 .addPath(
                         new BezierCurve(
-                                new Pose(40, 69),
+                                new Pose(34, 69),
                                 new Pose(14, 69)
                         )
                 )
@@ -119,28 +119,28 @@ public class BlueAutoFarV5 extends OpMode {
         intakeCorner1 = follower.pathBuilder()
                 .addPath(
                         // Path 2
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(12.000, 20.000))
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(12.000, 10.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(240))
                 .build();
         shootCorner1 = follower.pathBuilder()
                 .addPath(
                         // Path 3
-                        new BezierLine(new Pose(12.000, 20.000), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(12.000, 10.000), new Pose(60.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(240))
                 .build();
         intakeCorner2 = follower.pathBuilder()
                 .addPath(
                         // Path 4
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(12.000, 12.000))
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(12.000, 10.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(240))
                 .build();
         shootCorner2 = follower.pathBuilder()
                 .addPath(
                         // Path 5
-                        new BezierLine(new Pose(12.000, 12.000), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(12.000, 10.000), new Pose(60.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(240))
                 .build();
@@ -229,7 +229,7 @@ public class BlueAutoFarV5 extends OpMode {
                             robot.shooter.setShooterPitch(values[1]);
                             robot.shooter.setTargetVelocity(values[2]);
                         })
-                        .maxTime(2000), // when there are 9 balls a hard hit will do
+                        .maxTime(670), // when there are 9 balls a hard hit will do
                 new State()
                         .onEnter(() -> {
                             follower.followPath(shootSecond, true);
@@ -291,16 +291,16 @@ public class BlueAutoFarV5 extends OpMode {
         stateMachine.update();
         follower.update();
         robot.update();
+        telemetry.update();
     }
 
     @Override
     public void start() {
         // constant values. shooter is never turned off after start.
-        double[] values = sotm2.calculateAzimuthThetaVelocity(shootPoseNear, new Vector());
+        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(60, 84, Math.toRadians(180)), new Vector());
 
         robot.turret.setTarget(values[0]);
         robot.shooter.setShooterPitch(values[1]);
-        // velocity is higher than tuned because needs to hit backboard because shooter sucks
         robot.shooter.setTargetVelocity(values[2]);
         robot.shooter.setShooterOn(true);
 

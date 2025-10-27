@@ -172,11 +172,11 @@ public class BlueTeleop extends OpMode {
             drivetrain.follower.setCurrentPoseWithOffset(new Pose(138, 6, Math.toRadians(90)));
         }
 
-        if (gp2.dpadUpPressed()) {
-            turretOffset += Math.toRadians(1);
-        }
-        if (gp2.dpadDownPressed()) {
+        if (gp1.dpadRightPressed()) {
             turretOffset -= Math.toRadians(1);
+        }
+        if (gp1.dpadLeftPressed()) {
+            turretOffset += Math.toRadians(1);
         }
 
         if(!(Math.floorMod(state, 3) == 0)) {

@@ -23,9 +23,11 @@ public class BetterShooter extends Subsystem {
     public BetterShooter(HardwareMap hardwareMap) {
         shooterMotor = hardwareMap.get(DcMotorEx.class, "shooterMotor");
         shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterMotor2 = hardwareMap.get(DcMotorEx.class, "shooterMotor2");
         shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         shooterMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         latchServo = hardwareMap.get(Servo.class, "latchServo");
@@ -33,7 +35,8 @@ public class BetterShooter extends Subsystem {
         pitchServo = hardwareMap.get(Servo.class, "pitchServo");
         // controller = new TBHController(0.00001, 1);
         // 2800 ticks when power is 1, and speed is proportional to voltage
-        controller = new FeedForwardController((1.0/2850.0), 0, 0.005);
+        // TODO: retune, p was 0.005 but was not updating fast enough
+        controller = new FeedForwardController((1.0/2850.0), 0, 0.01);
     }
     @Override
     public void update() {

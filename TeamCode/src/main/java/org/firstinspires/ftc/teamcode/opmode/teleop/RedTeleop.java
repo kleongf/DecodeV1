@@ -38,12 +38,12 @@ public class RedTeleop extends OpMode {
     // TODO: UNCOMMENT IN COMP
     // we don't trust blackboard
     // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
-    private final Pose startPose = Mirrorer.mirror(new Pose(60, 84, Math.toRadians(240)));
+    private final Pose startPose = new Pose(84, 84, Math.toRadians(300));
     private final Pose goalPose = new Pose(144, 144, Math.toRadians(45));
-    private final Pose shootPoseClose = Mirrorer.mirror(new Pose(60, 84, Math.toRadians(180)));
-    private final Pose shootPoseFar = Mirrorer.mirror(new Pose(54, 12, Math.toRadians(180)));
+    // private final Pose shootPoseClose = Mirrorer.mirror(new Pose(60, 84, Math.toRadians(180)));
+    private final Pose shootPoseFar = new Pose(90, 12, Math.toRadians(0));
     // maybe 3?
-    private final Pose gatePose = Mirrorer.mirror(new Pose(14, 72, Math.toRadians(270)));
+    private final Pose gatePose = new Pose(130, 69, Math.toRadians(270));
     private SmartGamepad gp1;
     private SmartGamepad gp2;
     private SOTM2 sotm3;
@@ -175,13 +175,12 @@ public class RedTeleop extends OpMode {
             drivetrain.follower.setCurrentPoseWithOffset(new Pose(6, 6, Math.toRadians(90)));
         }
 
-        if (gp2.dpadUpPressed()) {
-            turretOffset += Math.toRadians(1);
-        }
-        if (gp2.dpadDownPressed()) {
+        if (gp1.dpadRightPressed()) {
             turretOffset -= Math.toRadians(1);
         }
-
+        if (gp1.dpadLeftPressed()) {
+            turretOffset += Math.toRadians(1);
+        }
 
         if(!(Math.floorMod(state, 3) == 0)) {
             double[] values = sotm3.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
@@ -229,12 +228,12 @@ public class RedTeleop extends OpMode {
 
         } else {
             if (Math.abs(gp1.getRightStickX()) > 0) {
-                drivetrain.setFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
-                        normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
+                drivetrain.setFieldCentricMovementVectors(normalizeInput(-gp1.getLeftStickY()*longitudinalSpeed),
+                        normalizeInput(gp1.getLeftStickX()*lateralSpeed),
                         normalizeInput(gp1.getRightStickX()*rotationSpeed));
             } else {
-                drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
-                        normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
+                drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(-gp1.getLeftStickY()*longitudinalSpeed),
+                        normalizeInput(gp1.getLeftStickX()*lateralSpeed),
                         normalizeInput(gp1.getRightStickX()*rotationSpeed));
             }
         }
