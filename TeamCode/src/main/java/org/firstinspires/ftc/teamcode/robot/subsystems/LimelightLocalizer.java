@@ -25,7 +25,7 @@ public class LimelightLocalizer {
 
     private Pose toPinpointPose(Pose3D llpose, Pose pinpointPose) {
         double x = 72 + (metersToInches(llpose.getPosition().y));
-        double y = 72 - (metersToInches(llpose.getPosition().x)) - 6;
+        double y = 72 - (metersToInches(llpose.getPosition().x));
         return new Pose(x, y, pinpointPose.getHeading());
     }
 

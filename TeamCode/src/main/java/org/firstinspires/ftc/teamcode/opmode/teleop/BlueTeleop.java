@@ -5,6 +5,7 @@ import static java.lang.Thread.sleep;
 
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.BezierPoint;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
@@ -38,16 +39,21 @@ public class BlueTeleop extends OpMode {
     // TODO: UNCOMMENT IN COMP
     // we don't trust blackboard
     // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
-    private final Pose startPose = new Pose(60, 84, Math.toRadians(240));
+    private final Pose startPose = new Pose(54, 6, Math.toRadians(90));
     private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
     private final Pose shootPoseClose = new Pose(60, 84, Math.toRadians(180));
     private final Pose shootPoseFar = new Pose(54, 12, Math.toRadians(180));
     // maybe 3?
-    private final Pose gatePose = new Pose(14, 72, Math.toRadians(270));
+    private final Pose gatePose = new Pose(14, 68, Math.toRadians(270));
     private SmartGamepad gp1;
     private SmartGamepad gp2;
     private SOTM2 sotm3;
     private HashMap<Integer, StateMachine> stateMap;
+    private Pose poseToHold;
+    private boolean holdingPose = false;
+
+    private double lastTimeStamp = 0;
+    private double lastAngleToGoal;
 
     @Override
     public void init() {
@@ -56,6 +62,7 @@ public class BlueTeleop extends OpMode {
         drivetrain.setStartingPose(startPose);
 
         robot = new TeleopRobotV1(hardwareMap);
+        robot.turret.resetEncoder();
 
         gp1 = new SmartGamepad(gamepad1);
         gp2 = new SmartGamepad(gamepad2);
@@ -179,9 +186,43 @@ public class BlueTeleop extends OpMode {
             turretOffset += Math.toRadians(1);
         }
 
+        if (gp1.leftTriggerPressed()) {
+            poseToHold = drivetrain.follower.getPose();
+        } else if (gamepad1.left_trigger > 0.2) {
+            isAutoDriving = true;
+            holdingPose = true;
+            if (poseToHold == null) {
+                drivetrain.follower.holdPoint(drivetrain.follower.getPose());
+                poseToHold = drivetrain.follower.getPose();
+            } else {
+                drivetrain.follower.holdPoint(poseToHold);
+            }
+        }
+
+        if (gp1.leftTriggerReleased()){
+            isAutoDriving = false;
+            holdingPose = false;
+            drivetrain.follower.breakFollowing();
+        }
+
         if(!(Math.floorMod(state, 3) == 0)) {
             double[] values = sotm3.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
             // robot.turret.setFeedforward(values[0]);
+            double currentTimeStamp = (double) System.nanoTime() / 1E9;
+            if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
+            double period = currentTimeStamp - lastTimeStamp;
+
+            double dx = goalPose.getX() - drivetrain.follower.getPose().getX();
+            double dy = goalPose.getY() - drivetrain.follower.getPose().getY();
+            double currentAngleToGoal = Math.atan2(-dx, dy) - drivetrain.follower.getPose().getHeading() + Math.toRadians(90);
+            double vGoal = (currentAngleToGoal-lastAngleToGoal)/period;
+
+            double ff = 0.08 * vGoal;
+            robot.turret.setFeedforward(ff);
+
+            lastAngleToGoal = currentAngleToGoal;
+            lastTimeStamp = currentTimeStamp;
+
             robot.turret.setTarget(values[0]+turretOffset);
             robot.shooter.setShooterPitch(values[1]);
             robot.shooter.setTargetVelocity(values[2]);
@@ -196,6 +237,7 @@ public class BlueTeleop extends OpMode {
             robot.turret.setTarget(0+turretOffset);
             robot.shooter.setShooterPitch(values[1]);
             robot.shooter.setTargetVelocity(values[2]);
+
 
             telemetry.addData("pitch", values[1]);
             telemetry.addData("velocity", values[2]);
@@ -217,7 +259,7 @@ public class BlueTeleop extends OpMode {
         }
 
         if (isAutoDriving) {
-            if (!drivetrain.follower.isBusy()) {
+            if (!drivetrain.follower.isBusy() && !holdingPose) {
                 isAutoDriving = false;
                 drivetrain.follower.breakFollowing();
                 drivetrain.setTargetHeading(drivetrain.follower.getPose().getHeading());

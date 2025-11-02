@@ -7,7 +7,7 @@ public class SmartGamepad {
 
     // Previous state for edge detection
     private double rightTriggerPrev, leftTriggerPrev;
-    private double triggerThreshold = 0.05;
+    private double triggerThreshold = 0.005;
 
     public SmartGamepad(Gamepad gamepad) {
         this.gamepad = gamepad;
@@ -58,6 +58,10 @@ public class SmartGamepad {
 
     public boolean leftTriggerPressed() {
         return gamepad.left_trigger > triggerThreshold && !(leftTriggerPrev > triggerThreshold);
+    }
+
+    public boolean leftTriggerReleased() {
+        return gamepad.left_trigger < triggerThreshold && (leftTriggerPrev > triggerThreshold);
     }
 
     public boolean rightTriggerPressed() {

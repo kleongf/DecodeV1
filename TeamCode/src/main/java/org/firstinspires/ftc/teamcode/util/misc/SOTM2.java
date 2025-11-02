@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.util.misc;
 
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.MathFunctions;
 import com.pedropathing.pathgen.Vector;
-
-import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
 
 public class SOTM2 {
     private Pose goal;
@@ -11,7 +10,7 @@ public class SOTM2 {
     private LUT velocityLUT;
     public boolean isBlue = true;
     private double radius = 0.036; // 36 mm radius, 72mm wheel
-    private double speedCoefficient = 0.8; // accounts for compression and stuff idk
+    private double speedCoefficient = 0.6; // accounts for compression and stuff idk
     public SOTM2(Pose goal) {
         this.goal = goal;
         // TODO: add tuned values here for theta and velocity
@@ -75,9 +74,25 @@ public class SOTM2 {
                 // + Math.toRadians(-1.1) * (dist/minDist);
         // dist > minDist ? Math.toRadians(-4) * (minDist/dist) : Math.toRadians(-4);
 
+        Vector v = com.pedropathing.pathgen.MathFunctions.subtractVectors(goal.getVector(), robotPose.getVector());
+        Vector u = robotVelocity;
+
+        // (u ⋅ v / |v|²) * v
+        Vector projuv = com.pedropathing.pathgen.MathFunctions.scalarMultiplyVector(v, com.pedropathing.pathgen.MathFunctions.dotProduct(u, v) / com.pedropathing.pathgen.MathFunctions.dotProduct(v, v));
+
+        // if the vectors are in the same direction, then we should subtract the radial velocity
+        // vectors are in the same direction if their dot product is positive, so dot it with the goal vector.
+        double velToGoal = MathFunctions.dotProduct(projuv, v) > 0 ? projuv.getMagnitude() : -projuv.getMagnitude();
+
+        // now subtract it from the velocity
+        // v = r * omega, omega = v (inches to meters) / r (meters) -> divide by 2pi and the multiply by 28
+        double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (1/speedCoefficient);
+
+        double velocity = velocityLUT.getValue(dist) - inchesToTicks;
+
         double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90) + offset;
         double theta = thetaLUT.getValue(dist);
-        double velocity = velocityLUT.getValue(dist);
+        // double velocity = velocityLUT.getValue(dist);
 
 
 

@@ -38,7 +38,8 @@ public class RedTeleop extends OpMode {
     // TODO: UNCOMMENT IN COMP
     // we don't trust blackboard
     // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
-    private final Pose startPose = new Pose(84, 84, Math.toRadians(300));
+    //private final Pose startPose = new Pose(84, 84, Math.toRadians(300));
+    private final Pose startPose = new Pose(54, 6, Math.toRadians(90));
     private final Pose goalPose = new Pose(144, 144, Math.toRadians(45));
     // private final Pose shootPoseClose = Mirrorer.mirror(new Pose(60, 84, Math.toRadians(180)));
     private final Pose shootPoseFar = new Pose(90, 12, Math.toRadians(0));
@@ -57,6 +58,7 @@ public class RedTeleop extends OpMode {
         drivetrain.setStartingPose(startPose);
 
         robot = new TeleopRobotV1(hardwareMap);
+        robot.turret.resetEncoder();
 
         gp1 = new SmartGamepad(gamepad1);
         gp2 = new SmartGamepad(gamepad2);
