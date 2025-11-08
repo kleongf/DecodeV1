@@ -192,11 +192,12 @@ public class BlueTeleop extends OpMode {
             isAutoDriving = true;
             holdingPose = true;
             if (poseToHold == null) {
-                drivetrain.follower.holdPoint(drivetrain.follower.getPose());
+                drivetrain.follower.followPath(new Path(new BezierPoint(drivetrain.follower.getPose())));
                 poseToHold = drivetrain.follower.getPose();
-            } else {
-                drivetrain.follower.holdPoint(poseToHold);
             }
+//            else {
+//                drivetrain.follower.holdPoint(poseToHold);
+//            }
         }
 
         if (gp1.leftTriggerReleased()){
@@ -217,8 +218,9 @@ public class BlueTeleop extends OpMode {
             double currentAngleToGoal = Math.atan2(-dx, dy) - drivetrain.follower.getPose().getHeading() + Math.toRadians(90);
             double vGoal = (currentAngleToGoal-lastAngleToGoal)/period;
 
-            double ff = 0.08 * vGoal;
-            robot.turret.setFeedforward(ff);
+            double ff = 0.3 * vGoal;
+            // robot.turret.setFeedforward(ff);
+            robot.turret.setFeedforward(0);
 
             lastAngleToGoal = currentAngleToGoal;
             lastTimeStamp = currentTimeStamp;

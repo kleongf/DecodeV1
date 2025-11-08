@@ -96,15 +96,15 @@ public class BlueAutoFarV5 extends OpMode {
                         // Path 7
                         new BezierCurve(
                                 new Pose(13.000, 58.000),
-                                new Pose(27.000, 55.915),
-                                new Pose(34.000, 69.000)
+                                new Pose(27.000, 40.915),
+                                new Pose(30.000, 60.000)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
                 .addPath(
                         new BezierCurve(
-                                new Pose(34, 69),
-                                new Pose(14, 69)
+                                new Pose(30, 60),
+                                new Pose(14, 66)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(270))
@@ -112,7 +112,7 @@ public class BlueAutoFarV5 extends OpMode {
         shootSecond = follower.pathBuilder()
                 .addPath(
                         // Path 1
-                        new BezierLine(new Pose(14.000, 69.000), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(14.000, 66.000), new Pose(60.000, 84.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(240))
                 .build();

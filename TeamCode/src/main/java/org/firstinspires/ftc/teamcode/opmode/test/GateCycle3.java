@@ -20,15 +20,16 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="gate cycle test 2", group="comp")
-public class GateCycle2 extends OpMode {
+@Autonomous(name="gate cycle test 3", group="comp")
+public class GateCycle3 extends OpMode {
     public static final String END_POSE_KEY = "END_POSE";
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobotV1 robot;
     private SOTM2 sotm2;
+    // 14, 66, 227 degrees
     private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
-    private final Pose shootPose = new Pose(60, 84, Math.toRadians(135));
+    private final Pose shootPose = new Pose(60, 84, Math.toRadians(227));
 
     private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
 
@@ -56,7 +57,7 @@ public class GateCycle2 extends OpMode {
                                 new Pose(60.000, 84.000)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(227))
                 .build();
 
         intakeGate1 = follower.pathBuilder()
@@ -65,22 +66,22 @@ public class GateCycle2 extends OpMode {
                         new BezierCurve(
                                 new Pose(60.000, 84.000),
                                 new Pose(22.404, 43.660),
-                                new Pose(12.000, 61.000)
+                                new Pose(14.000, 66.000)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(135))
+                .setConstantHeadingInterpolation(Math.toRadians(227))
                 .build();
 
         shootGate1 = follower.pathBuilder()
                 .addPath(
                         // Path 4
                         new BezierCurve(
-                                new Pose(12.000, 61.000),
+                                new Pose(14.000, 66.000),
                                 new Pose(22.213, 43.660),
                                 new Pose(60.000, 84.000)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(135))
+                .setConstantHeadingInterpolation(Math.toRadians(227))
                 .build();
 
         intakeGate2 = follower.pathBuilder()
@@ -89,22 +90,22 @@ public class GateCycle2 extends OpMode {
                         new BezierCurve(
                                 new Pose(60.000, 84.000),
                                 new Pose(22.404, 43.660),
-                                new Pose(12.000, 61.000)
+                                new Pose(14.000, 66.000)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(135))
+                .setConstantHeadingInterpolation(Math.toRadians(227))
                 .build();
 
         shootGate2 = follower.pathBuilder()
                 .addPath(
                         // Path 4
                         new BezierCurve(
-                                new Pose(12.000, 61.000),
+                                new Pose(14.000, 66.000),
                                 new Pose(22.213, 43.660),
                                 new Pose(60.000, 84.000)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(135))
+                .setConstantHeadingInterpolation(Math.toRadians(227))
                 .build();
 
         intakeGate3 = follower.pathBuilder()
@@ -113,22 +114,22 @@ public class GateCycle2 extends OpMode {
                         new BezierCurve(
                                 new Pose(60.000, 84.000),
                                 new Pose(22.404, 43.660),
-                                new Pose(12.000, 61.000)
+                                new Pose(14.000, 66.000)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(135))
+                .setConstantHeadingInterpolation(Math.toRadians(227))
                 .build();
 
         shootGate3 = follower.pathBuilder()
                 .addPath(
                         // Path 4
                         new BezierCurve(
-                                new Pose(12.000, 61.000),
+                                new Pose(14.000, 66.000),
                                 new Pose(22.213, 43.660),
                                 new Pose(60.000, 84.000)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(135))
+                .setConstantHeadingInterpolation(Math.toRadians(227))
                 .build();
 
 
@@ -232,7 +233,7 @@ public class GateCycle2 extends OpMode {
                 new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished()))
-                );
+        );
 
         try {
             sleep(500);

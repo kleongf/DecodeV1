@@ -29,7 +29,7 @@ public class Turret extends Subsystem {
         turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // i changed this to heading pidf controller
 
-        turretController = new PIDFController(0.005, 0, 0.000, 0);
+        turretController = new PIDFController(0.008, 0, 0.000, 0);
         // might need feedforward
     }
 

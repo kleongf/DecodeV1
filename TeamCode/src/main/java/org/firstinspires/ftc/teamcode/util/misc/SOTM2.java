@@ -10,7 +10,7 @@ public class SOTM2 {
     private LUT velocityLUT;
     public boolean isBlue = true;
     private double radius = 0.036; // 36 mm radius, 72mm wheel
-    private double speedCoefficient = 0.6; // accounts for compression and stuff idk
+    private double speedCoefficient = 0.7; // accounts for compression and stuff idk
     public SOTM2(Pose goal) {
         this.goal = goal;
         // TODO: add tuned values here for theta and velocity
@@ -80,6 +80,9 @@ public class SOTM2 {
         // (u ⋅ v / |v|²) * v
         Vector projuv = com.pedropathing.pathgen.MathFunctions.scalarMultiplyVector(v, com.pedropathing.pathgen.MathFunctions.dotProduct(u, v) / com.pedropathing.pathgen.MathFunctions.dotProduct(v, v));
 
+        // get the tangential component
+        Vector vTangential = MathFunctions.subtractVectors(u, projuv);
+
         // if the vectors are in the same direction, then we should subtract the radial velocity
         // vectors are in the same direction if their dot product is positive, so dot it with the goal vector.
         double velToGoal = MathFunctions.dotProduct(projuv, v) > 0 ? projuv.getMagnitude() : -projuv.getMagnitude();
@@ -90,12 +93,13 @@ public class SOTM2 {
 
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
 
-        double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90) + offset;
+        double timestep = 5 * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(20))));
+        System.out.println("Timestep: " + timestep);
+        // double timestep = 0.5; // seconds
+
+        double azimuth = Math.atan2(-(dx+vTangential.getXComponent()*timestep), (dy+vTangential.getYComponent()*timestep)) - robotPose.getHeading() + Math.toRadians(90) + offset;
         double theta = thetaLUT.getValue(dist);
         // double velocity = velocityLUT.getValue(dist);
-
-
-
 
         return new double[] {azimuth, theta, velocity};
     }
