@@ -92,8 +92,9 @@ public class SOTM2 {
         double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (1/speedCoefficient);
 
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
+        // 0.2 seconds before shooting: always
 
-        double timestep = 5 * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(20))));
+        double timestep = 0.2 + 4 * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(20))));
         System.out.println("Timestep: " + timestep);
         // double timestep = 0.5; // seconds
 
