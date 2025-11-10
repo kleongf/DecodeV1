@@ -28,7 +28,6 @@ public class BetterShooter extends Subsystem {
         shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterMotor2 = hardwareMap.get(DcMotorEx.class, "shooterMotor2");
         shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         shooterMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         latchServo = hardwareMap.get(Servo.class, "latchServo");
@@ -44,8 +43,8 @@ public class BetterShooter extends Subsystem {
         if (shooterOn) {
             double power = controller.calculate(shooterMotor.getVelocity(), targetVelocity);
             // was +power?
-            shooterMotor.setPower(-power);
-            shooterMotor2.setPower(-power);
+            shooterMotor.setPower(power);
+            shooterMotor2.setPower(power);
         }
     }
 
