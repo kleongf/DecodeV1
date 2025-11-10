@@ -27,7 +27,7 @@ public class BetterShooter extends Subsystem {
         shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterMotor2 = hardwareMap.get(DcMotorEx.class, "shooterMotor2");
         shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        shooterMotor2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         shooterMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         latchServo = hardwareMap.get(Servo.class, "latchServo");
