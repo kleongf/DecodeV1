@@ -29,7 +29,7 @@ public class Turret extends Subsystem {
         turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // i changed this to heading pidf controller
 
-        turretController = new PIDFController(0.008, 0, 0.000, 0);
+        turretController = new PIDFController(0.005, 0, 0.00005, 0);
         // might need feedforward
     }
 
@@ -78,11 +78,22 @@ public class Turret extends Subsystem {
         feedforward = x;
     }
 
+//    private double weirdAngleWrap(double radians) {
+//        while (radians > 0) {
+//            radians -= 2 * Math.PI;
+//        }
+//        while (radians < -2 * Math.PI) {
+//            radians += 2 * Math.PI;
+//        }
+//        // keep in mind that the result is in radians
+//        return radians;
+//    }
+
     private double weirdAngleWrap(double radians) {
-        while (radians > 0) {
+        while (radians > Math.PI) {
             radians -= 2 * Math.PI;
         }
-        while (radians < -2 * Math.PI) {
+        while (radians < -Math.PI) {
             radians += 2 * Math.PI;
         }
         // keep in mind that the result is in radians

@@ -186,25 +186,34 @@ public class BlueTeleop extends OpMode {
             turretOffset += Math.toRadians(1);
         }
 
-        if (gp1.leftTriggerPressed()) {
-            poseToHold = drivetrain.follower.getPose();
-        } else if (gamepad1.left_trigger > 0.2) {
-            isAutoDriving = true;
+        if (gamepad1.left_trigger > 0.01 && !holdingPose) {
             holdingPose = true;
-            if (poseToHold == null) {
-                drivetrain.follower.followPath(new Path(new BezierPoint(drivetrain.follower.getPose())));
-                poseToHold = drivetrain.follower.getPose();
-            }
+            isAutoDriving = true;
+            Path holdPointPath = new Path(new BezierPoint(drivetrain.follower.getPose()));
+            holdPointPath.setConstantHeadingInterpolation(drivetrain.follower.getPose().getHeading());
+            drivetrain.follower.followPath(holdPointPath);
+            poseToHold = drivetrain.follower.getPose();
+        }
+
+        if (holdingPose && gamepad1.left_trigger < 0.01){
+            holdingPose = false;
+            isAutoDriving = false;
+            drivetrain.follower.breakFollowing();
+            drivetrain.setTargetHeading(drivetrain.follower.getPose().getHeading());
+        }
+
+//        else if (gamepad1.left_trigger > 0.2) {
+//            isAutoDriving = true;
+//            holdingPose = true;
+//            if (poseToHold == null) {
+//                drivetrain.follower.followPath(new Path(new BezierPoint(drivetrain.follower.getPose())));
+//                poseToHold = drivetrain.follower.getPose();
+//            }
 //            else {
 //                drivetrain.follower.holdPoint(poseToHold);
 //            }
-        }
+        // }
 
-        if (gp1.leftTriggerReleased()){
-            isAutoDriving = false;
-            holdingPose = false;
-            drivetrain.follower.breakFollowing();
-        }
 
         if(!(Math.floorMod(state, 3) == 0)) {
             double[] values = sotm3.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
@@ -218,9 +227,9 @@ public class BlueTeleop extends OpMode {
             double currentAngleToGoal = Math.atan2(-dx, dy) - drivetrain.follower.getPose().getHeading() + Math.toRadians(90);
             double vGoal = (currentAngleToGoal-lastAngleToGoal)/period;
 
-            double ff = 0.3 * vGoal;
-            // robot.turret.setFeedforward(ff);
-            robot.turret.setFeedforward(0);
+            double ff = 0.1 * vGoal;
+            robot.turret.setFeedforward(ff);
+            //robot.turret.setFeedforward(0);
 
             lastAngleToGoal = currentAngleToGoal;
             lastTimeStamp = currentTimeStamp;
@@ -261,10 +270,12 @@ public class BlueTeleop extends OpMode {
         }
 
         if (isAutoDriving) {
-            if (!drivetrain.follower.isBusy() && !holdingPose) {
-                isAutoDriving = false;
-                drivetrain.follower.breakFollowing();
-                drivetrain.setTargetHeading(drivetrain.follower.getPose().getHeading());
+            if (!holdingPose) {
+                if (!drivetrain.follower.isBusy()) {
+                    isAutoDriving = false;
+                    drivetrain.follower.breakFollowing();
+                    drivetrain.setTargetHeading(drivetrain.follower.getPose().getHeading());
+                }
             }
 
         } else {
