@@ -22,12 +22,12 @@ public class BetterShooter extends Subsystem {
     private FeedForwardController controller;
     public BetterShooter(HardwareMap hardwareMap) {
         shooterMotor = hardwareMap.get(DcMotorEx.class, "shooterMotor");
-        // was both reversed
         shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterMotor2 = hardwareMap.get(DcMotorEx.class, "shooterMotor2");
         shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         shooterMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         latchServo = hardwareMap.get(Servo.class, "latchServo");
