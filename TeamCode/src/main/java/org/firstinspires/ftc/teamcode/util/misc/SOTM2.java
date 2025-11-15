@@ -10,38 +10,39 @@ public class SOTM2 {
     private LUT velocityLUT;
     public boolean isBlue = true;
     private double radius = 0.036; // 36 mm radius, 72mm wheel
+    private double radiusBall = 0.06223; // 2.45 in
     private double speedCoefficient = 0.7; // accounts for compression and stuff idk
     public SOTM2(Pose goal) {
         this.goal = goal;
         // TODO: add tuned values here for theta and velocity
         // also these go from 0 to 20, where 20 is our max for some reason (25-45)
         thetaLUT = new LUT();
-        thetaLUT.addData(38, Math.toRadians(0));
-        thetaLUT.addData(48, Math.toRadians(4));
-        thetaLUT.addData(58, Math.toRadians(8));
-        thetaLUT.addData(68, Math.toRadians(12));
-        thetaLUT.addData(78, Math.toRadians(14));
-        thetaLUT.addData(88, Math.toRadians(16));
+        // thetaLUT.addData(38, Math.toRadians(0));
+        thetaLUT.addData(48, Math.toRadians(0));
+        thetaLUT.addData(58, Math.toRadians(10));
+        thetaLUT.addData(68, Math.toRadians(14));
+        thetaLUT.addData(78, Math.toRadians(16));
+        thetaLUT.addData(88, Math.toRadians(18));
         thetaLUT.addData(98, Math.toRadians(18));
-        thetaLUT.addData(108, Math.toRadians(19));
+        thetaLUT.addData(108, Math.toRadians(20));
         thetaLUT.addData(118, Math.toRadians(20));
-        thetaLUT.addData(128, Math.toRadians(20));
-        thetaLUT.addData(138, Math.toRadians(22));
-        thetaLUT.addData(148, Math.toRadians(22));
+        thetaLUT.addData(128, Math.toRadians(23));
+        thetaLUT.addData(138, Math.toRadians(23));
+        thetaLUT.addData(148, Math.toRadians(23));
 
         velocityLUT = new LUT();
-        velocityLUT.addData(148, 2180);
-        velocityLUT.addData(138, 2080);
-        velocityLUT.addData(128, 2040);
-        velocityLUT.addData(118, 1960);
-        velocityLUT.addData(108, 1870);
-        velocityLUT.addData(98, 1800);
-        velocityLUT.addData(88, 1700);
-        velocityLUT.addData(78, 1600);
-        velocityLUT.addData(68, 1540);
-        velocityLUT.addData(58, 1490);
-        velocityLUT.addData(48, 1400);
-        velocityLUT.addData(38, 1200);
+        velocityLUT.addData(148, 1660);
+        velocityLUT.addData(138, 1640);
+        velocityLUT.addData(128, 1600);
+        velocityLUT.addData(118, 1520);
+        velocityLUT.addData(108, 1460);
+        velocityLUT.addData(98, 1340);
+        velocityLUT.addData(88, 1220);
+        velocityLUT.addData(78, 1140);
+        velocityLUT.addData(68, 1120);
+        velocityLUT.addData(58, 1060);
+        velocityLUT.addData(48, 1040);
+        // velocityLUT.addData(38, 1200);
 
     }
     private double calculateLinearVelocityInches(double ticksPerSecond) {
@@ -70,7 +71,8 @@ public class SOTM2 {
         // as distance increases, the offset decreases.
         // so it's like 6 degrees * (dist - minDist)/maxdist if dist > minDist else 6 degrees
         double minDist = 48;
-        double offset = isBlue ? Math.toRadians(-1) : Math.toRadians(1);
+        double offset = 0;
+                // isBlue ? Math.toRadians(-1) : Math.toRadians(1);
                 // + Math.toRadians(-1.1) * (dist/minDist);
         // dist > minDist ? Math.toRadians(-4) * (minDist/dist) : Math.toRadians(-4);
 
@@ -89,7 +91,7 @@ public class SOTM2 {
 
         // now subtract it from the velocity
         // v = r * omega, omega = v (inches to meters) / r (meters) -> divide by 2pi and the multiply by 28. also account for angle
-        double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (1/speedCoefficient) * (1/Math.cos(Math.toRadians(20)+thetaLUT.getValue(dist)));
+        double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (radiusBall/radius) * (1/Math.cos(Math.toRadians(20)+thetaLUT.getValue(dist)));
 
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
         // 0.2 seconds before shooting: always
