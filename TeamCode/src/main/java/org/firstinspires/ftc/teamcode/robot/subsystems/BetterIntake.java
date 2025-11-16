@@ -13,6 +13,8 @@ public class BetterIntake extends Subsystem {
         INTAKE_SLOW,
         INTAKE_OFF
     }
+    public Servo hang1;
+    public Servo hang2;
     public IntakeState state = IntakeState.INTAKE_OFF;
     public Servo rightGateServo;
     public Servo leftGateServo;
@@ -21,6 +23,8 @@ public class BetterIntake extends Subsystem {
     public DcMotorEx intakeMotor;
     private boolean intakeOn;
     public BetterIntake(HardwareMap hardwareMap) {
+        hang1 = hardwareMap.get(Servo.class, "hang1");
+        hang2 = hardwareMap.get(Servo.class, "hang2");
         leftElbow = hardwareMap.get(Servo.class, "leftElbow");
         rightElbow = hardwareMap.get(Servo.class, "rightElbow");
 

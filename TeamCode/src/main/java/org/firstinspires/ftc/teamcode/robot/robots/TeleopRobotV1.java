@@ -217,6 +217,12 @@ public class TeleopRobotV1 {
         return pose.getX() >= 72 && pose.getY() > zoneY;
     }
 
+    public void hang(float power){
+        intake.hang1.setPosition(1-power);
+        intake.hang2.setPosition(power);
+
+    }
+
     public boolean inShootingZone(Pose pose) {
         return inRightZone(pose) || inLeftZone(pose);
     }

@@ -97,6 +97,8 @@ public class BlueTeleop extends OpMode {
         gp1.update();
         gp2.update();
 
+        robot.hang((gp2.getLeftStickX()+1)/2);
+
         if (gp1.rightBumperPressed()) {
             state++;
             Objects.requireNonNull(stateMap.get(Math.floorMod(state, 3))).start();

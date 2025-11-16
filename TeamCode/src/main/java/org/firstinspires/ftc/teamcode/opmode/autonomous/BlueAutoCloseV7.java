@@ -71,7 +71,7 @@ public class BlueAutoCloseV7 extends OpMode {
                                 new Pose(60.000, 84.000),
                                 new Pose(51.702, 59.553),
                                 new Pose(41.170, 59.553),
-                                new Pose(14.000, 63.000)
+                                new Pose(12.9, 61.61)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(142))
@@ -95,7 +95,7 @@ public class BlueAutoCloseV7 extends OpMode {
                                 new Pose(60.000, 84.000),
                                 new Pose(51.702, 59.553),
                                 new Pose(41.170, 59.553),
-                                new Pose(14.000, 63.000)
+                                new Pose(12.9, 61.61)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(142))
@@ -119,7 +119,7 @@ public class BlueAutoCloseV7 extends OpMode {
                                 new Pose(60.000, 84.000),
                                 new Pose(51.702, 59.553),
                                 new Pose(41.170, 59.553),
-                                new Pose(14.000, 63.000)
+                                new Pose(12.9, 61.61)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(142))
