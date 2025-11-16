@@ -22,7 +22,7 @@ public class LimelightPoseTest extends OpMode {
     private Limelight3A limelight;
     private Follower follower;
     private BetterIntake intake;
-    private final Pose startPose = new Pose(54, 6, Math.toRadians(90));
+    private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
 
     private double metersToInches(double meters) {
         return meters * 39.3701;
