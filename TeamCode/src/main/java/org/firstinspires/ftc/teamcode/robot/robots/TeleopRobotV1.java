@@ -87,22 +87,24 @@ public class TeleopRobotV1 {
                 new State()
                         .onEnter(() -> {shooter.openLatch();})
                         .maxTime(100),
-                new State()
-                        .onEnter(() -> {
-                            intake.setIntakeOn(true);
-                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;})
-                        .maxTime(100),
-                new State()
-                        .onEnter(() -> {
-                            intake.setIntakeOn(true);
-                            intake.intakePushMid();
-                        })
-                        .maxTime(300),
+//                new State()
+//                        .onEnter(() -> {
+//                            intake.setIntakeOn(true);
+//                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;})
+//                        .maxTime(100),
+//                new State()
+//                        .onEnter(() -> {
+//                            intake.setIntakeOn(true);
+//                            intake.intakePushMid();
+//                        })
+//                        .maxTime(300),
                 new State()
                         .onEnter(() -> {
                             intake.intakePush();
+                            intake.setIntakeOn(true);
+                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;
                         })
-                        .maxTime(400),
+                        .maxTime(650),
                 new State()
                         .onEnter(() -> {
                             intake.setIntakeOn(false);

@@ -36,7 +36,7 @@ public class BetterShooter extends Subsystem {
         // controller = new TBHController(0.00001, 1);
         // 2800 ticks when power is 1, and speed is proportional to voltage
         // TODO: retune, p was 0.005 but was not updating fast enough
-        controller = new FeedForwardController((1.0/2400), 0, 0.01);
+        controller = new FeedForwardController((1.0/2200), 0, 0.005);
     }
     @Override
     public void update() {
