@@ -85,7 +85,10 @@ public class TeleopRobotV1 {
                         })
                         .maxTime(200),
                 new State()
-                        .onEnter(() -> {shooter.openLatch();})
+                        .onEnter(() -> {
+                            shooter.openLatch();
+                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;
+                        })
                         .maxTime(100),
 //                new State()
 //                        .onEnter(() -> {
