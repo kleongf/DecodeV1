@@ -4,6 +4,9 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.MathFunctions;
 import com.pedropathing.pathgen.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SOTM2 {
     private Pose goal;
     private LUT thetaLUT;
@@ -68,16 +71,8 @@ public class SOTM2 {
 //        double azimuth = Math.atan2(-dxCorr, dyCorr) - robotPose.getHeading() + Math.toRadians(90);
 //        double theta = thetaLUT.getValue(distCorr);
 //        double velocity = velocityLUT.getValue(distCorr);
-        // TODO: offset added for blue side - will have to be subtracted for red side
-        // actually maybe it shouldn't be a constant, it should be inversely proportional to distance.
-        // as distance increases, the offset decreases.
-        // so it's like 6 degrees * (dist - minDist)/maxdist if dist > minDist else 6 degrees
-        double minDist = 48;
-        double offset = 0;
-                // isBlue ? Math.toRadians(-1) : Math.toRadians(1);
-                // + Math.toRadians(-1.1) * (dist/minDist);
-        // dist > minDist ? Math.toRadians(-4) * (minDist/dist) : Math.toRadians(-4);
 
+        double offset = 0;
         Vector v = com.pedropathing.pathgen.MathFunctions.subtractVectors(goal.getVector(), robotPose.getVector());
         Vector u = robotVelocity;
 
@@ -107,5 +102,110 @@ public class SOTM2 {
         // double velocity = velocityLUT.getValue(dist);
 
         return new double[] {azimuth, theta, velocity};
+    }
+
+    private List<Integer> findALlOccurences(List<String> motif, String target) {
+        List<Integer> occurrences = new ArrayList<>();
+        for (int i = 0; i < motif.size(); i++) {
+            if (motif.get(i).equals(target)) {
+                occurrences.add(i);
+            }
+        }
+        return occurrences;
+    }
+
+    // returns meters/s
+    private double ticksToLinearVelocity(double x) {
+        // 1. convert to radians/s
+        // 2. multiply by r
+        // 3. multiply by R/r because it is the ball's velocity, not the wheel
+        return (x * (2 * Math.PI) / 28) * (radius) * (radius / radiusBall);
+    }
+    private double calculateAngle(double v, double x, double y) {
+        // only concern is square root discriminant. if negative, no solution
+        double numerator = Math.pow(v, 2) - Math.sqrt(Math.pow(v, 4) - (Math.pow(9.81, 2) * Math.pow(x, 2)) - 2 * y * Math.pow(v, 2));
+        double denominator = 9.81 * x;
+        return Math.atan2(numerator, denominator);
+    }
+
+    private double calculateFinalAngle(double dist, double scaleFactor) {
+        double currentTicks = velocityLUT.getValue(dist);
+        double newTicks = currentTicks + scaleFactor * 100;
+        double currentAngle = thetaLUT.getValue(dist) + Math.toRadians(20);
+
+        double v0 = ticksToLinearVelocity(currentTicks);
+        double x0 = dist * (1/39.3701);
+
+        double t = x0 / (v0 * Math.cos(currentAngle));
+        // height at distance = x
+        double y0 = v0 * Math.sin(currentAngle) * t - 0.5 * 9.81 * t * t;
+
+        // now plug in the y for the adjusted velocity, adjusted for the LUT
+        double v1 = ticksToLinearVelocity(newTicks);
+        return calculateAngle(v1, x0, y0) - Math.toRadians(20);
+    }
+
+    private double calculateFinalVelocityTicks(double dist, double scaleFactor) {
+        return velocityLUT.getValue(dist) + scaleFactor * 100;
+    }
+
+    // calculates a scale factor for velocity. The more negative a number is, the higher angle and lower velocity it should be
+    // if its high then we use a high velocity and low angle. we can change the factor.
+    public List<List<Double>> calculateAzimuthThetaVelocityAirSort(Pose robotPose, Vector robotVelocity, List<String> artifactOrder, List<String> motif) {
+        List<Integer> greenActualOrder = findALlOccurences(artifactOrder, "G");
+        List<Integer> greenMotifOrder = findALlOccurences(motif, "G");
+
+        List<Integer> purpleActualOrder = findALlOccurences(artifactOrder, "P");
+        List<Integer> purpleMotifOrder = findALlOccurences(motif, "P");
+
+        int scaleFactor0;
+        int scaleFactor1;
+        int scaleFactor2;
+
+        if (artifactOrder.get(0).equals("G")) {
+            scaleFactor0 = greenMotifOrder.get(0) - greenActualOrder.get(0);
+            scaleFactor1 = purpleMotifOrder.get(0) - purpleActualOrder.get(0);
+            scaleFactor2 = purpleMotifOrder.get(1) - purpleActualOrder.get(1);
+        } else if (artifactOrder.get(1).equals("G")) {
+            scaleFactor0 = purpleMotifOrder.get(0) - purpleActualOrder.get(0);
+            scaleFactor1 = greenMotifOrder.get(0) - greenActualOrder.get(0);
+            scaleFactor2 = purpleMotifOrder.get(1) - purpleActualOrder.get(1);
+        } else {
+            scaleFactor0 = purpleMotifOrder.get(0) - purpleActualOrder.get(0);
+            scaleFactor1 = purpleMotifOrder.get(1) - purpleActualOrder.get(1);
+            scaleFactor2 = greenMotifOrder.get(0) - greenActualOrder.get(0);
+        }
+        double dx = goal.getX() - robotPose.getX();
+        double dy = goal.getY() - robotPose.getY();
+        double dist = Math.hypot(dx, dy);
+        double azimuth = Math.atan2(-dx, dy) - robotPose.getHeading() + Math.toRadians(90);
+
+        // return a 3 x 3 array
+        // 1st dimension: each ball
+        // second dimension: azimuth theta velocity
+        List<List<Double>> out = new ArrayList<>();
+
+        List<Double> ball0 = new ArrayList<>();
+        ball0.add(azimuth);
+        ball0.add(calculateFinalAngle(dist, scaleFactor0));
+        ball0.add(calculateFinalVelocityTicks(dist, scaleFactor0));
+
+        List<Double> ball1 = new ArrayList<>();
+        ball1.add(azimuth);
+        ball1.add(calculateFinalAngle(dist, scaleFactor1));
+        ball1.add(calculateFinalVelocityTicks(dist, scaleFactor1));
+
+        List<Double> ball2 = new ArrayList<>();
+        ball2.add(azimuth);
+        ball2.add(calculateFinalAngle(dist, scaleFactor2));
+        ball2.add(calculateFinalVelocityTicks(dist, scaleFactor2));
+
+        out.add(ball0);
+        out.add(ball1);
+        out.add(ball2);
+
+        // this method is the same but provides three values
+        // TODO: methods in the robot classes that allow us to shootFirst, shootSecond, shootThird
+        return out;
     }
 }
