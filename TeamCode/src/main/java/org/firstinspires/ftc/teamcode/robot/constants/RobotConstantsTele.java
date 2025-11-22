@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.robot.constants;
 
 public class RobotConstantsTele {
-    public static double INTAKE_PUSH = 0.17;
+    public static double INTAKE_PUSH = 0.1;
     public static double INTAKE_PUSH_MID = 0.85;
-    public static double INTAKE_DOWN = 0.95;
+    public static double INTAKE_DOWN = 0.87;
     public static double INTAKE_HIGH = 0.95;
     public static double INTAKE_HALF = 0.45;
     public static double PITCH_I = Math.toRadians(28);
