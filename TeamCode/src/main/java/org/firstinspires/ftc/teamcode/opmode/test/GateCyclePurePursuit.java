@@ -2,33 +2,25 @@ package org.firstinspires.ftc.teamcode.opmode.test;
 
 import static java.lang.Thread.sleep;
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobot;
-import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobotV1;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.fsm.Transition;
-import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
-import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
+import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.purepursuit.Path2D;
 import org.firstinspires.ftc.teamcode.util.purepursuit.Pose2D;
 import org.firstinspires.ftc.teamcode.util.purepursuit.PurePursuit;
 
-@Autonomous(name="gate cycle test PURE PURSUIT", group="comp")
+@Autonomous(name="gate cycle test PURE PURSUIT", group="test")
 public class GateCyclePurePursuit extends OpMode {
     private PurePursuit follower;
     private StateMachine stateMachine;
-    private AutonomousRobotV1 robot;
-    private SOTM2 sotm2;
+    private AutonomousRobot robot;
+    private SOTM sotm2;
     // TODO: change the startPose after using the (72, 72) position
     private final Pose startPose = new Pose(54, 6, Math.toRadians(90));
     private final Pose shootPose = new Pose(54, 12, Math.toRadians(143));
@@ -80,8 +72,8 @@ public class GateCyclePurePursuit extends OpMode {
     public void init() {
         follower = new PurePursuit(hardwareMap);
         follower.setStartingPose(startPose);
-        robot = new AutonomousRobotV1(hardwareMap);
-        sotm2 = new SOTM2(goalPose);
+        robot = new AutonomousRobot(hardwareMap);
+        sotm2 = new SOTM(goalPose);
         buildPaths();
 
         stateMachine = new StateMachine(

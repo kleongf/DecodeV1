@@ -10,11 +10,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-import org.firstinspires.ftc.teamcode.robot.subsystems.BetterIntake;
-import org.firstinspires.ftc.teamcode.robot.subsystems.BetterShooter;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Turret;
-import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
+import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 import com.pedropathing.pathgen.Vector;
 @Config
@@ -24,9 +23,9 @@ public class TurretFollowTest extends OpMode {
     public static double shooterSpeed;
     public static double shooterPitch;
     private Follower follower;
-    private BetterIntake intake;
-    private SOTM2 sotm2;
-    private BetterShooter shooter;
+    private Intake intake;
+    private SOTM sotm2;
+    private Shooter shooter;
     private final Pose startPose = new Pose(54, 6, Math.toRadians(180));
     // i don't think angle matters here in the sotm calculation
     private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
@@ -63,13 +62,11 @@ public class TurretFollowTest extends OpMode {
         follower.setStartingPose(startPose);
         turret = new Turret(hardwareMap);
         turret.resetEncoder();
-        shooter = new BetterShooter(hardwareMap);
+        shooter = new Shooter(hardwareMap);
         shooter.setShooterOn(true);
-        intake = new BetterIntake(hardwareMap);
-        intake.setIntakeOn(true);
-        intake.state = BetterIntake.IntakeState.INTAKE_FAST;
-        intake.intakeDown();
-        sotm2 = new SOTM2(goalPose);
+        intake = new Intake(hardwareMap);
+        intake.state = Intake.IntakeState.INTAKE_FAST;
+        sotm2 = new SOTM(goalPose);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 

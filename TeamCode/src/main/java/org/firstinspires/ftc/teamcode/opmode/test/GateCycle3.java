@@ -3,30 +3,27 @@ package org.firstinspires.ftc.teamcode.opmode.test;
 import static java.lang.Thread.sleep;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobot;
-import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobotV1;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.fsm.Transition;
-import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
+import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="gate cycle test 3", group="comp")
+@Autonomous(name="gate cycle test 3", group="test")
 public class GateCycle3 extends OpMode {
     public static final String END_POSE_KEY = "END_POSE";
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
-    private AutonomousRobotV1 robot;
-    private SOTM2 sotm2;
+    private AutonomousRobot robot;
+    private SOTM sotm2;
     // 14, 66, 227 degrees
     private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
     private final Pose shootPose = new Pose(60, 84, Math.toRadians(227));
@@ -139,8 +136,8 @@ public class GateCycle3 extends OpMode {
     public void init() {
         follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
-        robot = new AutonomousRobotV1(hardwareMap);
-        sotm2 = new SOTM2(goalPose);
+        robot = new AutonomousRobot(hardwareMap);
+        sotm2 = new SOTM(goalPose);
         buildPaths();
 
         stateMachine = new StateMachine(

@@ -5,11 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
+import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
 
-@TeleOp(name="Blue Teleop (no blackboard)", group="comp")
-public class BlueTeleop extends OpMode {
+@TeleOp(name="Blue Teleop (blackboard)", group="comp")
+public class BlueTeleopBlackboard extends OpMode {
     private MainTeleop teleop;
-    private Pose startPose = PoseConstants.BLUE_FAR_AUTO_POSE;
+    private Pose startPose = (Pose) blackboard.getOrDefault(RobotConstants.END_POSE_KEY, PoseConstants.BLUE_FAR_AUTO_POSE);
     @Override
     public void init() {
         teleop = new MainTeleop(startPose, Alliance.BLUE, hardwareMap, telemetry, gamepad1, false);

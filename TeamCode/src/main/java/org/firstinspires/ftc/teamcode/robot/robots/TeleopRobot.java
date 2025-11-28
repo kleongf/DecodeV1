@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.robot.robots;
 
+import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.teamcode.robot.subsystems.BulkRead;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Turret;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 
@@ -16,88 +19,73 @@ public class TeleopRobot {
     private final BulkRead bulkRead;
     private final Intake intake;
     public final Shooter shooter;
+    public final Turret turret;
 
     private final ArrayList<StateMachine> commands;
     public StateMachine prepareIntake;
     public StateMachine prepareShooting;
-    public StateMachine shootGreen;
-    public StateMachine shootPurple;
+    public StateMachine startShooting;
 
     public TeleopRobot(HardwareMap hardwareMap) {
         subsystems = new ArrayList<>();
         bulkRead = new BulkRead(hardwareMap);
-        // TODO: for other subsystems in teleop just don't reset encoders
         subsystems.add(bulkRead);
         intake = new Intake(hardwareMap);
         subsystems.add(intake);
         shooter = new Shooter(hardwareMap);
         subsystems.add(shooter);
+        turret = new Turret(hardwareMap);
+        subsystems.add(turret);
 
         commands = new ArrayList<>();
+        // prepare to intake: turn on intake and close latch
         prepareIntake = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            shooter.shooterOn = false;
-                            intake.intakeOn = true;
-                            intake.reset();
-                            intake.intakeDown();
+                            intake.state = Intake.IntakeState.INTAKE_FAST;
+                            shooter.closeLatch();
                         })
-                        .maxTime(1000)
+                        .maxTime(100)
         );
         commands.add(prepareIntake);
-
+        // prepare to shoot by slowing down intake
         prepareShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            intake.intakeOn = false;
-                            intake.intakeUp();
-                            shooter.shooterOn = true;
+                            intake.state = Intake.IntakeState.INTAKE_SLOW;
                         })
-                        .maxTime(1000)
+                        .maxTime(100)
         );
         commands.add(prepareShooting);
 
-        shootGreen = new StateMachine(
+        // shoots: stops intake first, then turns it on
+        startShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            intake.release("g");
-                            intake.intakeOn = true;
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
                         })
-                        .maxTime(1000),
+                        .maxTime(200),
                 new State()
                         .onEnter(() -> {
-                            intake.intakeOn = false;
-                            shooter.launch();
+                            shooter.openLatch();
+                            intake.state = Intake.IntakeState.INTAKE_FAST;
                         })
-                        .maxTime(500),
+                        .maxTime(600),
                 new State()
                         .onEnter(() -> {
-                            shooter.reset();
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
+                            shooter.closeLatch();
                         })
-                        .maxTime(300)
+                        .maxTime(100)
         );
-        commands.add(shootGreen);
+        commands.add(startShooting);
 
-        shootPurple = new StateMachine(
-                new State()
-                        .onEnter(() -> {
-                            intake.release("p");
-                            intake.intakeOn = true;
-                        })
-                        .maxTime(1000),
-                new State()
-                        .onEnter(() -> {
-                            intake.intakeOn = false;
-                            shooter.launch();
-                        })
-                        .maxTime(500),
-                new State()
-                        .onEnter(() -> {
-                            shooter.reset();
-                        })
-                        .maxTime(300)
-        );
-        commands.add(shootPurple);
+        // airSortShoot:
+        // same start + speed up flywheel to first
+        // move to position 1 (150 ms)
+        // speed up+change flywheel (100 ms)
+        // move to position 2 (150 ms)
+        // repeat
     }
 
     public void initPositions() {
@@ -118,4 +106,25 @@ public class TeleopRobot {
             subsystem.start();
         }
     }
+
+    public boolean isBusy() {
+        return isBusy;
+    }
+    // future functions to help with automatic shooting if we fit constraints
+
+    private boolean inLeftZone(Pose pose) {
+        // right side. robot pose must be above the line with slope -1
+        double zoneY = 144 + -1 * pose.getX();
+        return pose.getX() < 72 && pose.getY() > zoneY;
+    }
+
+    private boolean inRightZone(Pose pose) {
+        // left side. robot pose must be above line with slope 1
+        double zoneY = 72 + 1 * (pose.getX()-72);
+        return pose.getX() >= 72 && pose.getY() > zoneY;
+    }
+    public boolean inShootingZone(Pose pose) {
+        return inRightZone(pose) || inLeftZone(pose);
+    }
 }
+

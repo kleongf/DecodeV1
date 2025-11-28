@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
-import static org.firstinspires.ftc.teamcode.opmode.autonomous.BlueAutoCloseV3.END_POSE_KEY;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.BezierPoint;
@@ -13,13 +12,15 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobotV1;
+import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
+import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
+import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobot;
 import org.firstinspires.ftc.teamcode.robot.subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.hardware.Drivetrain;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.misc.ClosestPoint;
-import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
+import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -33,7 +34,7 @@ public class MainTeleop {
     private Drivetrain drivetrain;
     private double turretOffset = 0;
     private double longitudinalSpeed = 1, lateralSpeed = 1, rotationSpeed = 0.4;
-    private TeleopRobotV1 robot;
+    private TeleopRobot robot;
     // we don't trust blackboard
     // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
     private Pose goalPose;
@@ -41,22 +42,24 @@ public class MainTeleop {
     private Pose gatePose;
     private SmartGamepad gp1;
     private Gamepad gamepad1;
-    private SOTM2 sotm;
+    private SOTM sotm;
     private HashMap<Integer, StateMachine> stateMap;
     private boolean holdingPose = false;
 
     private double lastTimeStamp = 0;
     private double lastAngleToGoal;
     private Telemetry telemetry;
+    private Alliance alliance;
 
     public MainTeleop(Pose startPose, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, boolean resetEncoder) {
         drivetrain = new Drivetrain(hardwareMap);
         drivetrain.setStartingPose(startPose);
-        robot = new TeleopRobotV1(hardwareMap);
+        robot = new TeleopRobot(hardwareMap);
         if (resetEncoder) {robot.turret.resetEncoder();}
 
         this.gamepad1 = gamepad1;
         this.telemetry = telemetry;
+        this.alliance = alliance;
         gp1 = new SmartGamepad(gamepad1);
 
         stateMap = new HashMap<>();
@@ -64,16 +67,16 @@ public class MainTeleop {
         stateMap.put(1, robot.prepareShooting);
         stateMap.put(2, robot.startShooting);
 
-        sotm = new SOTM2(goalPose);
+        sotm = new SOTM(goalPose);
         localizationTimer = new Timer();
         limelightLocalizer = new LimelightLocalizer(hardwareMap);
         limelightLocalizer.start();
         closestPoint = new ClosestPoint();
 
         // TODO: store these in the PoseConstants stuff
-        this.goalPose = alliance == Alliance.BLUE ? new Pose(0, 144, Math.toRadians(135)) : new Pose(144, 144, Math.toRadians(45));
-        this.shootPoseFar = alliance == Alliance.BLUE ? new Pose(54, 12, Math.toRadians(180)) :  new Pose(90, 12, Math.toRadians(0));
-        this.gatePose = alliance == Alliance.BLUE ? new Pose(14, 68, Math.toRadians(270)) : new Pose(130, 68, Math.toRadians(270));
+        this.goalPose = alliance == Alliance.BLUE ? PoseConstants.BLUE_GOAL_POSE : PoseConstants.RED_GOAL_POSE;
+        this.shootPoseFar = alliance == Alliance.BLUE ? PoseConstants.BLUE_FAR_POSE :  PoseConstants.RED_FAR_POSE;
+        this.gatePose = alliance == Alliance.BLUE ? PoseConstants.BLUE_GATE_POSE : PoseConstants.RED_GATE_POSE;
     }
 
     private double normalizeInput(double input) {
@@ -101,7 +104,7 @@ public class MainTeleop {
                             new Path(
                                     new BezierLine(
                                             new Point(drivetrain.follower.getPose()),
-                                            new Point(gatePose.getX()+10, gatePose.getY())
+                                            new Point((alliance == Alliance.BLUE ? gatePose.getX()+10: gatePose.getX()-10), gatePose.getY())
                                     )
                             )
                     )
@@ -109,7 +112,7 @@ public class MainTeleop {
                     .addPath(
                             new Path(
                                     new BezierLine(
-                                            new Point(gatePose.getX()+10, gatePose.getY()),
+                                            new Point((alliance == Alliance.BLUE ? gatePose.getX()+10: gatePose.getX()-10), gatePose.getY()),
                                             new Point(gatePose)
                                     )
                             )
@@ -251,7 +254,6 @@ public class MainTeleop {
         }
 
         telemetry.addData("pose", drivetrain.follower.getPose());
-        robot.turret.setAngularVel(drivetrain.getTotalAngularVelocity());
         drivetrain.update();
         robot.update();
         telemetry.update();
@@ -265,6 +267,6 @@ public class MainTeleop {
 
     public void stop() {
         Object endPose = drivetrain.follower.getPose();
-        blackboard.put(END_POSE_KEY, endPose);
+        blackboard.put(RobotConstants.END_POSE_KEY, endPose);
     }
 }

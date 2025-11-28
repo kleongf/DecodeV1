@@ -1,101 +1,45 @@
 package org.firstinspires.ftc.teamcode.robot.subsystems;
 
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import static org.firstinspires.ftc.teamcode.robot.constants.RobotConstants.*;
 
 public class Intake extends Subsystem {
-    // check if color sensors will be useful
-    public Servo leftLatch;
-    public Servo rightLatch;
-    public Servo centerLatch;
-    public Servo leftElbow;
-    public Servo rightElbow;
+    public enum IntakeState {
+        INTAKE_FAST,
+        INTAKE_SLOW,
+        INTAKE_OFF
+    }
+
+    public IntakeState state = IntakeState.INTAKE_OFF;
     public DcMotorEx intakeMotor;
-    public boolean intakeOn;
     public Intake(HardwareMap hardwareMap) {
-        leftLatch = hardwareMap.get(Servo.class, "leftLatch");
-        rightLatch = hardwareMap.get(Servo.class, "rightLatch");
-        centerLatch = hardwareMap.get(Servo.class, "centerLatch");
-
-        leftElbow = hardwareMap.get(Servo.class, "leftElbow");
-        rightElbow = hardwareMap.get(Servo.class, "rightElbow");
-
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     @Override
     public void update() {
-        if (intakeOn) {
-            intakeMotor.setPower(1);
+        switch (state) {
+            case INTAKE_FAST:
+                intakeMotor.setPower(1);
+                break;
+            case INTAKE_SLOW:
+                intakeMotor.setPower(0.5);
+                break;
+            case INTAKE_OFF:
+                intakeMotor.setPower(0);
+                break;
         }
     }
 
     @Override
     public void start() {
-        leftLatch.setPosition(0.1);
-        rightLatch.setPosition(0.1);
-        centerLatch.setPosition(0.1);
-    }
 
-    public void reset() {
-        leftLatch.setPosition(0.1);
-        rightLatch.setPosition(0.1);
-        centerLatch.setPosition(0.1);
-    }
-
-    public void intakeUp() {
-        leftElbow.setPosition(0.5);
-        rightElbow.setPosition(0.5);
-    }
-
-    public void intakeDown() {
-        leftElbow.setPosition(0.1);
-        rightElbow.setPosition(0.1);
-    }
-
-
-
-    public void releaseLeft() {
-        leftLatch.setPosition(0.5);
-    }
-
-    public void releaseRight() {
-        rightLatch.setPosition(0.5);
-    }
-
-    public void releaseCenter() {
-        centerLatch.setPosition(0.5);
-    }
-
-    public void release(String color) {
-        if (color.equals(getLeftColor())) {
-            releaseLeft();
-        } else if (color.equals(getRightColor())) {
-            releaseRight();
-        } else if (color.equals(getCenterColor())) {
-            releaseCenter();
-        }
-    }
-
-    public String getLeftColor() {
-        // returns the left color? "g" or "p" or "n", n for null
-        return "g";
-    }
-
-    public String getRightColor() {
-        // returns the left color? "g" or "p" or "n", n for null
-        return "p";
-    }
-
-    public String getCenterColor() {
-        // returns the left color? "g" or "p" or "n", n for null
-        return "p";
     }
 }

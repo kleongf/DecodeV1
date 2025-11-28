@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-import org.firstinspires.ftc.teamcode.robot.subsystems.BetterIntake;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 
 @Config
 @TeleOp(name="limelight pose test")
@@ -21,7 +21,7 @@ public class LimelightPoseTest extends OpMode {
     // this assumes the limelight is like 3 inches right from center of robot, up like 9 inches, and angled at 45
     private Limelight3A limelight;
     private Follower follower;
-    private BetterIntake intake;
+    private Intake intake;
     private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
 
     private double metersToInches(double meters) {
@@ -60,10 +60,8 @@ public class LimelightPoseTest extends OpMode {
         limelight.start();
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
-        intake = new BetterIntake(hardwareMap);
-        intake.setIntakeOn(true);
-        intake.state = BetterIntake.IntakeState.INTAKE_FAST;
-        intake.intakeDown();
+        intake = new Intake(hardwareMap);
+        intake.state = Intake.IntakeState.INTAKE_FAST;
     }
 
     @Override
