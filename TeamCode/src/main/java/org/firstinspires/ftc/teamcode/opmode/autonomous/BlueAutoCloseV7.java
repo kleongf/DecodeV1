@@ -223,7 +223,6 @@ public class BlueAutoCloseV7 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
-                            // follower.setMaxPower(0.6);
                             follower.followPath(intakeGate1, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),

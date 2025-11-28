@@ -240,7 +240,7 @@ public class BlueAutoCloseV6 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(500), // when there are 9 balls a hard hit will do
+                        .maxTime(500),
                 new State()
                         .onEnter(() -> {
                             robot.slowIntake.start();

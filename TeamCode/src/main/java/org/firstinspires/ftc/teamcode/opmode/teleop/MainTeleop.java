@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
+import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
 import static org.firstinspires.ftc.teamcode.opmode.autonomous.BlueAutoCloseV3.END_POSE_KEY;
-import static java.lang.Thread.sleep;
-
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.BezierPoint;
@@ -10,8 +9,10 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobotV1;
 import org.firstinspires.ftc.teamcode.robot.subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
@@ -19,13 +20,11 @@ import org.firstinspires.ftc.teamcode.util.hardware.Drivetrain;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.misc.ClosestPoint;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
-import org.firstinspires.ftc.teamcode.util.misc.SOTM3;
 
 import java.util.HashMap;
 import java.util.Objects;
 
-@TeleOp(name="Blue good teleop", group="comp")
-public class BlueTeleop extends OpMode {
+public class MainTeleop {
     private Timer localizationTimer;
     private LimelightLocalizer limelightLocalizer;
     private ClosestPoint closestPoint;
@@ -33,84 +32,69 @@ public class BlueTeleop extends OpMode {
     private boolean isAutoDriving = false;
     private Drivetrain drivetrain;
     private double turretOffset = 0;
-    // was 0.5 0.5 0.3
     private double longitudinalSpeed = 1, lateralSpeed = 1, rotationSpeed = 0.4;
     private TeleopRobotV1 robot;
-    // TODO: UNCOMMENT IN COMP
     // we don't trust blackboard
     // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
-    private final Pose startPose = new Pose(54, 6, Math.toRadians(90));
-    private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
-    private final Pose shootPoseClose = new Pose(60, 84, Math.toRadians(180));
-    private final Pose shootPoseFar = new Pose(54, 12, Math.toRadians(180));
-    // maybe 3?
-    private final Pose gatePose = new Pose(14, 68, Math.toRadians(270));
+    private Pose goalPose;
+    private Pose shootPoseFar;
+    private Pose gatePose;
     private SmartGamepad gp1;
-    private SmartGamepad gp2;
-    private SOTM2 sotm3;
+    private Gamepad gamepad1;
+    private SOTM2 sotm;
     private HashMap<Integer, StateMachine> stateMap;
-    private Pose poseToHold;
     private boolean holdingPose = false;
 
     private double lastTimeStamp = 0;
     private double lastAngleToGoal;
+    private Telemetry telemetry;
 
-
-    @Override
-    public void init() {
-        // TODO: teleoprobot no reset encoder for turret
+    public MainTeleop(Pose startPose, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, boolean resetEncoder) {
         drivetrain = new Drivetrain(hardwareMap);
         drivetrain.setStartingPose(startPose);
-
         robot = new TeleopRobotV1(hardwareMap);
-        robot.turret.resetEncoder();
+        if (resetEncoder) {robot.turret.resetEncoder();}
 
+        this.gamepad1 = gamepad1;
+        this.telemetry = telemetry;
         gp1 = new SmartGamepad(gamepad1);
-        gp2 = new SmartGamepad(gamepad2);
-
-        sotm3 = new SOTM2(goalPose);
 
         stateMap = new HashMap<>();
         stateMap.put(0, robot.prepareIntake);
         stateMap.put(1, robot.prepareShooting);
         stateMap.put(2, robot.startShooting);
 
+        sotm = new SOTM2(goalPose);
         localizationTimer = new Timer();
         limelightLocalizer = new LimelightLocalizer(hardwareMap);
         limelightLocalizer.start();
         closestPoint = new ClosestPoint();
-        // TODO: uncomment
-        // robot.turret.resetEncoder();
+
+        // TODO: store these in the PoseConstants stuff
+        this.goalPose = alliance == Alliance.BLUE ? new Pose(0, 144, Math.toRadians(135)) : new Pose(144, 144, Math.toRadians(45));
+        this.shootPoseFar = alliance == Alliance.BLUE ? new Pose(54, 12, Math.toRadians(180)) :  new Pose(90, 12, Math.toRadians(0));
+        this.gatePose = alliance == Alliance.BLUE ? new Pose(14, 68, Math.toRadians(270)) : new Pose(130, 68, Math.toRadians(270));
     }
 
     private double normalizeInput(double input) {
         return Math.signum(input) * Math.sqrt(Math.abs(input));
     }
-    @Override
+
     public void loop() {
         // we are moving slowly AND its been over 10 seconds
-        // TODO: uncomment when we use limelight, but not for scrim
-//        if (localizationTimer.getElapsedTimeSeconds() > 10 && drivetrain.follower.getVelocity().getMagnitude() < 10) {
-//            drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(drivetrain.follower.getPose()));
-//            localizationTimer.resetTimer();
-//        }
+        if (localizationTimer.getElapsedTimeSeconds() > 10 && drivetrain.follower.getVelocity().getMagnitude() < 10) {
+            drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(drivetrain.follower.getPose()));
+            localizationTimer.resetTimer();
+        }
 
         gp1.update();
-        gp2.update();
-
-        robot.hang((gp2.getLeftStickX()+1)/2);
 
         if (gp1.rightBumperPressed()) {
             state++;
             Objects.requireNonNull(stateMap.get(Math.floorMod(state, 3))).start();
         }
 
-        // very cool back button should work
-        if (gp1.leftBumperPressed()) {
-            state--;
-            Objects.requireNonNull(stateMap.get(Math.floorMod(state, 3))).start();
-        }
-        // TODO: note that x no longer goes to close, it goes to gate
+        // x button: drive to gate
         if (gp1.xPressed()) {
             PathChain driveGate = drivetrain.follower.pathBuilder()
                     .addPath(
@@ -137,6 +121,7 @@ public class BlueTeleop extends OpMode {
             drivetrain.follower.followPath(driveGate, true);
         }
 
+        // y button: drive far
         if (gp1.yPressed()) {
             PathChain driveFar = drivetrain.follower.pathBuilder()
                     .addPath(
@@ -154,6 +139,7 @@ public class BlueTeleop extends OpMode {
             drivetrain.follower.followPath(driveFar, true);
         }
 
+        // b pressed: closest point
         if (gp1.bPressed()) {
             PathChain driveToClosestPoint = drivetrain.follower.pathBuilder()
                     .addPath(
@@ -183,10 +169,10 @@ public class BlueTeleop extends OpMode {
         }
 
         if (gp1.dpadRightPressed()) {
-            turretOffset -= Math.toRadians(1);
+            turretOffset -= Math.toRadians(2);
         }
         if (gp1.dpadLeftPressed()) {
-            turretOffset += Math.toRadians(1);
+            turretOffset += Math.toRadians(2);
         }
 
         if (gamepad1.left_trigger > 0.01 && !holdingPose) {
@@ -195,7 +181,6 @@ public class BlueTeleop extends OpMode {
             Path holdPointPath = new Path(new BezierPoint(drivetrain.follower.getPose()));
             holdPointPath.setConstantHeadingInterpolation(drivetrain.follower.getPose().getHeading());
             drivetrain.follower.followPath(holdPointPath);
-            poseToHold = drivetrain.follower.getPose();
         }
 
         if (holdingPose && gamepad1.left_trigger < 0.01){
@@ -205,22 +190,9 @@ public class BlueTeleop extends OpMode {
             drivetrain.setTargetHeading(drivetrain.follower.getPose().getHeading());
         }
 
-//        else if (gamepad1.left_trigger > 0.2) {
-//            isAutoDriving = true;
-//            holdingPose = true;
-//            if (poseToHold == null) {
-//                drivetrain.follower.followPath(new Path(new BezierPoint(drivetrain.follower.getPose())));
-//                poseToHold = drivetrain.follower.getPose();
-//            }
-//            else {
-//                drivetrain.follower.holdPoint(poseToHold);
-//            }
-        // }
 
-
-        if(!(Math.floorMod(state, 3) == 0)) {
-            double[] values = sotm3.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-            // robot.turret.setFeedforward(values[0]);
+        if (!(Math.floorMod(state, 3) == 0)) {
+            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
             double currentTimeStamp = (double) System.nanoTime() / 1E9;
             if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
             double period = currentTimeStamp - lastTimeStamp;
@@ -232,7 +204,6 @@ public class BlueTeleop extends OpMode {
 
             double ff = 0.1 * vGoal;
             robot.turret.setFeedforward(ff);
-            //robot.turret.setFeedforward(0);
 
             lastAngleToGoal = currentAngleToGoal;
             lastTimeStamp = currentTimeStamp;
@@ -246,8 +217,7 @@ public class BlueTeleop extends OpMode {
             telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
 
         } else {
-            double[] values = sotm3.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-            // robot.turret.setFeedforward(values[0]);
+            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
             robot.turret.setTarget(0+turretOffset);
             robot.shooter.setShooterPitch(values[1]);
             robot.shooter.setTargetVelocity(values[2]);
@@ -257,19 +227,6 @@ public class BlueTeleop extends OpMode {
             telemetry.addData("velocity", values[2]);
             telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
             robot.turret.setFeedforward(0);
-        }
-
-        if (Math.floorMod(state, 3) == 1) {
-            telemetry.addData("in zone", robot.inShootingZone(drivetrain.follower.getPose()));
-
-//            if (robot.inShootingZone(drivetrain.follower.getPose())
-//                    && drivetrain.follower.getVelocity().getMagnitude() < 10
-//                    && robot.turret.atTarget(30) // i just realized its ticks
-//                    && robot.shooter.atTarget(21)
-//            ) {
-//                robot.startShooting.start();
-//                state++;
-//            }
         }
 
         if (isAutoDriving) {
@@ -294,26 +251,18 @@ public class BlueTeleop extends OpMode {
         }
 
         telemetry.addData("pose", drivetrain.follower.getPose());
-
         robot.turret.setAngularVel(drivetrain.getTotalAngularVelocity());
         drivetrain.update();
         robot.update();
         telemetry.update();
-
-        // 54.5, 7.5 is far spot
-
-        // 30, 136
     }
 
-    @Override
     public void start() {
-        // TODO: In the future, initPositions() should go here so we don't move on init
         robot.initPositions();
         robot.shooter.setShooterOn(true);
         robot.start();
     }
 
-    @Override
     public void stop() {
         Object endPose = drivetrain.follower.getPose();
         blackboard.put(END_POSE_KEY, endPose);

@@ -12,6 +12,9 @@ public class VoltageCompFollower extends Follower {
     @Override
     public double getVoltageNormalized() {
         double frictionConstant = 0.15;
-        return (FollowerConstants.nominalVoltage - (FollowerConstants.nominalVoltage * frictionConstant)) / (this.getVoltage() - ((Math.pow(FollowerConstants.nominalVoltage, 2) / this.getVoltage()) * frictionConstant));
+        return (FollowerConstants.nominalVoltage -
+                (FollowerConstants.nominalVoltage * frictionConstant)) /
+                (this.getVoltage() - ((Math.pow(FollowerConstants.nominalVoltage, 2) /
+                        this.getVoltage()) * frictionConstant));
     }
 }

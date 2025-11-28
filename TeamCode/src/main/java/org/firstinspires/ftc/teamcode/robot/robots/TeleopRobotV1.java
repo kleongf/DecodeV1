@@ -26,7 +26,6 @@ public class TeleopRobotV1 {
     public StateMachine prepareIntake;
     public StateMachine prepareShooting;
     public StateMachine startShooting;
-    public StateMachine startShootingFar;
     //timers
     public Timer shootTimer;
 
@@ -115,75 +114,15 @@ public class TeleopRobotV1 {
                             intake.intakeDown();
                         })
                         .maxTime(10)
-//                new State()
-//                        .onEnter(() -> {
-//
-//                            // ??? saying everything so that in the event of a back button, we can do to prev state and run it
-//                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
-//                            intake.intakePushMid();
-//                        })
-//                        .maxTime(200),
-//                new State()
-//                        .onEnter(() -> {shooter.openLatch();})
-//                        .maxTime(100),
-//                new State()
-//                        .onEnter(() -> {
-//                            intake.setIntakeOn(true);
-//                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;})
-//                        .maxTime(100),
-//                new State()
-//                        .onEnter(() -> {
-//                            intake.setIntakeOn(true);
-//                            intake.intakePush();
-//                        })
-//                        .maxTime(500),
-//                new State()
-//                        .onEnter(() -> {
-//                            intake.setIntakeOn(false);
-//                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
-//                            intake.intakeDown();
-//                        })
-//                        .maxTime(100)
         );
         commands.add(startShooting);
 
-        startShootingFar = new StateMachine(
-//                new State()
-//                        .onEnter(() -> {
-//                            // ??? saying everything so that in the event of a back button, we can do to prev state and run it
-//                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
-//                            intake.intakePushMid();
-//
-//                        })
-//                        .maxTime(200),
-//                new State()
-//                        .onEnter(() -> {shooter.openLatch();})
-//                        .maxTime(100),
-//                new State()
-//                        .onEnter(() -> {
-//                            intake.setIntakeOn(true);
-//                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;})
-//                        .maxTime(100),
-//                new State()
-//                        .onEnter(() -> {
-//                            intake.setIntakeOn(true);
-//                            intake.intakePushMid();
-//                        })
-//                        .maxTime(400),
-//                new State()
-//                        .onEnter(() -> {
-//                            intake.intakePush();
-//                        })
-//                        .maxTime(300),
-//                new State()
-//                        .onEnter(() -> {
-//                            intake.setIntakeOn(false);
-//                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
-//                            intake.intakeDown();
-//                        })
-//                        .maxTime(100)
-        );
-        commands.add(startShootingFar);
+        // airSortShoot:
+        // same start + speed up flywheel to first
+        // move to position 1 (150 ms)
+        // speed up+change flywheel (100 ms)
+        // move to position 2 (150 ms)
+        // repeat
     }
 
     public void initPositions() {
