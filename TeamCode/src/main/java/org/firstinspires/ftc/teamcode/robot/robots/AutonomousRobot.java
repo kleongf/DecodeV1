@@ -22,12 +22,8 @@ public class AutonomousRobot {
 
     private final ArrayList<StateMachine> commands;
     public StateMachine prepareIntake;
-    public StateMachine gateIntake;//not used rn
-    public StateMachine gateIntakeDown;
     public StateMachine prepareShooting;
-    public StateMachine slowIntake;
     public StateMachine startShooting;
-    public StateMachine startShootingFar;
 
     // button: start and stop intaking
     // shooter always spinning
@@ -84,7 +80,11 @@ public class AutonomousRobot {
         commands.add(startShooting);
     }
 
-
+    public void setAzimuthThetaVelocity(double[] values) {
+        turret.setTarget(values[0]);
+        shooter.setShooterPitch(values[1]);
+        shooter.setTargetVelocity(values[2]);
+    }
 
     public void initPositions() {
         shooter.closeLatch();

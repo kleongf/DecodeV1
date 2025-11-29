@@ -15,7 +15,13 @@ public class PoseConstants {
     // Autonomous Poses
     public static Pose BLUE_CLOSE_AUTO_POSE = new Pose(31, 137, Math.toRadians(270));
     public static Pose RED_CLOSE_AUTO_POSE = new Pose(144-31, 137, Math.toRadians(270));
+    // TODO: rename to blue far auto start pose
     public static Pose BLUE_FAR_AUTO_POSE = new Pose(55, 6, Math.toRadians(90));
     public static Pose RED_FAR_AUTO_POSE = new Pose(144-55, 6, Math.toRadians(90));
-    // public static Pose BLUE_SHOOT_AUTO_POSE = new Pose();
+
+    // TODO: FIND NEW GATE POSITIONS
+    public static Pose BLUE_GATE_AUTO_POSE = new Pose(13, 62, Math.toRadians(142));
+    public static Pose RED_GATE_AUTO_POSE = new Pose(144-13, 62, Math.toRadians(180-142));
+    public static Pose BLUE_SHOOT_AUTO_POSE = new Pose(60, 74, Math.toRadians(142));
+    public static Pose RED_SHOOT_AUTO_POSE = new Pose(144-60, 74, Math.toRadians(142));
 }
