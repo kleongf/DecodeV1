@@ -128,7 +128,7 @@ public class BlueAutoCloseV2 extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.BLUE_GATE_AUTO_POSE,
-                                new Pose(84, 60)
+                                new Pose(60, 84)
                         )
                 )
                 .setLinearHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading(), Math.toRadians(180))
