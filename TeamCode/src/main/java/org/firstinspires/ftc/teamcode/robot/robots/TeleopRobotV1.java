@@ -53,8 +53,6 @@ public class TeleopRobotV1 {
                 new State()
                         .onEnter(() -> {
                             intake.state = BetterIntake.IntakeState.INTAKE_FAST;
-                            intake.setIntakeOn(true);
-                            intake.intakeDown();
                             shooter.closeLatch();
                         })
                         .maxTime(100)
@@ -64,9 +62,7 @@ public class TeleopRobotV1 {
         prepareShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            intake.state = BetterIntake.IntakeState.INTAKE_SLOW;
-                            intake.setIntakeOn(false);
-                            intake.intakePushMid();
+                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
                             shooter.closeLatch();
                         })
                         .maxTime(100)
@@ -78,40 +74,17 @@ public class TeleopRobotV1 {
         startShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            // ??? saying everything so that in the event of a back button, we can do to prev state and run it
-                            intake.state = BetterIntake.IntakeState.INTAKE_OFF;
-                            intake.intakePushMid();
+                            shooter.openLatch();
                         })
                         .maxTime(200),
                 new State()
                         .onEnter(() -> {
-                            shooter.openLatch();
                             intake.state = BetterIntake.IntakeState.INTAKE_FAST;
                         })
-                        .maxTime(100),
-//                new State()
-//                        .onEnter(() -> {
-//                            intake.setIntakeOn(true);
-//                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;})
-//                        .maxTime(100),
-//                new State()
-//                        .onEnter(() -> {
-//                            intake.setIntakeOn(true);
-//                            intake.intakePushMid();
-//                        })
-//                        .maxTime(300),
+                        .maxTime(1000),
                 new State()
                         .onEnter(() -> {
-                            intake.intakePush();
-                            intake.setIntakeOn(true);
-                            intake.state = BetterIntake.IntakeState.INTAKE_FAST;
-                        })
-                        .maxTime(650),
-                new State()
-                        .onEnter(() -> {
-                            intake.setIntakeOn(false);
                             intake.state = BetterIntake.IntakeState.INTAKE_OFF;
-                            intake.intakeDown();
                         })
                         .maxTime(10)
         );
