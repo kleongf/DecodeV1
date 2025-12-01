@@ -128,6 +128,7 @@ public class BlueAutoCloseV2 extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.BLUE_GATE_AUTO_POSE,
+                                new Pose(60,60),
                                 new Pose(60, 84)
                         )
                 )
@@ -150,9 +151,8 @@ public class BlueAutoCloseV2 extends OpMode {
 
         intakeThird = follower.pathBuilder()
                 .addPath(
-                        // Path 4
                         new BezierCurve(
-                                new Pose(84, 60),
+                                new Pose(60, 84),
                                 new Pose(51.319, 30.064),
                                 new Pose(46.532, 30.255),
                                 new Pose(13.000, 36.000)
