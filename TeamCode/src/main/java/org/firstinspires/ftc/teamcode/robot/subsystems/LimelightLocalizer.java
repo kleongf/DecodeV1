@@ -13,6 +13,8 @@ import java.util.List;
 public class LimelightLocalizer {
     private final Limelight3A limelight;
     private final double errorThreshold = 8;
+    private double xOffset = 0;
+    private double yOffset = 0;
 
     public LimelightLocalizer(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -40,12 +42,13 @@ public class LimelightLocalizer {
         if (result != null && result.isValid()) {
             Pose3D botPose = result.getBotpose();
             Pose convertedBotPose = toPinpointPose(botPose, pinpointPose);
+            Pose offsetPose = new Pose(convertedBotPose.getX() + xOffset, convertedBotPose.getY() + yOffset);
             // checking if they are similar
-            if (convertedBotPose.getX() == 72 && convertedBotPose.getY() == 72) {
+            if (offsetPose.getX() == 72 && offsetPose.getY() == 72) {
                 return pinpointPose;
             }
-            if (Math.hypot(convertedBotPose.getX()-pinpointPose.getX(), convertedBotPose.getY()-pinpointPose.getY()) < errorThreshold) {
-                return convertedBotPose;
+            if (Math.hypot(offsetPose.getX()-pinpointPose.getX(), offsetPose.getY()-pinpointPose.getY()) < errorThreshold) {
+                return offsetPose;
             }
         }
         return pinpointPose;
@@ -61,6 +64,10 @@ public class LimelightLocalizer {
         return new double[] {0, 0};
     }
 
+    public void setXYOffset(double xOffset, double yOffset) {
+        this.xOffset = xOffset;
+        this.yOffset = yOffset;
+    }
 
     public void start() {
         limelight.start();

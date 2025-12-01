@@ -68,7 +68,7 @@ public class AutonomousRobot {
         startShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            shooter.openLatch();
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
                         })
                         .maxTime(200),
                 new State()
@@ -76,8 +76,8 @@ public class AutonomousRobot {
                             shooter.openLatch();
                             intake.state = Intake.IntakeState.INTAKE_FAST;
                         })
-                        .maxTime(400)
-        );
+                        .maxTime(600)
+                );
         commands.add(startShooting);
     }
 

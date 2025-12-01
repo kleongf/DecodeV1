@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 
 @Config
@@ -22,7 +23,7 @@ public class LimelightPoseTest extends OpMode {
     private Limelight3A limelight;
     private Follower follower;
     private Intake intake;
-    private final Pose startPose = new Pose(30, 137, Math.toRadians(270));
+    private final Pose startPose = PoseConstants.BLUE_CLOSE_AUTO_POSE;
 
     private double metersToInches(double meters) {
         return meters * 39.3701;

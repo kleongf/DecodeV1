@@ -153,8 +153,8 @@ public class BlueAutoCloseV2 extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 new Pose(60, 84),
-                                new Pose(51.319, 30.064),
-                                new Pose(46.532, 30.255),
+                                new Pose(48.319, 30.064),
+                                new Pose(44.532, 30.255),
                                 new Pose(13.000, 36.000)
                         )
                 )
@@ -163,7 +163,7 @@ public class BlueAutoCloseV2 extends OpMode {
 
         shootThird = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(13.000, 36.000), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(13.000, 36.000), new Pose(46.000, 9.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
@@ -303,6 +303,7 @@ public class BlueAutoCloseV2 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
+                            shootPose = new Pose(46, 9, Math.toRadians(180));
                             follower.followPath(intakeThird, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
