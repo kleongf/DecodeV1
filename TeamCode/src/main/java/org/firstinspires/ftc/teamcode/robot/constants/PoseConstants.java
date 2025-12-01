@@ -22,6 +22,6 @@ public class PoseConstants {
     // TODO: FIND NEW GATE POSITIONS
     public static Pose BLUE_GATE_AUTO_POSE =  new Pose(12, 62.5, Math.toRadians(148.5));
     public static Pose RED_GATE_AUTO_POSE = new Pose(144-13, 62, Math.toRadians(180-142));
-    public static Pose BLUE_SHOOT_AUTO_POSE = new Pose(60, 74, Math.toRadians(142));
+    public static Pose BLUE_SHOOT_AUTO_POSE = new Pose(60, 74, Math.toRadians(148.5));
     public static Pose RED_SHOOT_AUTO_POSE = new Pose(144-60, 74, Math.toRadians(142));
 }
