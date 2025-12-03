@@ -92,8 +92,8 @@ public class BlueAutoCloseV2 extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.BLUE_SHOOT_AUTO_POSE,
-                                new Pose(49.404, 60.702),
-                                new Pose(55.340, 60.511),
+                                new Pose(49.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
+                                new Pose(55.340, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
                                 PoseConstants.BLUE_GATE_AUTO_POSE
                         )
                 )
@@ -115,8 +115,8 @@ public class BlueAutoCloseV2 extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.BLUE_SHOOT_AUTO_POSE,
-                                new Pose(49.404, 60.702),
-                                new Pose(55.340, 60.511),
+                                new Pose(49.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
+                                new Pose(55.340, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
                                 PoseConstants.BLUE_GATE_AUTO_POSE
                         )
                 )
