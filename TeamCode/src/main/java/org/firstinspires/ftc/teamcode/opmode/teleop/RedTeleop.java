@@ -13,7 +13,7 @@ public class RedTeleop extends OpMode {
     private Pose goalPose = PoseConstants.RED_GOAL_POSE;
     @Override
     public void init() {
-        teleop = new MainTeleop(startPose, goalPose, Alliance.RED, hardwareMap, telemetry, gamepad1, false);
+        teleop = new MainTeleop(startPose, goalPose, Alliance.RED, hardwareMap, telemetry, gamepad1, true);
     }
 
     @Override

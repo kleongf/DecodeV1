@@ -70,7 +70,7 @@ public class SOTM {
 
         // now subtract it from the velocity
         // v = r * omega, omega = v (inches to meters) / r (meters) -> divide by 2pi and the multiply by 28. also account for angle
-        double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (radiusBall/radius); // (1/Math.cos(Math.toRadians(20)+thetaLUT.getValue(dist)))
+        double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (1/Math.cos(Math.toRadians(28)+thetaLUT.getValue(dist))); // (1/Math.cos(Math.toRadians(20)+thetaLUT.getValue(dist)))
 
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
         // 0.2 seconds before shooting: always
