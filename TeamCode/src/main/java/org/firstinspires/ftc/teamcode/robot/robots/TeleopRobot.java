@@ -53,6 +53,7 @@ public class TeleopRobot {
                 new State()
                         .onEnter(() -> {
                             intake.state = Intake.IntakeState.INTAKE_SLOW;
+                            shooter.closeLatch();
                         })
                         .maxTime(100)
         );
@@ -60,6 +61,11 @@ public class TeleopRobot {
 
         // shoots: stops intake first, then turns it on
         startShooting = new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
+                        })
+                        .maxTime(100),
                 new State()
                         .onEnter(() -> {
                             intake.state = Intake.IntakeState.INTAKE_OFF;

@@ -244,15 +244,28 @@ public class MainTeleop {
             }
 
         } else {
-            if (Math.abs(gp1.getRightStickX()) > 0) {
-                drivetrain.setFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
-                        normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
-                        normalizeInput(gp1.getRightStickX()*rotationSpeed));
-            } else {
-                drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
-                        normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
-                        normalizeInput(gp1.getRightStickX()*rotationSpeed));
+            if (alliance == Alliance.BLUE) {
+                if (Math.abs(gp1.getRightStickX()) > 0) {
+                    drivetrain.setFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
+                            normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
+                            normalizeInput(gp1.getRightStickX()*rotationSpeed));
+                } else {
+                    drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
+                            normalizeInput(-gp1.getLeftStickX()*lateralSpeed),
+                            normalizeInput(gp1.getRightStickX()*rotationSpeed));
+                }
+            } else if (alliance == Alliance.RED) {
+                if (Math.abs(gp1.getRightStickX()) > 0) {
+                    drivetrain.setFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
+                            normalizeInput(gp1.getLeftStickX()*lateralSpeed),
+                            normalizeInput(-gp1.getRightStickX()*rotationSpeed));
+                } else {
+                    drivetrain.setHeadingLockFieldCentricMovementVectors(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),
+                            normalizeInput(gp1.getLeftStickX()*lateralSpeed),
+                            normalizeInput(-gp1.getRightStickX()*rotationSpeed));
+                }
             }
+
         }
 
         telemetry.addData("pose", drivetrain.follower.getPose());

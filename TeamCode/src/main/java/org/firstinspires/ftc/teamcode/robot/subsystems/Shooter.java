@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.util.controllers.FeedForwardController;
+import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
+
 import static org.firstinspires.ftc.teamcode.robot.constants.RobotConstants.*;
 
 public class Shooter extends Subsystem {
@@ -51,7 +53,9 @@ public class Shooter extends Subsystem {
     // note: in radians
     public void setShooterPitch(double angle) {
         double ticksPerRadian = (PITCH_SERVO_F-PITCH_SERVO_I)/(PITCH_F-PITCH_I);
-        pitchServo.setPosition(PITCH_SERVO_MIN + angle * ticksPerRadian);
+        double pos = PITCH_SERVO_MIN + angle * ticksPerRadian;
+        pitchServo.setPosition(MathFunctions.clamp(pos, PITCH_SERVO_I, PITCH_SERVO_F));
+        // pitchServo.setPosition(PITCH_SERVO_MIN + angle * ticksPerRadian);
     }
 
     public void setTargetVelocity(double t) {

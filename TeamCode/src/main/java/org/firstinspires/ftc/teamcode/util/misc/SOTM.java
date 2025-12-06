@@ -75,7 +75,7 @@ public class SOTM {
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
         // 0.2 seconds before shooting: always
 
-        double timestep = 0.2 + 2 * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(20))));
+        double timestep = 2 * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(28))));
 
         double azimuth = Math.atan2(-(dx-vTangential.getXComponent()*timestep), (dy-vTangential.getYComponent()*timestep)) - robotPose.getHeading() + Math.toRadians(90) + offset;
         double theta = thetaLUT.getValue(dist);
