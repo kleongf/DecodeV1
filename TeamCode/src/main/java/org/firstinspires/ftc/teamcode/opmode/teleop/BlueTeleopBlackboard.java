@@ -11,9 +11,10 @@ import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
 public class BlueTeleopBlackboard extends OpMode {
     private MainTeleop teleop;
     private Pose startPose = (Pose) blackboard.getOrDefault(RobotConstants.END_POSE_KEY, PoseConstants.BLUE_FAR_AUTO_POSE);
+    private Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
     @Override
     public void init() {
-        teleop = new MainTeleop(startPose, Alliance.BLUE, hardwareMap, telemetry, gamepad1, false);
+        teleop = new MainTeleop(startPose, goalPose, Alliance.BLUE, hardwareMap, telemetry, gamepad1, false);
     }
 
     @Override

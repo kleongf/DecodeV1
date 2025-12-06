@@ -8,6 +8,7 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -51,7 +52,7 @@ public class MainTeleop {
     private Telemetry telemetry;
     private Alliance alliance;
 
-    public MainTeleop(Pose startPose, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, boolean resetEncoder) {
+    public MainTeleop(Pose startPose, Pose goalPose, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, boolean resetEncoder) {
         drivetrain = new Drivetrain(hardwareMap);
         drivetrain.setStartingPose(startPose);
         robot = new TeleopRobot(hardwareMap);
@@ -221,7 +222,7 @@ public class MainTeleop {
 
         } else {
             double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-            robot.turret.setTarget(0+turretOffset);
+            robot.turret.setTarget(0 + turretOffset);
             robot.shooter.setShooterPitch(values[1]);
             robot.shooter.setTargetVelocity(values[2]);
 
@@ -230,6 +231,7 @@ public class MainTeleop {
             telemetry.addData("velocity", values[2]);
             telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
             robot.turret.setFeedforward(0);
+
         }
 
         if (isAutoDriving) {
@@ -258,6 +260,8 @@ public class MainTeleop {
         robot.update();
         telemetry.update();
     }
+
+    public Drivetrain getDrivetrain() {return drivetrain;}
 
     public void start() {
         robot.initPositions();

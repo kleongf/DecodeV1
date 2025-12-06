@@ -19,31 +19,31 @@ public class SOTM {
 
         thetaLUT = new LUT();
         thetaLUT.addData(48, Math.toRadians(0));
-        thetaLUT.addData(58, Math.toRadians(1));
+        thetaLUT.addData(58, Math.toRadians(3));
         thetaLUT.addData(68, Math.toRadians(5));
-        thetaLUT.addData(78, Math.toRadians(6.5));
-        thetaLUT.addData(88, Math.toRadians(8));
-        thetaLUT.addData(98, Math.toRadians(9));
-        thetaLUT.addData(108, Math.toRadians(10));
-        thetaLUT.addData(118, Math.toRadians(12));
-        thetaLUT.addData(128, Math.toRadians(14));
-        thetaLUT.addData(138, Math.toRadians(16));
+        thetaLUT.addData(78, Math.toRadians(8));
+        thetaLUT.addData(88, Math.toRadians(10));
+        thetaLUT.addData(98, Math.toRadians(12));
+        thetaLUT.addData(108, Math.toRadians(13));
+        thetaLUT.addData(118, Math.toRadians(15));
+        thetaLUT.addData(128, Math.toRadians(16));
+        thetaLUT.addData(138, Math.toRadians(17));
         thetaLUT.addData(148, Math.toRadians(18));
         thetaLUT.addData(158, Math.toRadians(19));
 
         velocityLUT = new LUT();
-        thetaLUT.addData(158, 1560);
-        velocityLUT.addData(148, 1500);
-        velocityLUT.addData(138, 1450);
-        velocityLUT.addData(128, 1380);
-        velocityLUT.addData(118, 1320);
-        velocityLUT.addData(108, 1240);
-        velocityLUT.addData(98, 1200);
-        velocityLUT.addData(88, 1160);
-        velocityLUT.addData(78, 1100);
-        velocityLUT.addData(68, 1060);
-        velocityLUT.addData(58, 1040);
-        velocityLUT.addData(48, 1020);
+        thetaLUT.addData(158, 1580);
+        velocityLUT.addData(148, 1520);
+        velocityLUT.addData(138, 1480);
+        velocityLUT.addData(128, 1440);
+        velocityLUT.addData(118, 1380);
+        velocityLUT.addData(108, 1340);
+        velocityLUT.addData(98, 1280);
+        velocityLUT.addData(88, 1220);
+        velocityLUT.addData(78, 1160);
+        velocityLUT.addData(68, 1100);
+        velocityLUT.addData(58, 1000);
+        velocityLUT.addData(48, 1000);
 
     }
     private double calculateLinearVelocityInches(double ticksPerSecond) {
@@ -54,7 +54,7 @@ public class SOTM {
         double dy = goal.getY() - robotPose.getY();
         double dist = Math.hypot(dx, dy);
 
-        double offset = 0;
+        double offset = goal.getX() == 0 ? Math.toRadians(-2) : Math.toRadians(2);
         Vector v = com.pedropathing.pathgen.MathFunctions.subtractVectors(goal.getVector(), robotPose.getVector());
         Vector u = robotVelocity;
 
@@ -70,7 +70,7 @@ public class SOTM {
 
         // now subtract it from the velocity
         // v = r * omega, omega = v (inches to meters) / r (meters) -> divide by 2pi and the multiply by 28. also account for angle
-        double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (radiusBall/radius) * (1/Math.cos(Math.toRadians(20)+thetaLUT.getValue(dist)));
+        double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (radiusBall/radius); // (1/Math.cos(Math.toRadians(20)+thetaLUT.getValue(dist)))
 
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
         // 0.2 seconds before shooting: always
