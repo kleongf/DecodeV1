@@ -54,7 +54,7 @@ public class SOTM {
         double dy = goal.getY() - robotPose.getY();
         double dist = Math.hypot(dx, dy);
 
-        double offset = goal.getX() == 0 ? Math.toRadians(-2) : Math.toRadians(2);
+        boolean isBlue = goal.getX() == 0;
         Vector v = com.pedropathing.pathgen.MathFunctions.subtractVectors(goal.getVector(), robotPose.getVector());
         Vector u = robotVelocity;
 
@@ -76,6 +76,15 @@ public class SOTM {
         // 0.2 seconds before shooting: always
 
         double timestep = 2 * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(28))));
+
+        // blue perspective:
+        // pure angle to goal. from small angles, it overshoots to the left (from blue perspective this is positive turret),
+        double angleToGoal = Math.atan2(-(dx-vTangential.getXComponent()*timestep), (dy-vTangential.getYComponent()*timestep));
+        double offset = isBlue ? (angleToGoal - Math.PI / 4) * 0.067 : (angleToGoal + Math.PI / 4) * 0.067;
+        // when angle is big, aim more left (which is positive direction), when it is small, aim more right (negative direction)
+        // opposite for red, and all this helps i guess? backboard area is better when we higher so it makes sense idk
+        // what do we count as 0? i think we count it as the 45 degree position, which i suppose is
+        // for red it is from the negative 45 i think, and let's offset everything my like 6-7% as a test
 
         double azimuth = Math.atan2(-(dx-vTangential.getXComponent()*timestep), (dy-vTangential.getYComponent()*timestep)) - robotPose.getHeading() + Math.toRadians(90) + offset;
         double theta = thetaLUT.getValue(dist);
