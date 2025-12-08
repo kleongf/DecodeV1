@@ -31,7 +31,6 @@ public class BlueAutoCloseV2 extends OpMode {
     private Pose shootPose = PoseConstants.BLUE_SHOOT_AUTO_POSE;
 
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
-
     private PathChain intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeThird, shootThird, intakeFirst, shootFirst;
     public void buildPaths() {
         intakeSecond = follower.pathBuilder()
