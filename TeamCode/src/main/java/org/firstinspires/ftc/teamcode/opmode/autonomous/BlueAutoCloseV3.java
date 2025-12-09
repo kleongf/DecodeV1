@@ -324,6 +324,7 @@ public class BlueAutoCloseV3 extends OpMode {
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
+                        .onExit(() -> blackboard.put(RobotConstants.END_POSE_KEY, follower.getPose())) // we need this or else no save to blackboard
                         .transition(new Transition(() -> robot.startShooting.isFinished()))
         );
 
@@ -361,7 +362,6 @@ public class BlueAutoCloseV3 extends OpMode {
 
         robot.setAzimuthThetaVelocity(values);
         robot.shooter.setShooterOn(true);
-
         stateMachine.start();
         robot.start();
     }
