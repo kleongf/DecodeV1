@@ -27,7 +27,7 @@ public class BlueAutoCloseV3 extends OpMode {
     private AutonomousRobot robot;
     private SOTM sotm2;
     private final Pose startPose = PoseConstants.BLUE_CLOSE_AUTO_POSE;
-    private Pose shootPose = PoseConstants.BLUE_SHOOT_AUTO_POSE;
+    private Pose shootPose = new Pose(60, 84, Math.toRadians(180));
 
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
     private PathChain shootPreload, intakeFirst, shootFirst, intakeThird, shootThird, intakeSecond, openGate, shootSecond, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3;
