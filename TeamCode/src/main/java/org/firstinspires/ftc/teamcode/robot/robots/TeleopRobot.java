@@ -25,6 +25,7 @@ public class TeleopRobot {
     public StateMachine prepareIntake;
     public StateMachine prepareShooting;
     public StateMachine startShooting;
+    public StateMachine startShootingFar;
 
     public TeleopRobot(HardwareMap hardwareMap) {
         subsystems = new ArrayList<>();
@@ -74,7 +75,7 @@ public class TeleopRobot {
                         .maxTime(150),
                 new State()
                         .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_FAST;
+                            intake.state = Intake.IntakeState.INTAKE_MEDIUM;//INTAKE_FAST;
                         })
                         .maxTime(600),
                 new State()
@@ -85,6 +86,31 @@ public class TeleopRobot {
                         .maxTime(100)
         );
         commands.add(startShooting);
+        startShootingFar = new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
+                        })
+                        .maxTime(100),
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
+                            shooter.openLatch();
+                        })
+                        .maxTime(150),
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_MEDIUM;//INTAKE_FAST;
+                        })
+                        .maxTime(900),
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
+                            shooter.closeLatch();
+                        })
+                        .maxTime(100)
+        );
+        commands.add(startShootingFar);
 
         // airSortShoot:
         // same start + speed up flywheel to first

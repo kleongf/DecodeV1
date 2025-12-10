@@ -24,6 +24,7 @@ public class AutonomousRobot {
     public StateMachine prepareIntake;
     public StateMachine prepareShooting;
     public StateMachine startShooting;
+    public StateMachine startShootingFar;
 
     // button: start and stop intaking
     // shooter always spinning
@@ -78,6 +79,19 @@ public class AutonomousRobot {
                         })
                         .maxTime(600));
         commands.add(startShooting);
+        startShootingFar = new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
+                            shooter.openLatch();
+                        })
+                        .maxTime(150),
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_MEDIUM;
+                        })
+                        .maxTime(900));
+        commands.add(startShootingFar);
     }
 
     public void setAzimuthThetaVelocity(double[] values) {

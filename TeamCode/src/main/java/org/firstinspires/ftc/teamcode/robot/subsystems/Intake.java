@@ -10,6 +10,7 @@ import static org.firstinspires.ftc.teamcode.robot.constants.RobotConstants.*;
 public class Intake extends Subsystem {
     public enum IntakeState {
         INTAKE_FAST,
+        INTAKE_MEDIUM,
         INTAKE_SLOW,
         INTAKE_OFF
     }
@@ -35,6 +36,8 @@ public class Intake extends Subsystem {
             case INTAKE_OFF:
                 intakeMotor.setPower(0);
                 break;
+            case INTAKE_MEDIUM:
+                intakeMotor.setPower(0.9);
         }
     }
 

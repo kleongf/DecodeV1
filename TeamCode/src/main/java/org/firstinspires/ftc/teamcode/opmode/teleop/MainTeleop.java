@@ -85,6 +85,14 @@ public class MainTeleop {
     }
 
     public void loop() {
+        int goalX;
+        if(alliance == Alliance.BLUE){
+            goalX = 0;
+        }
+        else{
+            goalX = 144;
+        }
+
         // we are moving slowly AND its been over 10 seconds
         if (localizationTimer.getElapsedTimeSeconds() > 10 && drivetrain.follower.getVelocity().getMagnitude() < 10) {
             drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(drivetrain.follower.getPose()));
@@ -95,7 +103,17 @@ public class MainTeleop {
 
         if (gp1.rightBumperPressed()) {
             state++;
-            Objects.requireNonNull(stateMap.get(Math.floorMod(state, 3))).start();
+            if(state == 2){
+                if(Math.sqrt(Math.pow((drivetrain.follower.getPose().getX()),2)+Math.pow((drivetrain.follower.getPose().getX()-goalX),2))>130){
+                    robot.startShootingFar.start();
+                }
+                else{
+                    robot.startShooting.start();
+                }
+            }
+            else {
+                Objects.requireNonNull(stateMap.get(Math.floorMod(state, 3))).start();
+            }
         }
 
         // x button: drive to gate
