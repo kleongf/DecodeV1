@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
 @TeleOp(name="Red Teleop (blackboard)", group="comp")
 public class RedTeleopBlackboard extends OpMode {
     private MainTeleop teleop;
-    private Pose startPose = (Pose) blackboard.getOrDefault(RobotConstants.END_POSE_KEY, PoseConstants.RED_FAR_AUTO_POSE);
+    private Pose startPose = (Pose) blackboard.getOrDefault(RobotConstants.END_POSE_KEY, PoseConstants.RED_END_AUTO_POSE);
     private Pose goalPose = PoseConstants.RED_GOAL_POSE;
     @Override
     public void init() {
