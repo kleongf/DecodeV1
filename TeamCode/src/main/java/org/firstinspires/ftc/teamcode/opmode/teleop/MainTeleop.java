@@ -85,14 +85,6 @@ public class MainTeleop {
     }
 
     public void loop() {
-        int goalX;
-        if(alliance == Alliance.BLUE){
-            goalX = 0;
-        }
-        else{
-            goalX = 144;
-        }
-
         // we are moving slowly AND its been over 10 seconds
         if (localizationTimer.getElapsedTimeSeconds() > 10 && drivetrain.follower.getVelocity().getMagnitude() < 10) {
             drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(drivetrain.follower.getPose()));
@@ -103,11 +95,10 @@ public class MainTeleop {
 
         if (gp1.rightBumperPressed()) {
             state++;
-            if(state == 2){
-                if(Math.sqrt(Math.pow((drivetrain.follower.getPose().getX()),2)+Math.pow((drivetrain.follower.getPose().getX()-goalX),2))>130){
+            if(Math.floorMod(state, 3) == 2){
+                if (Math.hypot(goalPose.getX()-drivetrain.follower.getPose().getX(), goalPose.getY()-drivetrain.follower.getPose().getY()) > 130) {
                     robot.startShootingFar.start();
-                }
-                else{
+                } else {
                     robot.startShooting.start();
                 }
             }
@@ -187,7 +178,11 @@ public class MainTeleop {
 
         // relocalization
         if (gp1.dpadUpPressed()) {
-            drivetrain.follower.setCurrentPoseWithOffset(new Pose(138, 6, Math.toRadians(90)));
+            if (alliance == Alliance.BLUE) {
+                drivetrain.follower.setCurrentPoseWithOffset(new Pose(136.5, 6, Math.toRadians(90)));
+            } else {
+                drivetrain.follower.setCurrentPoseWithOffset(new Pose(7.5, 6, Math.toRadians(90)));
+            }
         }
 
         if (gp1.dpadRightPressed()) {
@@ -292,7 +287,6 @@ public class MainTeleop {
         telemetry.update();
     }
 
-    public Drivetrain getDrivetrain() {return drivetrain;}
 
     public void start() {
         robot.initPositions();
