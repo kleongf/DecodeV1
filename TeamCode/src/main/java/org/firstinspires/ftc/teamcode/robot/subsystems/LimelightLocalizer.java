@@ -47,9 +47,21 @@ public class LimelightLocalizer {
             if (offsetPose.getX() == 72 && offsetPose.getY() == 72) {
                 return pinpointPose;
             }
-            if (Math.hypot(offsetPose.getX()-pinpointPose.getX(), offsetPose.getY()-pinpointPose.getY()) < errorThreshold) {
+
+            if ((Math.hypot(offsetPose.getX()-pinpointPose.getX(), offsetPose.getY()-pinpointPose.getY()) < errorThreshold)) {
                 return offsetPose;
             }
+        }
+        return pinpointPose;
+    }
+
+    public Pose overrideUpdate(Pose pinpointPose) {
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            Pose3D botPose = result.getBotpose();
+            Pose convertedBotPose = toPinpointPose(botPose, pinpointPose);
+            Pose offsetPose = new Pose(convertedBotPose.getX() + xOffset, convertedBotPose.getY() + yOffset);
+            return offsetPose;
         }
         return pinpointPose;
     }

@@ -87,7 +87,9 @@ public class MainTeleop {
     public void loop() {
         // we are moving slowly AND its been over 10 seconds
         if (localizationTimer.getElapsedTimeSeconds() > 10 && drivetrain.follower.getVelocity().getMagnitude() < 10) {
-            drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(drivetrain.follower.getPose()));
+            Pose prevPose = drivetrain.follower.getPose();
+            drivetrain.follower.resetOffset();
+            drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(prevPose));
             localizationTimer.resetTimer();
         }
 
@@ -182,6 +184,16 @@ public class MainTeleop {
                 drivetrain.follower.setCurrentPoseWithOffset(new Pose(136.5, 6, Math.toRadians(90)));
             } else {
                 drivetrain.follower.setCurrentPoseWithOffset(new Pose(7.5, 6, Math.toRadians(90)));
+            }
+        }
+
+        if (gp1.dpadDownPressed()) {
+            Pose llPose = limelightLocalizer.overrideUpdate(drivetrain.follower.getPose());
+            if (llPose.getX() != drivetrain.follower.getPose().getX() && llPose.getY() != drivetrain.follower.getPose().getY()) {
+                gamepad1.rumble(300);
+                Pose prevPose = drivetrain.follower.getPose();
+                drivetrain.follower.resetOffset();
+                drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.overrideUpdate(prevPose));
             }
         }
 

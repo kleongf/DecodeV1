@@ -19,31 +19,31 @@ public class SOTM {
 
         thetaLUT = new LUT();
         thetaLUT.addData(48, Math.toRadians(0));
-        thetaLUT.addData(58, Math.toRadians(1));
-        thetaLUT.addData(68, Math.toRadians(5));
-        thetaLUT.addData(78, Math.toRadians(6.5));
-        thetaLUT.addData(88, Math.toRadians(8));
-        thetaLUT.addData(98, Math.toRadians(9));
-        thetaLUT.addData(108, Math.toRadians(10));
-        thetaLUT.addData(118, Math.toRadians(12));
-        thetaLUT.addData(128, Math.toRadians(14));
-        thetaLUT.addData(138, Math.toRadians(16));
-        thetaLUT.addData(148, Math.toRadians(18));
-        thetaLUT.addData(158, Math.toRadians(19));
+        thetaLUT.addData(58, Math.toRadians(0));
+        thetaLUT.addData(68, Math.toRadians(8));
+        thetaLUT.addData(78, Math.toRadians(11));
+        thetaLUT.addData(88, Math.toRadians(12));
+        thetaLUT.addData(98, Math.toRadians(13));
+        thetaLUT.addData(108, Math.toRadians(14));
+        thetaLUT.addData(118, Math.toRadians(14));
+        thetaLUT.addData(128, Math.toRadians(16));
+        thetaLUT.addData(138, Math.toRadians(18));
+        thetaLUT.addData(148, Math.toRadians(19));
+        thetaLUT.addData(158, Math.toRadians(21));
 
         velocityLUT = new LUT();
-        velocityLUT.addData(158, 1560);
+        velocityLUT.addData(158, 1520);
         velocityLUT.addData(148, 1500);
-        velocityLUT.addData(138, 1450);
+        velocityLUT.addData(138, 1440);
         velocityLUT.addData(128, 1380);
         velocityLUT.addData(118, 1320);
-        velocityLUT.addData(108, 1240);
-        velocityLUT.addData(98, 1200);
-        velocityLUT.addData(88, 1160);
-        velocityLUT.addData(78, 1100);
-        velocityLUT.addData(68, 1060);
-        velocityLUT.addData(58, 1040);
-        velocityLUT.addData(48, 1020);
+        velocityLUT.addData(108, 1280);
+        velocityLUT.addData(98, 1220);
+        velocityLUT.addData(88, 1140);
+        velocityLUT.addData(78, 1060);
+        velocityLUT.addData(68, 980);
+        velocityLUT.addData(58, 880);
+        velocityLUT.addData(48, 880);
 
     }
     private double calculateLinearVelocityInches(double ticksPerSecond) {
@@ -80,7 +80,7 @@ public class SOTM {
         // blue perspective:
         // pure angle to goal. from small angles, it overshoots to the left (from blue perspective this is positive turret),
         double angleToGoal = Math.atan2(-(dx-vTangential.getXComponent()*timestep), (dy-vTangential.getYComponent()*timestep));
-        double offset = isBlue ? (angleToGoal - Math.PI / 4) * 0.1 : (angleToGoal + Math.PI / 4) * 0.1;
+        double offset = isBlue ? (angleToGoal - Math.PI / 4) * 0.12 : (angleToGoal + Math.PI / 4) * 0.12;
         // when angle is big, aim more left (which is positive direction), when it is small, aim more right (negative direction)
         // opposite for red, and all this helps i guess? backboard area is better when we higher so it makes sense idk
         // what do we count as 0? i think we count it as the 45 degree position, which i suppose is
