@@ -67,7 +67,7 @@ public class BlueAutoCloseV3 extends OpMode {
                                 new Pose(60.000, 84.000),
                                 new Pose(60.000, 59.000),
                                 new Pose(55.000, 59.000),
-                                new Pose(14.000, 60.000)
+                                new Pose(12.000, 60.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -185,7 +185,6 @@ public class BlueAutoCloseV3 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.startShooting.start();
-                            follower.setMaxPower(0.6);
                         })
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
                 new State()
@@ -211,15 +210,17 @@ public class BlueAutoCloseV3 extends OpMode {
                 // shoot 1
                 new State()
                         .onEnter(() -> {
+                            follower.setMaxPower(0.8);
                             robot.prepareIntake.start();
                             follower.followPath(intakeSecond, true);
                         })
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.95)),
+                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.99)),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
                 new State()
                         .onEnter(() -> {
+                            follower.setMaxPower(1);
                             follower.followPath(openGate1, true);
                             shootPose = new Pose(54, 78, Math.toRadians(250));
                         })
@@ -291,7 +292,7 @@ public class BlueAutoCloseV3 extends OpMode {
                         })
                         .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
                 new State()
-                        .maxTime(500),
+                        .maxTime(750),
                 new State()
                         .onEnter(() -> {
                             shootPose = new Pose(46, 10, Math.toRadians(180));
