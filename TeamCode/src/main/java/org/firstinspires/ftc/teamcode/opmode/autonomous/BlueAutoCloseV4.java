@@ -158,7 +158,7 @@ public class BlueAutoCloseV4 extends OpMode {
                                 new Pose(60, 84),
                                 new Pose(48.319, 35.064),
                                 new Pose(44.532, 35.255),
-                                new Pose(13.000, 36.000)
+                                new Pose(12.000, 36.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -230,7 +230,7 @@ public class BlueAutoCloseV4 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1500),
+                        .maxTime(1250),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
@@ -253,7 +253,7 @@ public class BlueAutoCloseV4 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1500),
+                        .maxTime(1250),
 
                 new State()
                         .onEnter(() -> {
@@ -278,7 +278,7 @@ public class BlueAutoCloseV4 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1500),
+                        .maxTime(1250),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
@@ -297,7 +297,7 @@ public class BlueAutoCloseV4 extends OpMode {
                 // intake 1
                 new State()
                         .onEnter(() -> {
-                            follower.setMaxPower(.6);
+                            follower.setMaxPower(.8);
                             robot.prepareIntake.start();
                             follower.followPath(intakeFirst, true);
                         })
@@ -334,6 +334,8 @@ public class BlueAutoCloseV4 extends OpMode {
                 new State()
                         .onEnter(() -> robot.startShootingFar.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
+                new State()
+                        .maxTime(500),//give time for shooter b4 moving
 
                 // park
                 new State()

@@ -67,7 +67,7 @@ public class BlueAutoCloseV3 extends OpMode {
                                 new Pose(60.000, 84.000),
                                 new Pose(60.000, 59.000),
                                 new Pose(55.000, 59.000),
-                                new Pose(13.000, 60.000)
+                                new Pose(14.000, 60.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -152,14 +152,14 @@ public class BlueAutoCloseV3 extends OpMode {
 
         intakePile3 = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(46.000, 10.000), new Pose(10, 14))
+                        new BezierLine(new Pose(46.000, 10.000), new Pose(8, 14))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         shootPile3 = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(10, 14), new Pose(46.000, 10.000))
+                        new BezierLine(new Pose(8, 14), new Pose(46.000, 10.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
@@ -214,7 +214,7 @@ public class BlueAutoCloseV3 extends OpMode {
                             robot.prepareIntake.start();
                             follower.followPath(intakeSecond, true);
                         })
-                        .transition(new Transition(() -> !follower.isBusy())),
+                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.95)),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
                         .transition(new Transition(() -> robot.prepareShooting.isFinished())),
@@ -264,7 +264,7 @@ public class BlueAutoCloseV3 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
 
-                // open gate and wait, no need to wait as long as first time cuz only 3 balls in classifier
+                // open gate and wait, no need to wait as long as first ti kme cuz only 3 balls in classifier
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
