@@ -13,8 +13,8 @@ public class PoseConstants {
     public static Pose RED_GATE_POSE = new Pose(144-20, 68, Math.toRadians(0));
 
     // Autonomous Poses
-    public static Pose BLUE_CLOSE_AUTO_POSE = new Pose(31.5, 137, Math.toRadians(270));
-    public static Pose RED_CLOSE_AUTO_POSE = new Pose(144-31.5, 137, Math.toRadians(270));
+    public static Pose BLUE_CLOSE_AUTO_POSE = new Pose(31.5, 138, Math.toRadians(270));
+    public static Pose RED_CLOSE_AUTO_POSE = new Pose(144-31.5, 138, Math.toRadians(270));
     // TODO: rename to blue far auto start pose
     public static Pose BLUE_FAR_AUTO_POSE = new Pose(55.5, 6, Math.toRadians(90));
     public static Pose RED_FAR_AUTO_POSE = new Pose(144-55.5, 6, Math.toRadians(90));

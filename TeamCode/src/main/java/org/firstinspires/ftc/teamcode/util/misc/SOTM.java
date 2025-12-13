@@ -80,7 +80,7 @@ public class SOTM {
         // blue perspective:
         // pure angle to goal. from small angles, it overshoots to the left (from blue perspective this is positive turret),
         double angleToGoal = Math.atan2(-(dx-vTangential.getXComponent()*timestep), (dy-vTangential.getYComponent()*timestep));
-        double offset = isBlue ? (angleToGoal - Math.PI / 4) * 0.12 : (angleToGoal + Math.PI / 4) * 0.12;
+        double offset = isBlue ? (angleToGoal - Math.PI / 4) * 0.15 : (angleToGoal + Math.PI / 4) * 0.15;
         // when angle is big, aim more left (which is positive direction), when it is small, aim more right (negative direction)
         // opposite for red, and all this helps i guess? backboard area is better when we higher so it makes sense idk
         // what do we count as 0? i think we count it as the 45 degree position, which i suppose is

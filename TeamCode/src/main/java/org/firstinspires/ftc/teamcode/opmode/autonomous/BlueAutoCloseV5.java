@@ -314,7 +314,7 @@ public class BlueAutoCloseV5 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
-                            shootPose = new Pose(58, 104, Math.toRadians(240)); // Math.toRadians(180)+Math.atan2(104-36, 58-12)
+                            shootPose = new Pose(58, 104, Math.toRadians(242)); // Math.toRadians(180)+Math.atan2(104-36, 58-12)
                             follower.followPath(intakeThird, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),

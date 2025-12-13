@@ -26,7 +26,7 @@ public class TurretFollowTest extends OpMode {
     private Intake intake;
     private SOTM sotm2;
     private Shooter shooter;
-    private final Pose startPose = new Pose(54, 6, Math.toRadians(180));
+    private final Pose startPose = new Pose(55.5, 6, Math.toRadians(90));
     // i don't think angle matters here in the sotm calculation
     private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
     @Override
