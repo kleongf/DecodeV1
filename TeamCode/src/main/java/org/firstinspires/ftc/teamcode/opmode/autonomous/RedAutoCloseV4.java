@@ -38,11 +38,11 @@ public class RedAutoCloseV4 extends OpMode {
                 .addPath(
                         new BezierLine(PoseConstants.RED_CLOSE_AUTO_POSE, new Pose(144-34.000, 110.000))
                 )
-                .setLinearHeadingInterpolation(PoseConstants.RED_CLOSE_AUTO_POSE.getHeading(), Math.toRadians(144-180))
+                .setLinearHeadingInterpolation(PoseConstants.RED_CLOSE_AUTO_POSE.getHeading(), Math.toRadians(180-144))
                 .addPath(
                         new BezierLine(new Pose(144-34.000, 110.000), new Pose(144-54.000, 90.000))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(144-180))
+                .setConstantHeadingInterpolation(Math.toRadians(180-144))
                 .addPath(
                         new BezierCurve(
                                 new Pose(144-54.000, 90.000),
@@ -51,7 +51,7 @@ public class RedAutoCloseV4 extends OpMode {
                                 new Pose(144-15.000, 60.000)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(144-180))
+                .setConstantHeadingInterpolation(Math.toRadians(180-144))
                 .build();
 
         shootSecond = follower.pathBuilder()
@@ -63,7 +63,7 @@ public class RedAutoCloseV4 extends OpMode {
                                 PoseConstants.RED_SHOOT_AUTO_POSE
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(144-180), PoseConstants.RED_SHOOT_AUTO_POSE.getHeading())
+                .setLinearHeadingInterpolation(Math.toRadians(180-144), PoseConstants.RED_SHOOT_AUTO_POSE.getHeading())
                 .build();
 
         intakeGate1 = follower.pathBuilder()
@@ -136,21 +136,21 @@ public class RedAutoCloseV4 extends OpMode {
                                 new Pose(144-60, 84)
                         )
                 )
-                .setLinearHeadingInterpolation(PoseConstants.RED_SHOOT_AUTO_POSE.getHeading(), Math.toRadians(144-180))
+                .setLinearHeadingInterpolation(PoseConstants.RED_SHOOT_AUTO_POSE.getHeading(), Math.toRadians(180-144))
                 .build();
 
         intakeFirst = follower.pathBuilder()
                 .addPath(
                         new BezierLine(new Pose(144-60.000, 84.000), new Pose(144-18.000, 84.000))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(144-180))
+                .setConstantHeadingInterpolation(Math.toRadians(180-144))
                 .build();
 
         shootFirst = follower.pathBuilder()
                 .addPath(
                         new BezierLine(new Pose(144-18.000, 84.000), new Pose(144-60.000, 84.000))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(144-180))
+                .setConstantHeadingInterpolation(Math.toRadians(180-144))
                 .build();
 
         intakeThird = follower.pathBuilder()
@@ -162,21 +162,21 @@ public class RedAutoCloseV4 extends OpMode {
                                 new Pose(144-12.000, 36.000)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(144-180))
+                .setConstantHeadingInterpolation(Math.toRadians(180-144))
                 .build();
 
         shootThird = follower.pathBuilder()
                 .addPath(
                         new BezierLine(new Pose(144-13.000, 36.000), new Pose(144-61.5, 28.4))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(144-180))
+                .setConstantHeadingInterpolation(Math.toRadians(180-144))
                 .build();
 
         park = follower.pathBuilder()
                 .addPath(
                         new BezierLine(new Pose(144-61.5, 28.4), new Pose(144-61.5, 32))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(144-180))
+                .setConstantHeadingInterpolation(Math.toRadians(180-144))
                 .build();
     }
 
@@ -284,7 +284,7 @@ public class RedAutoCloseV4 extends OpMode {
                         .onEnter(() -> {
                             follower.breakFollowing();
                             follower.setMaxPower(1);
-                            shootPose = new Pose(144-60, 84, Math.toRadians(144-180));
+                            shootPose = new Pose(144-60, 84, Math.toRadians(180-144));
                             follower.followPath(shootGate3, true);
                         })
                         .transition(new Transition(() -> follower.getCurrentTValue() > 0.8)),
@@ -320,7 +320,7 @@ public class RedAutoCloseV4 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
-                            shootPose = new Pose(144-61.5, 28.4, Math.toRadians(144-180));
+                            shootPose = new Pose(144-61.5, 28.4, Math.toRadians(180-144));
                             follower.followPath(intakeThird, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
@@ -356,10 +356,10 @@ public class RedAutoCloseV4 extends OpMode {
         double[] values;
         if (isSOTMing) {
             if (follower.getCurrentPathNumber() < 1) {
-                values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-34, 110, Math.toRadians(144-180)), new Vector());
+                values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-34, 110, Math.toRadians(180-144)), new Vector());
             } else {
                 values = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), follower.getVelocity());
-                values[0] = sotm2.calculateAzimuthThetaVelocity(new Pose(144-34, 110, Math.toRadians(144-180)), new Vector())[0];
+                values[0] = sotm2.calculateAzimuthThetaVelocity(new Pose(144-34, 110, Math.toRadians(180-144)), new Vector())[0];
             }
         } else {
             values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
@@ -374,7 +374,7 @@ public class RedAutoCloseV4 extends OpMode {
 
     @Override
     public void start() {
-        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-34, 110, Math.toRadians(144-180)), new Vector());
+        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-34, 110, Math.toRadians(180-144)), new Vector());
 
         robot.setAzimuthThetaVelocity(values);
         robot.shooter.setShooterOn(true);
