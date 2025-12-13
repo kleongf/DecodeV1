@@ -47,7 +47,7 @@ public class BlueAutoCloseV5 extends OpMode {
                                 new Pose(54.000, 90.000),
                                 new Pose(48.064, 54.383),
                                 new Pose(32.362, 58.213),
-                                new Pose(15.000, 60.000)
+                                new Pose(13.000, 60.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -158,7 +158,7 @@ public class BlueAutoCloseV5 extends OpMode {
                                 new Pose(60, 84),
                                 new Pose(48.319, 35.064),
                                 new Pose(44.532, 35.255),
-                                new Pose(12.000, 36.000)
+                                new Pose(11.000, 36.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -186,7 +186,7 @@ public class BlueAutoCloseV5 extends OpMode {
                 // second
                 new State()
                         .onEnter(() -> {
-                            follower.setMaxPower(0.75);
+                            follower.setMaxPower(0.8);
                             follower.followPath(intakeSecond, false);
                             robot.prepareShooting.start();
                         })
@@ -248,7 +248,7 @@ public class BlueAutoCloseV5 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1250),
+                        .maxTime(1500),
 
                 new State()
                         .onEnter(() -> {
@@ -273,7 +273,7 @@ public class BlueAutoCloseV5 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1250),
+                        .maxTime(1000),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
@@ -322,7 +322,7 @@ public class BlueAutoCloseV5 extends OpMode {
                         .onEnter(() -> {
                             follower.followPath(shootThird, true);
                         })
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
+                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.95)),
 //                new State()
 //                        .onEnter(() -> robot.prepareShooting.start())
 //                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),

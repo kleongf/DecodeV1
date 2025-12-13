@@ -10,6 +10,7 @@ public class FollowerConstants {
     public static double HOLD_POINT_DISTANCE = 1;
     public static double LOOK_AHEAD_MIN_DISTANCE = 4;
     public static double LOOK_AHEAD_MAX_DISTANCE = 8;
+
     // TODO: these arent being used except KP LOOK AHEAD
     public static double KP_SPEED = 0.01;
     public static double KP_HEADING = 0.5;
