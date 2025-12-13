@@ -86,13 +86,13 @@ public class MainTeleop {
 
     public void loop() {
         // we are moving slowly AND its been over 10 seconds
-        if (localizationTimer.getElapsedTimeSeconds() > 10 && drivetrain.follower.getVelocity().getMagnitude() < 10) {
-            Pose prevPose = drivetrain.follower.getPose();
-            // TODO: make the heading be the limelight heading when forced relocalization
-            drivetrain.follower.resetOffset();
-            drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(prevPose));
-            localizationTimer.resetTimer();
-        }
+//        if (localizationTimer.getElapsedTimeSeconds() > 10 && drivetrain.follower.getVelocity().getMagnitude() < 10) {
+//            Pose prevPose = drivetrain.follower.getPose();
+//            // TODO: make the heading be the limelight heading when forced relocalization
+//            drivetrain.follower.resetOffset();
+//            drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(prevPose));
+//            localizationTimer.resetTimer();
+//        }
 
         gp1.update();
 

@@ -6,6 +6,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class LimelightLocalizer {
         if (result != null && result.isValid()) {
             Pose3D botPose = result.getBotpose();
             Pose convertedBotPose = toPinpointPose(botPose, pinpointPose);
-            Pose offsetPose = new Pose(convertedBotPose.getX() + xOffset, convertedBotPose.getY() + yOffset);
+            Pose offsetPose = new Pose(convertedBotPose.getX() + xOffset, convertedBotPose.getY() + yOffset, convertedBotPose.getHeading());
             // checking if they are similar
             if (offsetPose.getX() == 72 && offsetPose.getY() == 72) {
                 return pinpointPose;
@@ -61,7 +62,8 @@ public class LimelightLocalizer {
             Pose3D botPose = result.getBotpose();
             Pose convertedBotPose = toPinpointPose(botPose, pinpointPose);
             // oh i know why relocalization was failing now. forgot to set heading lol
-            Pose offsetPose = new Pose(convertedBotPose.getX() + xOffset, convertedBotPose.getY() + yOffset, Math.toRadians(botPose.getPosition().z));
+            // apparently z is
+            Pose offsetPose = new Pose(convertedBotPose.getX() + xOffset, convertedBotPose.getY() + yOffset, result.getBotpose().getOrientation().getYaw(AngleUnit.RADIANS));
             return offsetPose;
         }
         return pinpointPose;
