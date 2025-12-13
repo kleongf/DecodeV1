@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.util.controllers.FeedForwardController;
 import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
@@ -19,7 +20,10 @@ public class Shooter extends Subsystem {
     private DcMotorEx shooterMotor;
     private DcMotorEx shooterMotor2;
     private FeedForwardController controller;
+    private VoltageSensor voltageSensor;
+    private double nominalVoltage = 12.4; // i would say that it's usually 12.4 when tuning
     public Shooter(HardwareMap hardwareMap) {
+        voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
         shooterMotor = hardwareMap.get(DcMotorEx.class, "shooterMotor");
         shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -38,6 +42,7 @@ public class Shooter extends Subsystem {
     public void update() {
         if (shooterOn) {
             double power = controller.calculate(shooterMotor.getVelocity(), targetVelocity);
+            power *= (nominalVoltage / voltageSensor.getVoltage());
             shooterMotor.setPower(power);
             shooterMotor2.setPower(power);
         }

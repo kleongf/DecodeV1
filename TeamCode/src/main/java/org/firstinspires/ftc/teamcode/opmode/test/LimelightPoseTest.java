@@ -10,6 +10,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
@@ -46,6 +47,7 @@ public class LimelightPoseTest extends OpMode {
             Pose3D botpose = result.getBotpose();
             System.out.println(botpose.toString());
             telemetry.addData("pose", botpose.toString());
+            telemetry.addData("heading in degrees", result.getBotpose().getOrientation().getYaw(AngleUnit.DEGREES));
             telemetry.addData("pedro converted pose", pedroPose(botpose));
             telemetry.addData("actual pinpoint pose", follower.getPose());
         }
