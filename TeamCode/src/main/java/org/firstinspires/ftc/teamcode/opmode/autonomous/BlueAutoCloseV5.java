@@ -47,7 +47,7 @@ public class BlueAutoCloseV5 extends OpMode {
                                 new Pose(54.000, 90.000),
                                 new Pose(48.064, 54.383),
                                 new Pose(32.362, 58.213),
-                                new Pose(13.000, 60.000)
+                                new Pose(12.000, 60.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -140,7 +140,7 @@ public class BlueAutoCloseV5 extends OpMode {
 
         intakeFirst = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(18.000, 84.000))
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(17.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
@@ -225,7 +225,7 @@ public class BlueAutoCloseV5 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1250),
+                        .maxTime(750),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
@@ -248,8 +248,7 @@ public class BlueAutoCloseV5 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1500),
-
+                        .maxTime(1000),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
@@ -273,7 +272,7 @@ public class BlueAutoCloseV5 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1000),
+                        .maxTime(1250),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
@@ -314,7 +313,7 @@ public class BlueAutoCloseV5 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
-                            shootPose = new Pose(58, 104, Math.toRadians(242)); // Math.toRadians(180)+Math.atan2(104-36, 58-12)
+                            shootPose = new Pose(60, 110, Math.toRadians(242)); // Math.toRadians(180)+Math.atan2(104-36, 58-12)
                             follower.followPath(intakeThird, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
@@ -343,14 +342,17 @@ public class BlueAutoCloseV5 extends OpMode {
         double[] values;
         if (isSOTMing) {
             if (follower.getCurrentPathNumber() < 1) {
-                values = sotm2.calculateAzimuthThetaVelocity(new Pose(34, 110, Math.toRadians(180)), new Vector());
+                values = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), new Vector());
+                values[2] -= 140;
             } else {
                 values = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), follower.getVelocity());
-                values[0] = sotm2.calculateAzimuthThetaVelocity(new Pose(34, 110, Math.toRadians(180)), new Vector())[0];
+                values[0] = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), new Vector())[0];
+                values[2] -= 140;
             }
         } else {
             values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
         }
+
         robot.setAzimuthThetaVelocity(values);
 
         stateMachine.update();
