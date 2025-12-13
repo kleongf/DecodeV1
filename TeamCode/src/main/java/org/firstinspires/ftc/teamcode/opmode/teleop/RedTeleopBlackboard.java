@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
 
-@TeleOp(name="Red Teleop (blackboard)", group="comp")
+@TeleOp(name="Red Teleop (blackboard)", group="a comp")
 public class RedTeleopBlackboard extends OpMode {
     private MainTeleop teleop;
     private Pose startPose = (Pose) blackboard.getOrDefault(RobotConstants.END_POSE_KEY, PoseConstants.RED_END_AUTO_POSE);

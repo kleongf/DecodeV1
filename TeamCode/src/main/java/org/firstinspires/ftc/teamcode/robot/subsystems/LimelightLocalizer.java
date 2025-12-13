@@ -60,7 +60,8 @@ public class LimelightLocalizer {
         if (result != null && result.isValid()) {
             Pose3D botPose = result.getBotpose();
             Pose convertedBotPose = toPinpointPose(botPose, pinpointPose);
-            Pose offsetPose = new Pose(convertedBotPose.getX() + xOffset, convertedBotPose.getY() + yOffset);
+            // oh i know why relocalization was failing now. forgot to set heading lol
+            Pose offsetPose = new Pose(convertedBotPose.getX() + xOffset, convertedBotPose.getY() + yOffset, Math.toRadians(botPose.getPosition().z));
             return offsetPose;
         }
         return pinpointPose;
