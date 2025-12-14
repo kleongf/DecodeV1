@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
+
+import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.BezierPoint;
@@ -16,6 +18,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobot;
@@ -26,6 +30,7 @@ import org.firstinspires.ftc.teamcode.util.hardware.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.misc.ClosestPoint;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
+import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -44,6 +49,7 @@ public class MainTeleop {
     // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
     private Pose goalPose;
     private Pose shootPoseFar;
+    private HardwareMap hardwareMap;
     private Pose gatePose;
     private SmartGamepad gp1;
     private Gamepad gamepad1;
@@ -60,7 +66,7 @@ public class MainTeleop {
     public MainTeleop(Pose startPose, Pose goalPose, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, boolean resetEncoder) {
         drivetrain = new Drivetrain(hardwareMap);
         drivetrain.setStartingPose(startPose);
-        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        // pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         robot = new TeleopRobot(hardwareMap);
         if (resetEncoder) {robot.turret.resetEncoder();}
 
@@ -199,8 +205,23 @@ public class MainTeleop {
             if (llPose.getX() != drivetrain.follower.getPose().getX() && llPose.getY() != drivetrain.follower.getPose().getY()) {
                 gamepad1.rumble(300);
                 Pose ppPose = limelightLocalizer.overrideUpdate(drivetrain.follower.getPose());
+
+                drivetrain.follower.setCurrentPoseWithOffset(ppPose);
+
+//                drivetrain.follower.poseUpdater.setHeadingOffset(ppPose.getHeading());
+//                drivetrain.follower.poseUpdater.setXOffset(ppPose.getX());
+//                drivetrain.follower.poseUpdater.setYOffset(ppPose.getY());
+
+                // drivetrain.follower.setPose(ppPose);
+
+//                Pose ppPose = limelightLocalizer.overrideUpdate(drivetrain.follower.getPose());
+//                Follower newfollower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
+//                newfollower.setStartingPose(ppPose);
+//                drivetrain.follower = newfollower;
+
+                // Pose ppPose = limelightLocalizer.overrideUpdate(drivetrain.follower.getPose());
                 // Pose prevPose = drivetrain.follower.getPose();
-                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, ppPose.getX(), ppPose.getY(), AngleUnit.RADIANS, ppPose.getHeading()));
+                // pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, ppPose.getX(), ppPose.getY(), AngleUnit.RADIANS, ppPose.getHeading()));
                 // drivetrain.follower.setStartingPose(limelightLocalizer.overrideUpdate(prevPose));
 
 //                drivetrain.follower.resetOffset();

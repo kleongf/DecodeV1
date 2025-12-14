@@ -196,7 +196,7 @@ public class BlueAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> follower.getCurrentPathNumber() == 1)),
                 new State()
-                        .maxTime(300),
+                        .maxTime(350),
                 new State()
                         .onEnter(() -> {
                             robot.startShooting.start();
@@ -242,7 +242,7 @@ public class BlueAutoComp extends OpMode {
                             follower.setMaxPower(1);
                             follower.followPath(shootGate1, true);
                         })
-                        .maxTime(500),
+                        .maxTime(700),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
                         .maxTime(100),
@@ -271,7 +271,7 @@ public class BlueAutoComp extends OpMode {
                             follower.setMaxPower(1);
                             follower.followPath(shootGate2, true);
                         })
-                        .maxTime(500),
+                        .maxTime(700),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
                         .maxTime(100),
@@ -303,7 +303,7 @@ public class BlueAutoComp extends OpMode {
                             follower.followPath(shootGate3, true);
                             shootPose = new Pose(60, 84, Math.toRadians(180));
                         })
-                        .maxTime(500),
+                        .maxTime(700),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
                         .maxTime(100),
@@ -351,7 +351,7 @@ public class BlueAutoComp extends OpMode {
                         .onEnter(() -> {
                             follower.followPath(shootThird, true);
                         })
-                        .maxTime(500),
+                        .maxTime(700),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
                         .maxTime(100),
@@ -378,10 +378,11 @@ public class BlueAutoComp extends OpMode {
     public void loop() {
         double[] values;
         if (isSOTMing) {
-            if (follower.getCurrentPathNumber() < 1) {
+            if (follower.getCurrentPathNumber() < 2) {
                 // maybe faster updating is better here? idk we can revert to new Vector()
                 values = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), follower.getVelocity());
                 values[2] += 40;
+                values[0] -= Math.toRadians(3);
                 // values[1] -= Math.toRadians(0);
                 double currentTimeStamp = (double) System.nanoTime() / 1E9;
                 if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
