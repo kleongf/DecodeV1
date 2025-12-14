@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.comp;
 
 import static java.lang.Thread.sleep;
-
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
@@ -11,7 +10,6 @@ import com.pedropathing.util.CustomFilteredPIDFCoefficients;
 import com.pedropathing.util.CustomPIDFCoefficients;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
@@ -150,7 +148,6 @@ public class RedAutoComp extends OpMode {
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180-180))
                 .build();
-        
 
         shootFirst = follower.pathBuilder()
                 .addPath(
@@ -173,7 +170,7 @@ public class RedAutoComp extends OpMode {
 
         shootThird = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(144-13.000, 36.000), new Pose(144-58, 104))
+                        new BezierLine(new Pose(144-13.000, 144-36.000), new Pose(144-58, 104))
                 )
                 .setTangentHeadingInterpolation()
                 .setReversed(true)
@@ -238,7 +235,7 @@ public class RedAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(900),
+                        .maxTime(800),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
@@ -267,7 +264,7 @@ public class RedAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1050),
+                        .maxTime(950),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
@@ -297,7 +294,7 @@ public class RedAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1650),
+                        .maxTime(1550),
 
                 new State()
                         .onEnter(() -> {
@@ -346,7 +343,7 @@ public class RedAutoComp extends OpMode {
                         .onEnter(() -> {
                             robot.prepareIntake.start();
                             // just brute forced it, arctan doesn't work for some reason
-                            shootPose = new Pose(144-58, 104, Math.toRadians(180-180+56.5)); // Math.toRadians(180-180)+Math.atan2(104-36, 58-12)
+                            shootPose = new Pose(144-58, 104, Math.toRadians(180-(180+56.5))); // Math.toRadians(180)+Math.atan2(104-36, 58-12)
                             follower.followPath(intakeThird, true);
                         })
                         .transition(new Transition(() -> follower.getCurrentTValue() > 0.95)),
@@ -385,15 +382,15 @@ public class RedAutoComp extends OpMode {
                 // maybe faster updating is better here? idk we can revert to new Vector()
                 values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-38, 115, Math.toRadians(180-180)), follower.getVelocity());
                 values[2] += 40;
-                values[0] -= Math.toRadians(180-3);
-                // values[1] -= Math.toRadians(180-0);
+                values[0] -= Math.toRadians(3);
+                // values[1] -= Math.toRadians(0);
                 double currentTimeStamp = (double) System.nanoTime() / 1E9;
                 if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
                 double period = currentTimeStamp - lastTimeStamp;
 
                 double dx = goalPose.getX() - follower.getPose().getX();
                 double dy = goalPose.getY() - follower.getPose().getY();
-                double currentAngleToGoal = Math.atan2(-dx, dy) - follower.getPose().getHeading() + Math.toRadians(180-90);
+                double currentAngleToGoal = Math.atan2(-dx, dy) - follower.getPose().getHeading() + Math.toRadians(90);
                 double vGoal = (currentAngleToGoal-lastAngleToGoal)/period;
 
                 double ff = 0.1 * vGoal;
@@ -404,7 +401,7 @@ public class RedAutoComp extends OpMode {
             } else {
                 robot.turret.setFeedforward(0);
                 values = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), follower.getVelocity());
-                // values[0] = sotm2.calculateAzimuthThetaVelocity(new Pose(144-38, 115, Math.toRadians(180-180)), new Vector())[0];
+                // values[0] = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), new Vector())[0];
                 //values[2] -= 140;
             }
         } else {

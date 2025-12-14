@@ -236,7 +236,7 @@ public class BlueAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(900),
+                        .maxTime(800),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
@@ -265,7 +265,7 @@ public class BlueAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1050),
+                        .maxTime(950),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
@@ -295,7 +295,7 @@ public class BlueAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1650),
+                        .maxTime(1550),
 
                 new State()
                         .onEnter(() -> {
