@@ -17,8 +17,8 @@ public class Shooter extends Subsystem {
     public boolean shooterOn = false;
     private Servo latchServo;
     private Servo pitchServo;
-    private DcMotorEx shooterMotor;
-    private DcMotorEx shooterMotor2;
+    public DcMotorEx shooterMotor;
+    public DcMotorEx shooterMotor2;
     private FeedForwardController controller;
     private VoltageSensor voltageSensor;
     private double nominalVoltage = 12.4; // i would say that it's usually 12.4 when tuning

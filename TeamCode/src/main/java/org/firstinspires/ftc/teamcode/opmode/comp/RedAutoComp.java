@@ -378,11 +378,11 @@ public class RedAutoComp extends OpMode {
     public void loop() {
         double[] values;
         if (isSOTMing) {
-            if (follower.getCurrentPathNumber() < 2) {
+            if (follower.getCurrentPathNumber() < 1) {
                 // maybe faster updating is better here? idk we can revert to new Vector()
-                values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-38, 115, Math.toRadians(180-180)), follower.getVelocity());
+                values = sotm2.calculateAzimuthThetaVelocity(new Pose(144 - 38, 115, Math.toRadians(180 - 180)), follower.getVelocity());
                 values[2] += 40;
-                values[0] -= Math.toRadians(3);
+                values[0] += Math.toRadians(3);
                 // values[1] -= Math.toRadians(0);
                 double currentTimeStamp = (double) System.nanoTime() / 1E9;
                 if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
@@ -391,13 +391,32 @@ public class RedAutoComp extends OpMode {
                 double dx = goalPose.getX() - follower.getPose().getX();
                 double dy = goalPose.getY() - follower.getPose().getY();
                 double currentAngleToGoal = Math.atan2(-dx, dy) - follower.getPose().getHeading() + Math.toRadians(90);
-                double vGoal = (currentAngleToGoal-lastAngleToGoal)/period;
+                double vGoal = (currentAngleToGoal - lastAngleToGoal) / period;
 
                 double ff = 0.1 * vGoal;
                 robot.turret.setFeedforward(ff);
                 lastAngleToGoal = currentAngleToGoal;
                 lastTimeStamp = currentTimeStamp;
                 //values[2] -= 140;
+//            } else if (follower.getCurrentPathNumber() < 2) {
+//                values = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), follower.getVelocity());
+//                values[2] += 40;
+//                values[0] += Math.toRadians(3);
+//                // values[1] -= Math.toRadians(0);
+//                double currentTimeStamp = (double) System.nanoTime() / 1E9;
+//                if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
+//                double period = currentTimeStamp - lastTimeStamp;
+//
+//                double dx = goalPose.getX() - follower.getPose().getX();
+//                double dy = goalPose.getY() - follower.getPose().getY();
+//                double currentAngleToGoal = Math.atan2(-dx, dy) - follower.getPose().getHeading() + Math.toRadians(90);
+//                double vGoal = (currentAngleToGoal - lastAngleToGoal) / period;
+//
+//                double ff = 0.1 * vGoal;
+//                robot.turret.setFeedforward(ff);
+//                lastAngleToGoal = currentAngleToGoal;
+//                lastTimeStamp = currentTimeStamp;
+//                //values[2] -= 140;
             } else {
                 robot.turret.setFeedforward(0);
                 values = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), follower.getVelocity());

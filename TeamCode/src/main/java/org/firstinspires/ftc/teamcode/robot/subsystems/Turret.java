@@ -60,6 +60,7 @@ public class Turret extends Subsystem {
         while (radians < -Math.PI) {
             radians += 2 * Math.PI;
         }
+        if (radians < -Math.PI+Math.toRadians(20)) {return radians+Math.toRadians(20);}
         // keep in mind that the result is in radians
 //        if (radians > Math.PI - Math.toRadians(20)) {
 //            return Math.PI - Math.toRadians(20);

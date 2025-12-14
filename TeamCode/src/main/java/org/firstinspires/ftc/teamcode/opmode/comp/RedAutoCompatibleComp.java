@@ -344,7 +344,7 @@ public class RedAutoCompatibleComp extends OpMode {
                 // maybe faster updating is better here? idk we can revert to new Vector()
                 values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-38, 115, Math.toRadians(180-180)), follower.getVelocity());
                 values[2] += 40;
-                values[0] -= Math.toRadians(180-3);
+                values[0] += Math.toRadians(3);
                 // values[1] -= Math.toRadians(180-0);
                 double currentTimeStamp = (double) System.nanoTime() / 1E9;
                 if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;

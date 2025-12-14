@@ -36,11 +36,24 @@ public class RobotTest extends OpMode {
 
         testShooter = new StateMachine(
                 new State()
-                        .onEnter(() -> robot.shooter.setTargetVelocity(2500))
-                        .maxTime(3000),
+                        .onEnter(() -> robot.shooter.shooterMotor.setPower(1))
+                        .maxTime(2000),
                 new State()
-                        .onEnter(() -> robot.shooter.setTargetVelocity(0))
-                        .maxTime(3000)
+                        .onEnter(() -> robot.shooter.shooterMotor.setPower(0))
+                        .maxTime(2000),
+                new State()
+                        .onEnter(() -> robot.shooter.shooterMotor2.setPower(1))
+                        .maxTime(2000),
+                new State()
+                        .onEnter(() -> robot.shooter.shooterMotor2.setPower(0))
+                        .maxTime(2000)
+
+//                new State()
+//                        .onEnter(() -> robot.shooter.setTargetVelocity(2500))
+//                        .maxTime(3000),
+//                new State()
+//                        .onEnter(() -> robot.shooter.setTargetVelocity(0))
+//                        .maxTime(3000)
         );
 
         testLatch = new StateMachine(
@@ -94,7 +107,7 @@ public class RobotTest extends OpMode {
         telemetry.addData("shooter velocity", robot.shooter.getCurrentVelocity());
         telemetry.addData("intake velocity", robot.intake.intakeMotor.getVelocity());
 
-        robot.update();
+        // robot.update();
         telemetry.update();
     }
 
