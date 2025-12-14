@@ -48,6 +48,7 @@ public class LimelightPoseTest extends OpMode {
             System.out.println(botpose.toString());
             telemetry.addData("pose", botpose.toString());
             telemetry.addData("heading in degrees", result.getBotpose().getOrientation().getYaw(AngleUnit.DEGREES));
+            telemetry.addData("corrected heading", (result.getBotpose().getOrientation().getYaw(AngleUnit.DEGREES) - 270));
             telemetry.addData("pedro converted pose", pedroPose(botpose));
             telemetry.addData("actual pinpoint pose", follower.getPose());
         }

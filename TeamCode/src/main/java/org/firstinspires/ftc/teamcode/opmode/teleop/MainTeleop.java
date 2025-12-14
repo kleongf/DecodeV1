@@ -13,12 +13,16 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobot;
 import org.firstinspires.ftc.teamcode.robot.subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.hardware.Drivetrain;
+import org.firstinspires.ftc.teamcode.util.hardware.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.misc.ClosestPoint;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
@@ -43,6 +47,7 @@ public class MainTeleop {
     private Pose gatePose;
     private SmartGamepad gp1;
     private Gamepad gamepad1;
+    private GoBildaPinpointDriver pinpoint;
     private SOTM sotm;
     private HashMap<Integer, StateMachine> stateMap;
     private boolean holdingPose = false;
@@ -55,6 +60,7 @@ public class MainTeleop {
     public MainTeleop(Pose startPose, Pose goalPose, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, boolean resetEncoder) {
         drivetrain = new Drivetrain(hardwareMap);
         drivetrain.setStartingPose(startPose);
+        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         robot = new TeleopRobot(hardwareMap);
         if (resetEncoder) {robot.turret.resetEncoder();}
 
@@ -192,9 +198,13 @@ public class MainTeleop {
             Pose llPose = limelightLocalizer.overrideUpdate(drivetrain.follower.getPose());
             if (llPose.getX() != drivetrain.follower.getPose().getX() && llPose.getY() != drivetrain.follower.getPose().getY()) {
                 gamepad1.rumble(300);
-                Pose prevPose = drivetrain.follower.getPose();
-                drivetrain.follower.resetOffset();
-                drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.overrideUpdate(prevPose));
+                Pose ppPose = limelightLocalizer.overrideUpdate(drivetrain.follower.getPose());
+                // Pose prevPose = drivetrain.follower.getPose();
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, ppPose.getX(), ppPose.getY(), AngleUnit.RADIANS, ppPose.getHeading()));
+                // drivetrain.follower.setStartingPose(limelightLocalizer.overrideUpdate(prevPose));
+
+//                drivetrain.follower.resetOffset();
+                // drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.overrideUpdate(prevPose));
             }
         }
 

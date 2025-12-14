@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
 
 import java.util.List;
 
@@ -63,7 +64,7 @@ public class LimelightLocalizer {
             Pose convertedBotPose = toPinpointPose(botPose, pinpointPose);
             // oh i know why relocalization was failing now. forgot to set heading lol
             // apparently z is
-            Pose offsetPose = new Pose(convertedBotPose.getX() + xOffset, convertedBotPose.getY() + yOffset, result.getBotpose().getOrientation().getYaw(AngleUnit.RADIANS));
+            Pose offsetPose = new Pose(convertedBotPose.getX() + xOffset, convertedBotPose.getY() + yOffset, MathFunctions.angleWrap(Math.toRadians(result.getBotpose().getOrientation().getYaw(AngleUnit.DEGREES) - 270)));
             return offsetPose;
         }
         return pinpointPose;

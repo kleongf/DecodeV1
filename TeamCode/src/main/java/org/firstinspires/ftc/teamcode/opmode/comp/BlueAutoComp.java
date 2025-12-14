@@ -6,6 +6,8 @@ import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
+import com.pedropathing.util.CustomFilteredPIDFCoefficients;
+import com.pedropathing.util.CustomPIDFCoefficients;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
@@ -13,6 +15,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobot;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.fsm.Transition;
@@ -29,6 +32,8 @@ public class BlueAutoComp extends OpMode {
     private final Pose startPose = PoseConstants.BLUE_CLOSE_AUTO_POSE;
     private Pose shootPose = PoseConstants.BLUE_SHOOT_AUTO_POSE;
 
+    private double lastTimeStamp = 0;
+    private double lastAngleToGoal;
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
     private PathChain intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeThird, shootThird, intakeFirst, shootFirst;
     public void buildPaths() {
@@ -75,7 +80,7 @@ public class BlueAutoComp extends OpMode {
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
-                //.addParametricCallback(0.6, () -> follower.setMaxPower(0.6))
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
                 .build();
 
         shootGate1 = follower.pathBuilder()
@@ -99,7 +104,7 @@ public class BlueAutoComp extends OpMode {
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
-                //.addParametricCallback(0.6, () -> follower.setMaxPower(0.6))
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
                 .build();
 
         shootGate2 = follower.pathBuilder()
@@ -122,7 +127,7 @@ public class BlueAutoComp extends OpMode {
                         )
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
-                //.addParametricCallback(0.6, () -> follower.setMaxPower(0.6))
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
                 .setPathEndTValueConstraint(0.99)
                 .build();
 
@@ -191,9 +196,13 @@ public class BlueAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> follower.getCurrentPathNumber() == 1)),
                 new State()
+                        .maxTime(300),
+                new State()
                         .onEnter(() -> {
                             robot.startShooting.start();
                             follower.setMaxPower(0.6);
+                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0006,0.6,0.0));
+                            follower.setTranslationalPIDF(new CustomPIDFCoefficients(0.07,0,0.006,0.0));
                         })
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
                 new State()
@@ -205,10 +214,12 @@ public class BlueAutoComp extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> {
+                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0002,0.6,0.0));
+                            follower.setTranslationalPIDF(new CustomPIDFCoefficients(0.07,0,0.003,0.0));
                             follower.followPath(shootSecond, true);
                         })
                         // since the shooting method takes some time let's just wait until path is almost done
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
+                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.95)),
 //                new State()
 //                        .onEnter(() -> robot.prepareShooting.start())
 //                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
@@ -224,13 +235,19 @@ public class BlueAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(750),
+                        .maxTime(900),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
                             follower.setMaxPower(1);
                             follower.followPath(shootGate1, true);
                         })
+                        .maxTime(500),
+                new State()
+                        .onEnter(() -> robot.prepareShooting.start())
+                        .maxTime(100),
+                new State()
+                        .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
                         .transition(new Transition(() -> !follower.isBusy())),
 //                new State()
 //                        .onEnter(() -> robot.prepareShooting.start())
@@ -247,13 +264,19 @@ public class BlueAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1000),
+                        .maxTime(1050),
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
                             follower.setMaxPower(1);
                             follower.followPath(shootGate2, true);
                         })
+                        .maxTime(500),
+                new State()
+                        .onEnter(() -> robot.prepareShooting.start())
+                        .maxTime(100),
+                new State()
+                        .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
                         .transition(new Transition(() -> !follower.isBusy())),
 //                new State()
 //                        .onEnter(() -> robot.prepareShooting.start())
@@ -271,14 +294,21 @@ public class BlueAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1250),
+                        .maxTime(1650),
+
                 new State()
                         .onEnter(() -> {
                             follower.breakFollowing();
                             follower.setMaxPower(1);
-                            shootPose = new Pose(60, 84, Math.toRadians(180));
                             follower.followPath(shootGate3, true);
+                            shootPose = new Pose(60, 84, Math.toRadians(180));
                         })
+                        .maxTime(500),
+                new State()
+                        .onEnter(() -> robot.prepareShooting.start())
+                        .maxTime(100),
+                new State()
+                        .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
                         .transition(new Transition(() -> !follower.isBusy())),
 //                new State()
 //                        .onEnter(() -> robot.prepareShooting.start())
@@ -300,7 +330,7 @@ public class BlueAutoComp extends OpMode {
                             follower.setMaxPower(1);
                             follower.followPath(shootFirst, true);
                         })
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.85)),
+                        .transition(new Transition(() -> !follower.isBusy())),
 //                new State()
 //                        .onEnter(() -> robot.prepareShooting.start())
 //                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
@@ -316,12 +346,18 @@ public class BlueAutoComp extends OpMode {
                             shootPose = new Pose(58, 104, Math.toRadians(180+56.5)); // Math.toRadians(180)+Math.atan2(104-36, 58-12)
                             follower.followPath(intakeThird, true);
                         })
-                        .transition(new Transition(() -> !follower.isBusy())),
+                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.95)),
                 new State()
                         .onEnter(() -> {
                             follower.followPath(shootThird, true);
                         })
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.95)),
+                        .maxTime(500),
+                new State()
+                        .onEnter(() -> robot.prepareShooting.start())
+                        .maxTime(100),
+                new State()
+                        .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
+                        .transition(new Transition(() -> !follower.isBusy())),
 //                new State()
 //                        .onEnter(() -> robot.prepareShooting.start())
 //                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
@@ -345,13 +381,30 @@ public class BlueAutoComp extends OpMode {
             if (follower.getCurrentPathNumber() < 1) {
                 // maybe faster updating is better here? idk we can revert to new Vector()
                 values = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), follower.getVelocity());
+                values[2] += 40;
+                // values[1] -= Math.toRadians(0);
+                double currentTimeStamp = (double) System.nanoTime() / 1E9;
+                if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
+                double period = currentTimeStamp - lastTimeStamp;
+
+                double dx = goalPose.getX() - follower.getPose().getX();
+                double dy = goalPose.getY() - follower.getPose().getY();
+                double currentAngleToGoal = Math.atan2(-dx, dy) - follower.getPose().getHeading() + Math.toRadians(90);
+                double vGoal = (currentAngleToGoal-lastAngleToGoal)/period;
+
+                double ff = 0.1 * vGoal;
+                robot.turret.setFeedforward(ff);
+                lastAngleToGoal = currentAngleToGoal;
+                lastTimeStamp = currentTimeStamp;
                 //values[2] -= 140;
             } else {
+                robot.turret.setFeedforward(0);
                 values = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), follower.getVelocity());
                 // values[0] = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), new Vector())[0];
                 //values[2] -= 140;
             }
         } else {
+            robot.turret.setFeedforward(0);
             values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
         }
 

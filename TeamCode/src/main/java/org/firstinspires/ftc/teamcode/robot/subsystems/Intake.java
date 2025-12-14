@@ -31,7 +31,7 @@ public class Intake extends Subsystem {
                 intakeMotor.setPower(1);
                 break;
             case INTAKE_SLOW:
-                intakeMotor.setPower(0.5);
+                intakeMotor.setPower(0.8);
                 break;
             case INTAKE_OFF:
                 intakeMotor.setPower(0);

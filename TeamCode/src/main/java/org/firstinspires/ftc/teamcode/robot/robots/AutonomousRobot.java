@@ -58,7 +58,7 @@ public class AutonomousRobot {
         prepareShooting = new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_OFF;
+                            intake.state = Intake.IntakeState.INTAKE_SLOW;
                             shooter.closeLatch();
                         })
                         .maxTime(100)
