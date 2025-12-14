@@ -22,35 +22,34 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="RED COMP 21", group="a comp")
-public class RedAutoComp extends OpMode {
+@Autonomous(name="RED FAR COMP 18", group="a comp")
+public class RedAutoFarComp extends OpMode {
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM sotm2;
-    private boolean isSOTMing = true;
-    private final Pose startPose = PoseConstants.RED_CLOSE_AUTO_POSE;
-    private Pose shootPose = PoseConstants.RED_SHOOT_AUTO_POSE;
+    private boolean isSOTMing = false;
+    private final Pose startPose = PoseConstants.RED_FAR_AUTO_POSE;
+    private Pose shootPose = new Pose(PoseConstants.RED_SHOOT_AUTO_POSE.getX(), PoseConstants.RED_SHOOT_AUTO_POSE.getY(), Math.toRadians(180-180));
 
     private double lastTimeStamp = 0;
     private double lastAngleToGoal;
     private final Pose goalPose = PoseConstants.RED_GOAL_POSE;
-    private PathChain intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeThird, shootThird, intakeFirst, shootFirst;
+    private PathChain shootPreload, intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeThird, shootThird, intakeFirst, shootFirst;
     public void buildPaths() {
+        shootPreload = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(PoseConstants.RED_FAR_AUTO_POSE, PoseConstants.RED_SHOOT_AUTO_POSE)
+                )
+                .setLinearHeadingInterpolation(PoseConstants.RED_FAR_AUTO_POSE.getHeading(), Math.toRadians(180-180))
+                .build();
+
         intakeSecond = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(PoseConstants.RED_CLOSE_AUTO_POSE, new Pose(144-38.000, 115.000))
-                )
-                .setLinearHeadingInterpolation(PoseConstants.RED_CLOSE_AUTO_POSE.getHeading(), Math.toRadians(180-180))
-                .addPath(
-                        new BezierLine(new Pose(144-38.000, 115.000), new Pose(144-54.000, 90.000))
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(180-180))
-                .addPath(
                         new BezierCurve(
-                                new Pose(144-54.000, 90.000),
-                                new Pose(144-48.064, 54.383),
-                                new Pose(144-32.362, 58.213),
+                                PoseConstants.RED_SHOOT_AUTO_POSE,
+                                new Pose(144-50.000, 59.000),
+                                new Pose(144-55.000, 59.000),
                                 new Pose(144-12.000, 60.000)
                         )
                 )
@@ -61,7 +60,7 @@ public class RedAutoComp extends OpMode {
                 .addPath(
                         // Path 2
                         new BezierCurve(
-                                new Pose(144-17.000, 60.000),
+                                new Pose(144-12.000, 60.000),
                                 new Pose(144-53.234, 65.681),
                                 PoseConstants.RED_SHOOT_AUTO_POSE
                         )
@@ -107,17 +106,7 @@ public class RedAutoComp extends OpMode {
                 .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
                 .build();
 
-        shootGate2 = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                PoseConstants.RED_GATE_AUTO_POSE,
-                                PoseConstants.RED_SHOOT_AUTO_POSE
-                        )
-                )
-                .setConstantHeadingInterpolation(PoseConstants.RED_SHOOT_AUTO_POSE.getHeading())
-                .build();
-
-        intakeGate3 = follower.pathBuilder()
+        intakeGate2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.RED_SHOOT_AUTO_POSE,
@@ -131,7 +120,7 @@ public class RedAutoComp extends OpMode {
                 .setPathEndTValueConstraint(0.99)
                 .build();
 
-        shootGate3 = follower.pathBuilder()
+        shootGate2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.RED_GATE_AUTO_POSE,
@@ -148,6 +137,7 @@ public class RedAutoComp extends OpMode {
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180-180))
                 .build();
+
 
         shootFirst = follower.pathBuilder()
                 .addPath(
@@ -187,42 +177,32 @@ public class RedAutoComp extends OpMode {
         buildPaths();
 
         stateMachine = new StateMachine(
-                // second
+                // preload
                 new State()
                         .onEnter(() -> {
-                            follower.setMaxPower(0.8);
-                            follower.followPath(intakeSecond, false);
+                            follower.followPath(shootPreload, true);
                             robot.prepareShooting.start();
-                        })
-                        .transition(new Transition(() -> follower.getCurrentPathNumber() == 1)),
-                new State()
-                        .maxTime(350),
-                new State()
-                        .onEnter(() -> {
-                            robot.startShooting.start();
-                            follower.setMaxPower(0.6);
-                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0006,0.6,0.0));
-                            follower.setTranslationalPIDF(new CustomPIDFCoefficients(0.07,0,0.006,0.0));
-                        })
-                        .transition(new Transition(() -> robot.startShooting.isFinished())),
-                new State()
-                        .onEnter(() -> {
-                            robot.prepareIntake.start();
-                            isSOTMing = false;
-                            follower.setMaxPower(1);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> {
-                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0002,0.6,0.0));
-                            follower.setTranslationalPIDF(new CustomPIDFCoefficients(0.07,0,0.003,0.0));
+                            robot.startShooting.start();
+                        })
+                        .transition(new Transition(() -> robot.startShooting.isFinished())),
+                // intake second
+                new State()
+                        .onEnter(() -> {
+                            follower.followPath(intakeSecond);
+                            robot.prepareIntake.start();
+                            shootPose = PoseConstants.RED_SHOOT_AUTO_POSE;
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> {
+                            follower.setMaxPower(1);
                             follower.followPath(shootSecond, true);
                         })
-                        // since the shooting method takes some time let's just wait until path is almost done
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.95)),
-//                new State()
-//                        .onEnter(() -> robot.prepareShooting.start())
-//                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
@@ -256,41 +236,12 @@ public class RedAutoComp extends OpMode {
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
 
-                // gate cycle 2
-                new State()
-                        .onEnter(() -> {
-                            robot.prepareIntake.start();
-                            follower.followPath(intakeGate2, true);
-                        })
-                        .transition(new Transition(() -> !follower.isBusy())),
-                new State()
-                        .maxTime(950),
-                new State()
-                        .onEnter(() -> {
-                            follower.breakFollowing();
-                            follower.setMaxPower(1);
-                            follower.followPath(shootGate2, true);
-                        })
-                        .maxTime(700),
-                new State()
-                        .onEnter(() -> robot.prepareShooting.start())
-                        .maxTime(100),
-                new State()
-                        .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
-                        .transition(new Transition(() -> !follower.isBusy())),
-//                new State()
-//                        .onEnter(() -> robot.prepareShooting.start())
-//                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
-                new State()
-                        .onEnter(() -> robot.startShooting.start())
-                        .transition(new Transition(() -> robot.startShooting.isFinished())),
-
                 // gate cycle 3
 
                 new State()
                         .onEnter(() -> {
                             robot.prepareIntake.start();
-                            follower.followPath(intakeGate3, true);
+                            follower.followPath(intakeGate2, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -300,7 +251,7 @@ public class RedAutoComp extends OpMode {
                         .onEnter(() -> {
                             follower.breakFollowing();
                             follower.setMaxPower(1);
-                            follower.followPath(shootGate3, true);
+                            follower.followPath(shootGate2, true);
                             shootPose = new Pose(144-60, 84, Math.toRadians(180-180));
                         })
                         .maxTime(700),
@@ -380,7 +331,7 @@ public class RedAutoComp extends OpMode {
         if (isSOTMing) {
             if (follower.getCurrentPathNumber() < 2) {
                 // maybe faster updating is better here? idk we can revert to new Vector()
-                values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-38, 115, Math.toRadians(180-180)), follower.getVelocity());
+                values = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), follower.getVelocity());
                 values[2] += 40;
                 values[0] -= Math.toRadians(3);
                 // values[1] -= Math.toRadians(0);
@@ -419,7 +370,7 @@ public class RedAutoComp extends OpMode {
 
     @Override
     public void start() {
-        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-38, 115, Math.toRadians(180-180)), new Vector());
+        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(PoseConstants.RED_SHOOT_AUTO_POSE.getX(), PoseConstants.RED_SHOOT_AUTO_POSE.getY(), Math.toRadians(180)), new Vector());
 
         robot.setAzimuthThetaVelocity(values);
         robot.shooter.setShooterOn(true);
@@ -433,3 +384,4 @@ public class RedAutoComp extends OpMode {
         blackboard.put(RobotConstants.END_POSE_KEY, follower.getPose());
     }
 }
+
