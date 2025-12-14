@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.comp;
 
 import static java.lang.Thread.sleep;
+
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
@@ -8,11 +9,13 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobot;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.fsm.Transition;
@@ -25,8 +28,10 @@ public class RedAutoPileComp extends OpMode {
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM sotm2;
-    private final Pose startPose = PoseConstants.BLUE_CLOSE_AUTO_POSE;
+    private final Pose startPose = PoseConstants.RED_CLOSE_AUTO_POSE;
     private Pose shootPose = PoseConstants.RED_SHOOT_AUTO_POSE;
+    private double lastTimeStamp = 0;
+    private double lastAngleToGoal;
     boolean isSOTMing = true;
     private final Pose goalPose = PoseConstants.RED_GOAL_POSE;
     private PathChain intakeFirst, shootFirst, intakeThird, shootThird, intakeSecond, openGate1, openGate2, shootSecond, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3;
@@ -242,16 +247,19 @@ public class RedAutoPileComp extends OpMode {
                         })
                         .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
                 new State()
-                        .maxTime(500),
+                        .maxTime(750),
                 new State()
                         .onEnter(() -> {
                             shootPose = new Pose(144-54, 78, Math.toRadians(180-180));
                             follower.followPath(shootPile1, true);
                         })
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
+                        .maxTime(700),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
-                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
+                        .maxTime(100),
+                new State()
+                        .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
@@ -340,15 +348,37 @@ public class RedAutoPileComp extends OpMode {
     public void loop() {
         double[] values;
         if (isSOTMing) {
-            if (follower.getCurrentPathNumber() < 1) {
-                values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-34, 110, Math.toRadians(180-180)), new Vector());
+            if (follower.getCurrentPathNumber() < 2) {
+                // maybe faster updating is better here? idk we can revert to new Vector()
+                values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-38, 115, Math.toRadians(180-180)), follower.getVelocity());
+                values[2] += 40;
+                values[0] -= Math.toRadians(180-3);
+                // values[1] -= Math.toRadians(180-0);
+                double currentTimeStamp = (double) System.nanoTime() / 1E9;
+                if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
+                double period = currentTimeStamp - lastTimeStamp;
+
+                double dx = goalPose.getX() - follower.getPose().getX();
+                double dy = goalPose.getY() - follower.getPose().getY();
+                double currentAngleToGoal = Math.atan2(-dx, dy) - follower.getPose().getHeading() + Math.toRadians(180-90);
+                double vGoal = (currentAngleToGoal-lastAngleToGoal)/period;
+
+                double ff = 0.1 * vGoal;
+                robot.turret.setFeedforward(ff);
+                lastAngleToGoal = currentAngleToGoal;
+                lastTimeStamp = currentTimeStamp;
+                //values[2] -= 140;
             } else {
+                robot.turret.setFeedforward(0);
                 values = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), follower.getVelocity());
-                values[0] = sotm2.calculateAzimuthThetaVelocity(new Pose(144-34, 110, Math.toRadians(180-180)), new Vector())[0];
+                // values[0] = sotm2.calculateAzimuthThetaVelocity(new Pose(144-38, 115, Math.toRadians(180-180)), new Vector())[0];
+                //values[2] -= 140;
             }
         } else {
+            robot.turret.setFeedforward(0);
             values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
         }
+
         robot.setAzimuthThetaVelocity(values);
 
         stateMachine.update();

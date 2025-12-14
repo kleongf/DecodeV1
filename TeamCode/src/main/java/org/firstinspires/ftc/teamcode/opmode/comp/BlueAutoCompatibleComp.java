@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.comp;
 
 import static java.lang.Thread.sleep;
+
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
@@ -10,6 +11,7 @@ import com.pedropathing.util.CustomFilteredPIDFCoefficients;
 import com.pedropathing.util.CustomPIDFCoefficients;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
@@ -22,20 +24,19 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="BLUE COMP 21", group="a comp")
-public class BlueAutoComp extends OpMode {
+@Autonomous(name="BLUE COMP COMPATIBLE", group="a comp")
+public class BlueAutoCompatibleComp extends OpMode {
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM sotm2;
-    private boolean isSOTMing = true;
     private final Pose startPose = PoseConstants.BLUE_CLOSE_AUTO_POSE;
     private Pose shootPose = PoseConstants.BLUE_SHOOT_AUTO_POSE;
-
     private double lastTimeStamp = 0;
     private double lastAngleToGoal;
+    boolean isSOTMing = true;
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
-    private PathChain intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeThird, shootThird, intakeFirst, shootFirst;
+    private PathChain intakeFirst, shootFirst, intakeThird, shootThird, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeSecond, openGate1, openGate2, shootSecond, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3;
     public void buildPaths() {
         intakeSecond = follower.pathBuilder()
                 .addPath(
@@ -63,16 +64,42 @@ public class BlueAutoComp extends OpMode {
                         new BezierCurve(
                                 new Pose(17.000, 60.000),
                                 new Pose(53.234, 65.681),
-                                PoseConstants.BLUE_SHOOT_AUTO_POSE
+                                new Pose(60,84)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(180), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                .build();
+
+        intakeFirst = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(new Pose(60.000, 84.000), new Pose(17.000, 84.000))
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+
+        openGate2 = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(17, 84),
+                                new Pose(26.5, 82.2),
+                                new Pose(29, 71.5),
+                                new Pose(15.000, 73.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
+                .build();
+
+        shootFirst = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(new Pose(18.000, 84.000), new Pose(60.000, 84.000))
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180))
                 .build();
 
         intakeGate1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                PoseConstants.BLUE_SHOOT_AUTO_POSE,
+                                new Pose(60,84),
                                 new Pose(49.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
                                 new Pose(55.340, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
                                 PoseConstants.BLUE_GATE_AUTO_POSE
@@ -114,53 +141,13 @@ public class BlueAutoComp extends OpMode {
                                 PoseConstants.BLUE_SHOOT_AUTO_POSE
                         )
                 )
-                .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
-                .build();
-
-        intakeGate3 = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                PoseConstants.BLUE_SHOOT_AUTO_POSE,
-                                new Pose(49.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                new Pose(55.340, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                PoseConstants.BLUE_GATE_AUTO_POSE
-                        )
-                )
-                .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
-                .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
-                .setPathEndTValueConstraint(0.99)
-                .build();
-
-        shootGate3 = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                PoseConstants.BLUE_GATE_AUTO_POSE,
-                                new Pose(60,60),
-                                new Pose(60, 84)
-                        )
-                )
                 .setLinearHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading(), Math.toRadians(180))
-                .build();
-
-        intakeFirst = follower.pathBuilder()
-                .addPath(
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(17.000, 84.000))
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-
-
-        shootFirst = follower.pathBuilder()
-                .addPath(
-                        new BezierLine(new Pose(18.000, 84.000), new Pose(60.000, 84.000))
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         intakeThird = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(60, 84),
+                               PoseConstants.BLUE_SHOOT_AUTO_POSE,
                                 new Pose(48.319, 35.064),
                                 new Pose(44.532, 35.255),
                                 new Pose(11.000, 36.000)
@@ -176,7 +163,6 @@ public class BlueAutoComp extends OpMode {
                 .setTangentHeadingInterpolation()
                 .setReversed(true)
                 .build();
-
     }
 
     @Override
@@ -188,7 +174,6 @@ public class BlueAutoComp extends OpMode {
         buildPaths();
 
         stateMachine = new StateMachine(
-                // second
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(0.8);
@@ -227,6 +212,33 @@ public class BlueAutoComp extends OpMode {
                 new State()
                         .onEnter(() -> robot.startShooting.start())
                         .transition(new Transition(() -> robot.startShooting.isFinished())),
+                new State()
+                        .onEnter(() -> {
+                            isSOTMing = false;
+                            follower.setMaxPower(.8);
+                            robot.prepareIntake.start();
+                            follower.followPath(intakeFirst, true);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> {
+                            follower.setMaxPower(1);
+                            shootPose = new Pose(54, 78, Math.toRadians(180));
+                            follower.followPath(openGate2, true);
+                        })
+                        .maxTime(1500),
+                new State()
+                        .onEnter(() -> {
+                            follower.setMaxPower(1);
+                            follower.followPath(shootFirst, true);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+//                new State()
+//                        .onEnter(() -> robot.prepareShooting.start())
+//                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
+                new State()
+                        .onEnter(() -> robot.startShooting.start())
+                        .transition(new Transition(() -> robot.startShooting.isFinished())),
 
                 // gate cycle 1
                 new State()
@@ -239,6 +251,8 @@ public class BlueAutoComp extends OpMode {
                         .maxTime(900),
                 new State()
                         .onEnter(() -> {
+                            shootPose = PoseConstants.BLUE_SHOOT_AUTO_POSE;
+
                             follower.breakFollowing();
                             follower.setMaxPower(1);
                             follower.followPath(shootGate1, true);
@@ -278,59 +292,6 @@ public class BlueAutoComp extends OpMode {
                         .maxTime(100),
                 new State()
                         .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
-                        .transition(new Transition(() -> !follower.isBusy())),
-//                new State()
-//                        .onEnter(() -> robot.prepareShooting.start())
-//                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
-                new State()
-                        .onEnter(() -> robot.startShooting.start())
-                        .transition(new Transition(() -> robot.startShooting.isFinished())),
-
-                // gate cycle 3
-
-                new State()
-                        .onEnter(() -> {
-                            robot.prepareIntake.start();
-                            follower.followPath(intakeGate3, true);
-                        })
-                        .transition(new Transition(() -> !follower.isBusy())),
-                new State()
-                        .maxTime(1650),
-
-                new State()
-                        .onEnter(() -> {
-                            follower.breakFollowing();
-                            follower.setMaxPower(1);
-                            follower.followPath(shootGate3, true);
-                            shootPose = new Pose(60, 84, Math.toRadians(180));
-                        })
-                        .maxTime(700),
-                new State()
-                        .onEnter(() -> robot.prepareShooting.start())
-                        .maxTime(100),
-                new State()
-                        .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
-                        .transition(new Transition(() -> !follower.isBusy())),
-//                new State()
-//                        .onEnter(() -> robot.prepareShooting.start())
-//                        .transition(new Transition(() -> robot.prepareShooting.isFinished())),
-                new State()
-                        .onEnter(() -> robot.startShooting.start())
-                        .transition(new Transition(() -> robot.startShooting.isFinished())),
-
-                // intake 1
-                new State()
-                        .onEnter(() -> {
-                            follower.setMaxPower(.8);
-                            robot.prepareIntake.start();
-                            follower.followPath(intakeFirst, true);
-                        })
-                        .transition(new Transition(() -> !follower.isBusy())),
-                new State()
-                        .onEnter(() -> {
-                            follower.setMaxPower(1);
-                            follower.followPath(shootFirst, true);
-                        })
                         .transition(new Transition(() -> !follower.isBusy())),
 //                new State()
 //                        .onEnter(() -> robot.prepareShooting.start())
@@ -420,11 +381,10 @@ public class BlueAutoComp extends OpMode {
 
     @Override
     public void start() {
-        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), new Vector());
+        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(34, 110, Math.toRadians(180)), new Vector());
 
         robot.setAzimuthThetaVelocity(values);
         robot.shooter.setShooterOn(true);
-
         stateMachine.start();
         robot.start();
     }
