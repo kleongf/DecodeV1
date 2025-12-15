@@ -245,7 +245,7 @@ public class RedAutoComp extends OpMode {
                         .maxTime(700),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
-                        .maxTime(100),
+                        .maxTime(200),
                 new State()
                         .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
                         .transition(new Transition(() -> !follower.isBusy())),
@@ -274,7 +274,7 @@ public class RedAutoComp extends OpMode {
                         .maxTime(700),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
-                        .maxTime(100),
+                        .maxTime(200),
                 new State()
                         .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
                         .transition(new Transition(() -> !follower.isBusy())),
@@ -294,7 +294,7 @@ public class RedAutoComp extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1550),
+                        .maxTime(1300),
 
                 new State()
                         .onEnter(() -> {
@@ -303,10 +303,10 @@ public class RedAutoComp extends OpMode {
                             follower.followPath(shootGate3, true);
                             shootPose = new Pose(144-60, 84, Math.toRadians(180-180));
                         })
-                        .maxTime(700),
+                        .maxTime(800),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
-                        .maxTime(100),
+                        .maxTime(200),
                 new State()
                         .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
                         .transition(new Transition(() -> !follower.isBusy())),
@@ -351,10 +351,10 @@ public class RedAutoComp extends OpMode {
                         .onEnter(() -> {
                             follower.followPath(shootThird, true);
                         })
-                        .maxTime(700),
+                        .maxTime(1000),
                 new State()
                         .onEnter(() -> robot.prepareShooting.start())
-                        .maxTime(100),
+                        .maxTime(200),
                 new State()
                         .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
                         .transition(new Transition(() -> !follower.isBusy())),
@@ -381,8 +381,8 @@ public class RedAutoComp extends OpMode {
             if (follower.getCurrentPathNumber() < 1) {
                 // maybe faster updating is better here? idk we can revert to new Vector()
                 values = sotm2.calculateAzimuthThetaVelocity(new Pose(144 - 38, 115, Math.toRadians(180 - 180)), follower.getVelocity());
-                values[2] += 40;
-                values[0] += Math.toRadians(3);
+                // values[2] += 25;
+                values[0] -= Math.toRadians(6);
                 // values[1] -= Math.toRadians(0);
                 double currentTimeStamp = (double) System.nanoTime() / 1E9;
                 if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;

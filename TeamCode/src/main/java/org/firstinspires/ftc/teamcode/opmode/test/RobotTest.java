@@ -27,7 +27,7 @@ public class RobotTest extends OpMode {
 
         testTurret = new StateMachine(
              new State()
-                     .onEnter(() -> robot.turret.setTarget(-359))
+                     .onEnter(() -> robot.turret.setTarget(Math.toRadians(45)))
                      .maxTime(3000),
                 new State()
                         .onEnter(() -> robot.turret.setTarget(0))
@@ -108,6 +108,9 @@ public class RobotTest extends OpMode {
         telemetry.addData("intake velocity", robot.intake.intakeMotor.getVelocity());
 
         // robot.update();
+        // robot.shooter.update();
+        robot.intake.update();
+        robot.turret.update();
         telemetry.update();
     }
 
