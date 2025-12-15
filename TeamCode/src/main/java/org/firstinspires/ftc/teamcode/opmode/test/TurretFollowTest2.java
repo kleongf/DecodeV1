@@ -76,7 +76,7 @@ public class TurretFollowTest2 extends OpMode {
         turret = new Turret(hardwareMap);
         turret.resetEncoder();
         shooter = new Shooter(hardwareMap);
-        shooter.setShooterOn(true);
+        shooter.state = Shooter.ShooterState.SHOOTER_ON;
         intake = new Intake(hardwareMap);
         intake.state = Intake.IntakeState.INTAKE_FAST;
 

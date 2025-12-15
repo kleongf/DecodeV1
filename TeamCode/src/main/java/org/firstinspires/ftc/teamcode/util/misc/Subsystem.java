@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.robot.subsystems;
+package org.firstinspires.ftc.teamcode.util.misc;
 
 public abstract class Subsystem {
     public Subsystem() {}

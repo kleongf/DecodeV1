@@ -8,9 +8,12 @@ public class PoseConstants {
     public static Pose RED_GOAL_POSE = new Pose(144, 144, Math.toRadians(45));
     public static Pose BLUE_FAR_POSE =  new Pose(54, 12, Math.toRadians(180));
     public static Pose RED_FAR_POSE =  new Pose(144-54, 12, Math.toRadians(0));
-    public static Pose BLUE_GATE_POSE = new Pose(20, 68, Math.toRadians(180));
+    public static Pose BLUE_GATE_POSE = new Pose(13, 70, Math.toRadians(270));
 
-    public static Pose RED_GATE_POSE = new Pose(144-20, 68, Math.toRadians(0));
+    public static Pose RED_GATE_POSE = new Pose(144-13, 70, Math.toRadians(270));
+
+    public static Pose RED_PARK_POSE = new Pose(39, 33, Math.toRadians(90));
+    public static Pose BLUE_PARK_POSE = new Pose(144-39, 33, Math.toRadians(90));
 
     // Autonomous Poses
     // TODO: REMEMBER TO SET TO 138 DURING COMP!!!!! (done)+accounted for, i measured distance to end trust

@@ -8,13 +8,19 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.util.controllers.FeedForwardController;
+import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
 import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
 
 import static org.firstinspires.ftc.teamcode.robot.constants.RobotConstants.*;
 
 public class Shooter extends Subsystem {
+    public enum ShooterState {
+        SHOOTER_ON,
+        SHOOTER_OFF
+    }
+
+    public ShooterState state = ShooterState.SHOOTER_OFF;
     private double targetVelocity = 0;
-    public boolean shooterOn = false;
     private Servo latchServo;
     private Servo pitchServo;
     public DcMotorEx shooterMotor;
@@ -40,11 +46,12 @@ public class Shooter extends Subsystem {
     }
     @Override
     public void update() {
-        if (shooterOn) {
-            double power = controller.calculate(shooterMotor.getVelocity(), targetVelocity);
-            power *= (nominalVoltage / voltageSensor.getVoltage());
-            shooterMotor.setPower(power);
-            shooterMotor2.setPower(power);
+        switch (state) {
+            case SHOOTER_ON:
+                double power = controller.calculate(shooterMotor.getVelocity(), targetVelocity);
+                power *= (nominalVoltage / voltageSensor.getVoltage());
+                shooterMotor.setPower(power);
+                shooterMotor2.setPower(power);
         }
     }
 
@@ -60,7 +67,6 @@ public class Shooter extends Subsystem {
         double ticksPerRadian = (PITCH_SERVO_F-PITCH_SERVO_I)/(PITCH_F-PITCH_I);
         double pos = PITCH_SERVO_MIN + angle * ticksPerRadian;
         pitchServo.setPosition(MathFunctions.clamp(pos, PITCH_SERVO_I, PITCH_SERVO_F));
-        // pitchServo.setPosition(PITCH_SERVO_MIN + angle * ticksPerRadian);
     }
 
     public void setTargetVelocity(double t) {
@@ -71,10 +77,7 @@ public class Shooter extends Subsystem {
         return shooterMotor.getVelocity();
     }
 
-    public void setShooterOn(boolean x) {
-        shooterOn = x;
-    }
-
+    // useful trust
     public boolean atTarget(double threshold) {
         return Math.abs(shooterMotor.getVelocity()-targetVelocity) < threshold;
     }

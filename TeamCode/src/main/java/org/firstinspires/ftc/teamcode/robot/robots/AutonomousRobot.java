@@ -1,11 +1,18 @@
 package org.firstinspires.ftc.teamcode.robot.robots;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.PathChain;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.opmode.teleop.Alliance;
 import org.firstinspires.ftc.teamcode.robot.subsystems.BulkRead;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.robot.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Vision;
+import org.firstinspires.ftc.teamcode.util.fsm.Transition;
+import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Turret;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
@@ -13,39 +20,41 @@ import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import java.util.ArrayList;
 
 public class AutonomousRobot {
-    public boolean isBusy = false;
     private final ArrayList<Subsystem> subsystems;
-    private final BulkRead bulkRead;
+    public final BulkRead bulkRead;
     public final Intake intake;
     public final Shooter shooter;
     public final Turret turret;
+    public final Vision vision;
 
     private final ArrayList<StateMachine> commands;
-    public StateMachine prepareIntake;
-    public StateMachine prepareShooting;
-    public StateMachine startShooting;
-    public StateMachine startShootingFar;
-
-    // button: start and stop intaking
-    // shooter always spinning
-    // button: releases the latch, starts spinning intake (since thats what powers it up)
+    private StateMachine intakeCommand;
+    private StateMachine shootCommand;
+    private StateMachine preventMultiPossessionCommand;
 
     public AutonomousRobot(HardwareMap hardwareMap) {
         subsystems = new ArrayList<>();
+
         bulkRead = new BulkRead(hardwareMap);
-        // TODO: for other subsystems in teleop just don't reset encoders
         subsystems.add(bulkRead);
+
         intake = new Intake(hardwareMap);
         subsystems.add(intake);
+
         shooter = new Shooter(hardwareMap);
         subsystems.add(shooter);
+
         turret = new Turret(hardwareMap);
         turret.resetEncoder();
         subsystems.add(turret);
 
+        vision = new Vision(hardwareMap);
+        vision.setPipeline(Vision.Pipeline.ARTIFACT_DETECTION);
+        subsystems.add(vision);
 
         commands = new ArrayList<>();
-        prepareIntake = new StateMachine(
+
+        intakeCommand = new StateMachine(
                 new State()
                         .onEnter(() -> {
                             intake.state = Intake.IntakeState.INTAKE_FAST;
@@ -53,20 +62,9 @@ public class AutonomousRobot {
                         })
                         .maxTime(100)
         );
-        commands.add(prepareIntake);
-        // prepare to shoot by slowing down intake
-        prepareShooting = new StateMachine(
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_SLOW;
-                            shooter.closeLatch();
-                        })
-                        .maxTime(100)
-        );
-        commands.add(prepareShooting);
+        commands.add(intakeCommand);
 
-        // shoots: stops intake first, then turns it on
-        startShooting = new StateMachine(
+        shootCommand = new StateMachine(
                 new State()
                         .onEnter(() -> {
                             intake.state = Intake.IntakeState.INTAKE_OFF;
@@ -77,35 +75,35 @@ public class AutonomousRobot {
                         .onEnter(() -> {
                             intake.state = Intake.IntakeState.INTAKE_FAST;
                         })
+                        // TODO: .transition(new Transition(() -> !intake.intakeFull()))
+                        // this does not quite work unless we know exactly how many we have
                         .maxTime(600));
-        commands.add(startShooting);
-        startShootingFar = new StateMachine(
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_OFF;
-                            shooter.openLatch();
-                        })
-                        .maxTime(150),
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_MEDIUM;
-                        })
-                        .maxTime(900));
-        commands.add(startShootingFar);
-    }
+        commands.add(shootCommand);
 
-    public void setAzimuthThetaVelocity(double[] values) {
-        turret.setTarget(values[0]);
-        shooter.setShooterPitch(values[1]);
-        shooter.setTargetVelocity(values[2]);
+        // meant to be called _ seconds (usually 0.8?) into a path.
+        preventMultiPossessionCommand = new StateMachine(
+                new State()
+                        .onEnter(() -> intake.state = Intake.IntakeState.INTAKE_SLOW)
+                        .maxTime(200),
+                new State()
+                        .onEnter(() -> intake.state = Intake.IntakeState.INTAKE_OFF)
+                        .maxTime(100)
+        );
+        commands.add(preventMultiPossessionCommand);
     }
 
     public void initPositions() {
+        // configure shooter
+        shooter.state = Shooter.ShooterState.SHOOTER_ON;
         shooter.closeLatch();
         shooter.setTargetVelocity(0);
         shooter.setShooterPitch(Math.toRadians(0));
-        shooter.setShooterOn(true);
+        // configure turret
         turret.setTarget(0);
+        // configure vision
+        vision.setPipeline(Vision.Pipeline.ARTIFACT_DETECTION);
+        // configure intake
+        intake.state = Intake.IntakeState.INTAKE_OFF;
     }
 
     public void update() {
@@ -121,5 +119,59 @@ public class AutonomousRobot {
         for (Subsystem subsystem: subsystems) {
             subsystem.start();
         }
+    }
+
+    public void setAzimuthThetaVelocity(double[] values) {
+        turret.setTarget(values[0]);
+        shooter.setShooterPitch(values[1]);
+        shooter.setTargetVelocity(values[2]);
+    }
+
+    // TODO: modular autonomous, return states. example
+    public StateMachine firstSpikeMark(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
+        PathChain intake = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                startPose,
+                                new Pose(50, 84)
+                        )
+                )
+                .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(180))
+                .addPath(
+                        new BezierLine(
+                                new Pose(50, 84),
+                                new Pose(12, 84)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+
+        PathChain shoot = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(12, 84),
+                                new Pose(50, 84)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), endPose.getHeading())
+                .build();
+
+        return new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            follower.followPath(intake);
+                            intakeCommand.start();
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shoot))
+                        .maxTime(400),
+                new State()
+                        .onEnter(() -> preventMultiPossessionCommand.start())
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> shootCommand.start())
+                        .transition(new Transition(() -> shootCommand.isFinished()))
+        );
     }
 }

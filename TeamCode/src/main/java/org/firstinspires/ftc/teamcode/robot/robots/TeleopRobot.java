@@ -5,8 +5,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.robot.subsystems.BulkRead;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Pivot;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.robot.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Vision;
+import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Turret;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
@@ -14,33 +16,44 @@ import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import java.util.ArrayList;
 
 public class TeleopRobot {
-    public boolean isBusy = false;
     private final ArrayList<Subsystem> subsystems;
-    private final BulkRead bulkRead;
-    private final Intake intake;
+    public final BulkRead bulkRead;
+    public final Intake intake;
     public final Shooter shooter;
     public final Turret turret;
+    public final Vision vision;
+    public final Pivot pivot;
 
     private final ArrayList<StateMachine> commands;
-    public StateMachine prepareIntake;
-    public StateMachine prepareShooting;
-    public StateMachine startShooting;
-    public StateMachine startShootingFar;
+    public StateMachine intakeCommand;
+    public StateMachine shootCommand;
+    public StateMachine idleCommand;
 
     public TeleopRobot(HardwareMap hardwareMap) {
         subsystems = new ArrayList<>();
+
         bulkRead = new BulkRead(hardwareMap);
         subsystems.add(bulkRead);
+
         intake = new Intake(hardwareMap);
         subsystems.add(intake);
+
         shooter = new Shooter(hardwareMap);
         subsystems.add(shooter);
+
         turret = new Turret(hardwareMap);
         subsystems.add(turret);
 
+        vision = new Vision(hardwareMap);
+        vision.setPipeline(Vision.Pipeline.APRILTAG);
+        subsystems.add(vision);
+
+        pivot = new Pivot(hardwareMap);
+        subsystems.add(pivot);
+
         commands = new ArrayList<>();
-        // prepare to intake: turn on intake and close latch
-        prepareIntake = new StateMachine(
+
+        intakeCommand = new StateMachine(
                 new State()
                         .onEnter(() -> {
                             intake.state = Intake.IntakeState.INTAKE_FAST;
@@ -48,9 +61,37 @@ public class TeleopRobot {
                         })
                         .maxTime(100)
         );
-        commands.add(prepareIntake);
-        // prepare to shoot by slowing down intake
-        prepareShooting = new StateMachine(
+        commands.add(intakeCommand);
+
+        shootCommand = new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
+                        })
+                        .maxTime(100),
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
+                            shooter.openLatch();
+                        })
+                        .maxTime(150),
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_FAST;
+                        })
+                        // TODO: .transition(new Transition(() -> !intake.intakeFull()))
+                        // this does not quite work unless we know exactly how many we have
+                        .maxTime(600),
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_FAST;
+                            shooter.closeLatch();
+                        })
+                        .maxTime(100)
+        );
+        commands.add(shootCommand);
+
+        idleCommand = new StateMachine(
                 new State()
                         .onEnter(() -> {
                             intake.state = Intake.IntakeState.INTAKE_SLOW;
@@ -58,70 +99,21 @@ public class TeleopRobot {
                         })
                         .maxTime(100)
         );
-        commands.add(prepareShooting);
+        commands.add(idleCommand);
+    }
 
-        // shoots: stops intake first, then turns it on
-        startShooting = new StateMachine(
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_OFF;
-                        })
-                        .maxTime(100),
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_OFF;
-                            shooter.openLatch();
-                        })
-                        .maxTime(150),
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_MEDIUM;//INTAKE_FAST;
-                        })
-                        .maxTime(600),
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_OFF;
-                            shooter.closeLatch();
-                        })
-                        .maxTime(100)
-        );
-        commands.add(startShooting);
-        startShootingFar = new StateMachine(
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_OFF;
-                        })
-                        .maxTime(100),
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_OFF;
-                            shooter.openLatch();
-                        })
-                        .maxTime(150),
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_MEDIUM;//INTAKE_FAST;
-                        })
-                        .maxTime(900),
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_OFF;
-                            shooter.closeLatch();
-                        })
-                        .maxTime(100)
-        );
-        commands.add(startShootingFar);
-
-        // airSortShoot:
-        // same start + speed up flywheel to first
-        // move to position 1 (150 ms)
-        // speed up+change flywheel (100 ms)
-        // move to position 2 (150 ms)
-        // repeat
+    public void setAzimuthThetaVelocity(double[] values) {
+        turret.setTarget(values[0]);
+        shooter.setShooterPitch(values[1]);
+        shooter.setTargetVelocity(values[2]);
     }
 
     public void initPositions() {
-
+        // configure shooter
+        shooter.state = Shooter.ShooterState.SHOOTER_ON;
+        shooter.closeLatch();
+        // configure vision (in the future this will also move servo)
+        vision.setPipeline(Vision.Pipeline.APRILTAG);
     }
 
     public void update() {
@@ -138,11 +130,6 @@ public class TeleopRobot {
             subsystem.start();
         }
     }
-
-    public boolean isBusy() {
-        return isBusy;
-    }
-    // future functions to help with automatic shooting if we fit constraints
 
     private boolean inLeftZone(Pose pose) {
         // right side. robot pose must be above the line with slope -1

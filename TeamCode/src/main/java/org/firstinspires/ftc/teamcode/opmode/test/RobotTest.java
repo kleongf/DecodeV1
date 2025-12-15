@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobot;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
@@ -117,7 +118,7 @@ public class RobotTest extends OpMode {
     @Override
     public void start() {
         robot.initPositions();
-        robot.shooter.setShooterOn(true);
+        robot.shooter.state = Shooter.ShooterState.SHOOTER_ON;
         robot.start();
     }
 }

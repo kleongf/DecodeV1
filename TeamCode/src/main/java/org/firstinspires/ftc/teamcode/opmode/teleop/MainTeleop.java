@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
 
-import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.BezierPoint;
@@ -10,34 +9,25 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobot;
-import org.firstinspires.ftc.teamcode.robot.subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.hardware.Drivetrain;
 import org.firstinspires.ftc.teamcode.util.hardware.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.misc.ClosestPoint;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
-import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
 import java.util.HashMap;
 import java.util.Objects;
 
 public class MainTeleop {
-    private Timer localizationTimer;
-    private LimelightLocalizer limelightLocalizer;
+    private Timer endgameTimer;
     private ClosestPoint closestPoint;
     private int state = 0;
     private boolean isAutoDriving = false;
@@ -45,28 +35,22 @@ public class MainTeleop {
     private double turretOffset = 0;
     private double longitudinalSpeed = 1, lateralSpeed = 1, rotationSpeed = 0.4;
     private TeleopRobot robot;
-    // we don't trust blackboard
-    // private final Pose startPose = (Pose) blackboard.get(END_POSE_KEY) == null ? new Pose(54, 6, Math.toRadians(180)) : (Pose) blackboard.get(END_POSE_KEY);
     private Pose goalPose;
-    private Pose shootPoseFar;
-    private HardwareMap hardwareMap;
     private Pose gatePose;
+    private Pose parkPose;
     private SmartGamepad gp1;
     private Gamepad gamepad1;
-    private GoBildaPinpointDriver pinpoint;
     private SOTM sotm;
     private HashMap<Integer, StateMachine> stateMap;
     private boolean holdingPose = false;
-
-    private double lastTimeStamp = 0;
-    private double lastAngleToGoal;
+    private boolean automateRobot = true;
     private Telemetry telemetry;
     private Alliance alliance;
 
     public MainTeleop(Pose startPose, Pose goalPose, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, boolean resetEncoder) {
         drivetrain = new Drivetrain(hardwareMap);
         drivetrain.setStartingPose(startPose);
-        // pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+
         robot = new TeleopRobot(hardwareMap);
         if (resetEncoder) {robot.turret.resetEncoder();}
 
@@ -76,50 +60,85 @@ public class MainTeleop {
         gp1 = new SmartGamepad(gamepad1);
 
         stateMap = new HashMap<>();
-        stateMap.put(0, robot.prepareIntake);
-        stateMap.put(1, robot.prepareShooting);
-        stateMap.put(2, robot.startShooting);
+        stateMap.put(0, robot.idleCommand);
+        stateMap.put(1, robot.shootCommand);
 
         sotm = new SOTM(goalPose);
-        localizationTimer = new Timer();
-        limelightLocalizer = new LimelightLocalizer(hardwareMap);
-        limelightLocalizer.start();
         closestPoint = new ClosestPoint();
+        endgameTimer = new Timer();
 
-        // TODO: store these in the PoseConstants stuff
         this.goalPose = alliance == Alliance.BLUE ? PoseConstants.BLUE_GOAL_POSE : PoseConstants.RED_GOAL_POSE;
-        this.shootPoseFar = alliance == Alliance.BLUE ? PoseConstants.BLUE_FAR_POSE :  PoseConstants.RED_FAR_POSE;
+        this.parkPose = alliance == Alliance.BLUE ? PoseConstants.BLUE_PARK_POSE :  PoseConstants.RED_PARK_POSE;
         this.gatePose = alliance == Alliance.BLUE ? PoseConstants.BLUE_GATE_POSE : PoseConstants.RED_GATE_POSE;
     }
-
+    // TODO: not sure if Timoe wants this, otherwise i guess Robotcube may still want to be driver
     private double normalizeInput(double input) {
         return Math.signum(input) * Math.sqrt(Math.abs(input));
     }
 
     public void loop() {
-        // we are moving slowly AND its been over 10 seconds
-//        if (localizationTimer.getElapsedTimeSeconds() > 10 && drivetrain.follower.getVelocity().getMagnitude() < 10) {
-//            Pose prevPose = drivetrain.follower.getPose();
-//            // TODO: make the heading be the limelight heading when forced relocalization
-//            drivetrain.follower.resetOffset();
-//            drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.update(prevPose));
-//            localizationTimer.resetTimer();
-//        }
+        // wait: TODO: why do we need intake method? we can just reset intake at the end, so we remove a state?
+        if (automateRobot) {
+            // if we are idle and conditions are right, we shoot
+            if (
+                    drivetrain.follower.getVelocity().getMagnitude() < 10 &&
+                    Math.floorMod(state, 2) == 1 &&
+                    robot.shooter.atTarget(20) && // 20 ticks
+                    robot.turret.atTarget(20) && // 20 ticks
+                    robot.intake.intakeFull() &&
+                    robot.inShootingZone(drivetrain.follower.getPose())
+            ) {
+                state++;
+                Objects.requireNonNull(stateMap.get(Math.floorMod(state, 2))).start();
+            }
+
+            if (
+                    !robot.inShootingZone(drivetrain.follower.getPose()) &&
+                    robot.intake.intakeFull() &&
+                    !isAutoDriving
+            ) {
+                PathChain driveToClosestPoint = drivetrain.follower.pathBuilder()
+                        .addPath(
+                                new Path(
+                                        new BezierLine(
+                                                new Point(drivetrain.follower.getPose()),
+                                                new Point(closestPoint.closestPose(drivetrain.follower.getPose()))
+                                        )
+                                )
+                        )
+                        .setConstantHeadingInterpolation(drivetrain.follower.getPose().getHeading())
+                        .build();
+                state++;
+                Objects.requireNonNull(stateMap.get(Math.floorMod(state, 2))).start();
+                isAutoDriving = true;
+                drivetrain.follower.breakFollowing();
+                drivetrain.follower.followPath(driveToClosestPoint, true);
+            }
+        }
 
         gp1.update();
 
         if (gp1.rightBumperPressed()) {
             state++;
-            if(Math.floorMod(state, 3) == 2){
-                if (Math.hypot(goalPose.getX()-drivetrain.follower.getPose().getX(), goalPose.getY()-drivetrain.follower.getPose().getY()) > 130) {
-                    robot.startShootingFar.start();
-                } else {
-                    robot.startShooting.start();
-                }
+            Objects.requireNonNull(stateMap.get(Math.floorMod(state, 2))).start();
+        }
+
+        // slowmo button: turns on/off slowmo, left bumper
+        if (gp1.leftBumperPressed()) {
+            if (longitudinalSpeed == 1 && lateralSpeed == 1 && rotationSpeed == 1) {
+                longitudinalSpeed = 0.5;
+                lateralSpeed = 0.5;
+                rotationSpeed = 0.2;
+            } else {
+                longitudinalSpeed = 1;
+                lateralSpeed = 1;
+                rotationSpeed = 1;
             }
-            else {
-                Objects.requireNonNull(stateMap.get(Math.floorMod(state, 3))).start();
-            }
+        }
+
+        // mapped to a button because b button is used for controller
+        if (gp1.aPressed()) {
+            automateRobot = !automateRobot;
         }
 
         // x button: drive to gate
@@ -129,7 +148,7 @@ public class MainTeleop {
                             new Path(
                                     new BezierLine(
                                             new Point(drivetrain.follower.getPose()),
-                                            new Point((alliance == Alliance.BLUE ? gatePose.getX()+10: gatePose.getX()-10), gatePose.getY())
+                                            new Point((alliance == Alliance.BLUE ? gatePose.getX()+15: gatePose.getX()-15), gatePose.getY())
                                     )
                             )
                     )
@@ -137,7 +156,7 @@ public class MainTeleop {
                     .addPath(
                             new Path(
                                     new BezierLine(
-                                            new Point((alliance == Alliance.BLUE ? gatePose.getX()+10: gatePose.getX()-10), gatePose.getY()),
+                                            new Point((alliance == Alliance.BLUE ? gatePose.getX()+15: gatePose.getX()-15), gatePose.getY()),
                                             new Point(gatePose)
                                     )
                             )
@@ -149,40 +168,22 @@ public class MainTeleop {
             drivetrain.follower.followPath(driveGate, true);
         }
 
-        // y button: drive far
+        // y button: park
         if (gp1.yPressed()) {
-            PathChain driveFar = drivetrain.follower.pathBuilder()
+            PathChain park = drivetrain.follower.pathBuilder()
                     .addPath(
                             new Path(
                                     new BezierLine(
                                             new Point(drivetrain.follower.getPose()),
-                                            new Point(shootPoseFar)
+                                            new Point(parkPose)
                                     )
                             )
                     )
-                    .setLinearHeadingInterpolation(drivetrain.follower.getPose().getHeading(), shootPoseFar.getHeading())
+                    .setLinearHeadingInterpolation(drivetrain.follower.getPose().getHeading(), parkPose.getHeading())
                     .build();
             isAutoDriving = true;
             drivetrain.follower.breakFollowing();
-            drivetrain.follower.followPath(driveFar, true);
-        }
-
-        // b pressed: closest point
-        if (gp1.bPressed()) {
-            PathChain driveToClosestPoint = drivetrain.follower.pathBuilder()
-                    .addPath(
-                            new Path(
-                                    new BezierLine(
-                                            new Point(drivetrain.follower.getPose()),
-                                            new Point(closestPoint.closestPose(drivetrain.follower.getPose()))
-                                    )
-                            )
-                    )
-                    .setConstantHeadingInterpolation(drivetrain.follower.getPose().getHeading())
-                    .build();
-            isAutoDriving = true;
-            drivetrain.follower.breakFollowing();
-            drivetrain.follower.followPath(driveToClosestPoint, true);
+            drivetrain.follower.followPath(park, true);
         }
 
         // safety for autodrive
@@ -201,31 +202,10 @@ public class MainTeleop {
         }
 
         if (gp1.dpadDownPressed()) {
-            Pose llPose = limelightLocalizer.overrideUpdate(drivetrain.follower.getPose());
+            Pose llPose = robot.vision.getCurrentPose(drivetrain.follower.getPose());
             if (llPose.getX() != drivetrain.follower.getPose().getX() && llPose.getY() != drivetrain.follower.getPose().getY()) {
                 gamepad1.rumble(300);
-                Pose ppPose = limelightLocalizer.overrideUpdate(drivetrain.follower.getPose());
-
-                drivetrain.follower.setCurrentPoseWithOffset(ppPose);
-
-//                drivetrain.follower.poseUpdater.setHeadingOffset(ppPose.getHeading());
-//                drivetrain.follower.poseUpdater.setXOffset(ppPose.getX());
-//                drivetrain.follower.poseUpdater.setYOffset(ppPose.getY());
-
-                // drivetrain.follower.setPose(ppPose);
-
-//                Pose ppPose = limelightLocalizer.overrideUpdate(drivetrain.follower.getPose());
-//                Follower newfollower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
-//                newfollower.setStartingPose(ppPose);
-//                drivetrain.follower = newfollower;
-
-                // Pose ppPose = limelightLocalizer.overrideUpdate(drivetrain.follower.getPose());
-                // Pose prevPose = drivetrain.follower.getPose();
-                // pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, ppPose.getX(), ppPose.getY(), AngleUnit.RADIANS, ppPose.getHeading()));
-                // drivetrain.follower.setStartingPose(limelightLocalizer.overrideUpdate(prevPose));
-
-//                drivetrain.follower.resetOffset();
-                // drivetrain.follower.setCurrentPoseWithOffset(limelightLocalizer.overrideUpdate(prevPose));
+                drivetrain.follower.setCurrentPoseWithOffset(llPose);
             }
         }
 
@@ -236,39 +216,18 @@ public class MainTeleop {
             turretOffset += Math.toRadians(2);
         }
 
-        if (gamepad1.left_trigger > 0.01 && !holdingPose) {
-            holdingPose = true;
-            isAutoDriving = true;
-            Path holdPointPath = new Path(new BezierPoint(drivetrain.follower.getPose()));
-            holdPointPath.setConstantHeadingInterpolation(drivetrain.follower.getPose().getHeading());
-            drivetrain.follower.followPath(holdPointPath);
+        // endgame. can lock until last 20s: endgameTimer.getElapsedTimeSeconds() > 100 if accidentally pressed
+        if (gamepad1.left_trigger > 0.01) {
+            robot.pivot.setPower(-gamepad1.left_trigger);
         }
 
-        if (holdingPose && gamepad1.left_trigger < 0.01){
-            holdingPose = false;
-            isAutoDriving = false;
-            drivetrain.follower.breakFollowing();
-            drivetrain.setTargetHeading(drivetrain.follower.getPose().getHeading());
+        if (gamepad1.right_trigger > 0.01) {
+            robot.pivot.setPower(gamepad1.left_trigger);
         }
-
 
         if (!(Math.floorMod(state, 3) == 0)) {
+            // working on new sotm don't need this
             double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-            double currentTimeStamp = (double) System.nanoTime() / 1E9;
-            if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
-            double period = currentTimeStamp - lastTimeStamp;
-
-            double dx = goalPose.getX() - drivetrain.follower.getPose().getX();
-            double dy = goalPose.getY() - drivetrain.follower.getPose().getY();
-            double currentAngleToGoal = Math.atan2(-dx, dy) - drivetrain.follower.getPose().getHeading() + Math.toRadians(90);
-            double vGoal = (currentAngleToGoal-lastAngleToGoal)/period;
-
-            double ff = 0.1 * vGoal;
-            robot.turret.setFeedforward(ff);
-
-            lastAngleToGoal = currentAngleToGoal;
-            lastTimeStamp = currentTimeStamp;
-
             robot.turret.setTarget(values[0]+turretOffset);
             robot.shooter.setShooterPitch(values[1]);
             robot.shooter.setTargetVelocity(values[2]);
@@ -283,12 +242,10 @@ public class MainTeleop {
             robot.shooter.setShooterPitch(values[1]);
             robot.shooter.setTargetVelocity(values[2]);
 
-
             telemetry.addData("pitch", values[1]);
             telemetry.addData("velocity", values[2]);
             telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
             robot.turret.setFeedforward(0);
-
         }
 
         if (isAutoDriving) {
@@ -334,12 +291,11 @@ public class MainTeleop {
 
     public void start() {
         robot.initPositions();
-        robot.shooter.setShooterOn(true);
         robot.start();
+        endgameTimer.resetTimer();
     }
 
     public void stop() {
-        Object endPose = drivetrain.follower.getPose();
-        blackboard.put(RobotConstants.END_POSE_KEY, endPose);
+        blackboard.put(RobotConstants.END_POSE_KEY, drivetrain.follower.getPose());
     }
 }

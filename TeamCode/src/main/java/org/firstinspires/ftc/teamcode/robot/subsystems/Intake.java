@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import static org.firstinspires.ftc.teamcode.robot.constants.RobotConstants.*;
+
+import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
 
 public class Intake extends Subsystem {
     public enum IntakeState {
@@ -36,13 +36,15 @@ public class Intake extends Subsystem {
             case INTAKE_OFF:
                 intakeMotor.setPower(0);
                 break;
-            case INTAKE_MEDIUM:
-                intakeMotor.setPower(0.9);
         }
     }
 
     @Override
     public void start() {
 
+    }
+    // TODO: DO WHEN WE GET THE THE SENSOR
+    public boolean intakeFull() {
+        return false;
     }
 }

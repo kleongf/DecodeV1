@@ -5,15 +5,14 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.util.controllers.HeadingPIDFController;
 import org.firstinspires.ftc.teamcode.util.controllers.PIDFController;
-import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
+import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
 
 public class Turret extends Subsystem {
     public DcMotorEx turretMotor;
     public PIDFController turretController;
     public double target = 0;
-    private double ticksPerRevolution = 1931; // 383.6*5 idk
+    private double ticksPerRevolution = 1931; // 383.6*5
     private double ticksPerRadian = ticksPerRevolution / (2 * Math.PI);
     private double feedforward = 0;
 
@@ -60,11 +59,6 @@ public class Turret extends Subsystem {
         while (radians < -Math.PI) {
             radians += 2 * Math.PI;
         }
-        if (radians < -Math.PI+Math.toRadians(45)) {return radians+Math.toRadians(45);}
-        // keep in mind that the result is in radians
-//        if (radians > Math.PI - Math.toRadians(20)) {
-//            return Math.PI - Math.toRadians(20);
-//        }
         return radians;
     }
 

@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.robot.subsystems;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
+
 import java.util.List;
 
 public class BulkRead extends Subsystem {
