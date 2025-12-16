@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class MainTeleop {
+    // TODO: SOTM tuning teleop with FTC dash, as well as Pose tuning teleop with dash
     private Timer endgameTimer;
     private ClosestPoint closestPoint;
     private int state = 0;

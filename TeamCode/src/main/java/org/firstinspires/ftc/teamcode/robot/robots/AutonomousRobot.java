@@ -129,32 +129,59 @@ public class AutonomousRobot {
 
     // TODO: modular autonomous, return states. example
     public StateMachine firstSpikeMark(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
-        PathChain intake = follower.pathBuilder()
-                .addPath(
-                        new BezierLine(
-                                startPose,
-                                new Pose(50, 84)
+        PathChain intake = alliance == Alliance.BLUE ?
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        startPose,
+                                        new Pose(50, 84)
+                                )
                         )
-                )
-                .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(180))
-                .addPath(
-                        new BezierLine(
-                                new Pose(50, 84),
-                                new Pose(12, 84)
+                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(180))
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(50, 84),
+                                        new Pose(12, 84)
+                                )
                         )
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
+                        .setConstantHeadingInterpolation(Math.toRadians(180))
+                        .build() :
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        startPose,
+                                        new Pose(144-50, 84)
+                                )
+                        )
+                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(0))
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(144-50, 84),
+                                        new Pose(144-12, 84)
+                                )
+                        )
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
 
-        PathChain shoot = follower.pathBuilder()
-                .addPath(
-                        new BezierLine(
-                                new Pose(12, 84),
-                                new Pose(50, 84)
+        PathChain shoot = alliance == Alliance.BLUE ?
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(12, 60),
+                                        endPose
+                                )
                         )
-                )
-                .setLinearHeadingInterpolation(Math.toRadians(180), endPose.getHeading())
-                .build();
+                        .setLinearHeadingInterpolation(Math.toRadians(180), endPose.getHeading())
+                        .build() :
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(144-12, 60),
+                                        endPose
+                                )
+                        )
+                        .setLinearHeadingInterpolation(Math.toRadians(0), endPose.getHeading())
+                        .build();
 
         return new StateMachine(
                 new State()
@@ -168,6 +195,184 @@ public class AutonomousRobot {
                         .maxTime(400),
                 new State()
                         .onEnter(() -> preventMultiPossessionCommand.start())
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> shootCommand.start())
+                        .transition(new Transition(() -> shootCommand.isFinished()))
+        );
+    }
+    public StateMachine secondSpikeMark(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
+        PathChain intake = alliance == Alliance.BLUE ?
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        startPose,
+                                        new Pose(50, 60)
+                                )
+                        )
+                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(180))
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(50, 60),
+                                        new Pose(12, 60)
+                                )
+                        )
+                        .setConstantHeadingInterpolation(Math.toRadians(180))
+                        .build() :
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        startPose,
+                                        new Pose(144-50, 60)
+                                )
+                        )
+                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(0))
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(144-50, 60),
+                                        new Pose(144-12, 60)
+                                )
+                        )
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
+
+        PathChain shoot = alliance == Alliance.BLUE ?
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(12, 60),
+                                        endPose
+                                )
+                        )
+                        .setLinearHeadingInterpolation(Math.toRadians(180), endPose.getHeading())
+                        .build() :
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(144-12, 60),
+                                        endPose
+                                )
+                        )
+                        .setLinearHeadingInterpolation(Math.toRadians(0), endPose.getHeading())
+                        .build();
+
+        return new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            follower.followPath(intake);
+                            intakeCommand.start();
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shoot))
+                        .maxTime(400),
+                new State()
+                        .onEnter(() -> preventMultiPossessionCommand.start())
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> shootCommand.start())
+                        .transition(new Transition(() -> shootCommand.isFinished()))
+        );
+    }
+
+    public StateMachine thirdSpikeMark(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
+        PathChain intake = alliance == Alliance.BLUE ?
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        startPose,
+                                        new Pose(50, 36)
+                                )
+                        )
+                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(180))
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(50, 36),
+                                        new Pose(12, 36)
+                                )
+                        )
+                        .setConstantHeadingInterpolation(Math.toRadians(180))
+                        .build() :
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        startPose,
+                                        new Pose(144-50, 36)
+                                )
+                        )
+                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(0))
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(144-50, 36),
+                                        new Pose(144-12, 36)
+                                )
+                        )
+                        .setConstantHeadingInterpolation(Math.toRadians(0))
+                        .build();
+
+        PathChain shoot = alliance == Alliance.BLUE ?
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(12, 36),
+                                        endPose
+                                )
+                        )
+                        .setLinearHeadingInterpolation(Math.toRadians(180), endPose.getHeading())
+                        .build() :
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        new Pose(144-12, 36),
+                                        endPose
+                                )
+                        )
+                        .setLinearHeadingInterpolation(Math.toRadians(0), endPose.getHeading())
+                        .build();
+
+        return new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            follower.followPath(intake);
+                            intakeCommand.start();
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shoot))
+                        .maxTime(400),
+                new State()
+                        .onEnter(() -> preventMultiPossessionCommand.start())
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> shootCommand.start())
+                        .transition(new Transition(() -> shootCommand.isFinished()))
+        );
+    }
+
+    public StateMachine preloadClose(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
+        PathChain shoot = alliance == Alliance.BLUE ?
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        startPose,
+                                        new Pose(60, 84)
+                                )
+                        )
+                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(180))
+                        .build() :
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        startPose,
+                                        new Pose(144-60, 84)
+                                )
+                        )
+                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(0))
+                        .build();
+
+        return new StateMachine(
+                new State()
+                        .onEnter(() -> follower.followPath(shoot))
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> shootCommand.start())

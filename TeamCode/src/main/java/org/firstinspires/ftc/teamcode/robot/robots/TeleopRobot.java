@@ -25,7 +25,6 @@ public class TeleopRobot {
     public final Pivot pivot;
 
     private final ArrayList<StateMachine> commands;
-    public StateMachine intakeCommand;
     public StateMachine shootCommand;
     public StateMachine idleCommand;
 
@@ -52,16 +51,6 @@ public class TeleopRobot {
         subsystems.add(pivot);
 
         commands = new ArrayList<>();
-
-        intakeCommand = new StateMachine(
-                new State()
-                        .onEnter(() -> {
-                            intake.state = Intake.IntakeState.INTAKE_FAST;
-                            shooter.closeLatch();
-                        })
-                        .maxTime(100)
-        );
-        commands.add(intakeCommand);
 
         shootCommand = new StateMachine(
                 new State()
