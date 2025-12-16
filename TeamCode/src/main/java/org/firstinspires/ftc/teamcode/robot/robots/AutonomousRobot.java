@@ -186,12 +186,12 @@ public class AutonomousRobot {
         return new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            follower.followPath(intake);
+                            follower.followPath(intake, true);
                             intakeCommand.start();
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> follower.followPath(shoot))
+                        .onEnter(() -> follower.followPath(shoot, true))
                         .maxTime(400),
                 new State()
                         .onEnter(() -> preventMultiPossessionCommand.start())
@@ -259,12 +259,12 @@ public class AutonomousRobot {
         return new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            follower.followPath(intake);
+                            follower.followPath(intake, true);
                             intakeCommand.start();
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> follower.followPath(shoot))
+                        .onEnter(() -> follower.followPath(shoot, true))
                         .maxTime(400),
                 new State()
                         .onEnter(() -> preventMultiPossessionCommand.start())
@@ -333,12 +333,12 @@ public class AutonomousRobot {
         return new StateMachine(
                 new State()
                         .onEnter(() -> {
-                            follower.followPath(intake);
+                            follower.followPath(intake, true);
                             intakeCommand.start();
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> follower.followPath(shoot))
+                        .onEnter(() -> follower.followPath(shoot, true))
                         .maxTime(400),
                 new State()
                         .onEnter(() -> preventMultiPossessionCommand.start())
@@ -372,7 +372,7 @@ public class AutonomousRobot {
 
         return new StateMachine(
                 new State()
-                        .onEnter(() -> follower.followPath(shoot))
+                        .onEnter(() -> follower.followPath(shoot, true))
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> shootCommand.start())
