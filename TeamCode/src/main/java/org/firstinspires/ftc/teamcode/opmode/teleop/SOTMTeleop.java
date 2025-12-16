@@ -15,6 +15,7 @@ public class SOTMTeleop extends OpMode {
     private Pose startPose = PoseConstants.BLUE_FAR_AUTO_POSE;
     private Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
     public static double timeScaleFactor = 1;
+    public static double constantTimeScaleFactor = 0.15;
     @Override
     public void init() {
         teleop = new MainTeleop(startPose, goalPose, Alliance.BLUE, hardwareMap, telemetry, gamepad1, true);
@@ -23,6 +24,7 @@ public class SOTMTeleop extends OpMode {
     @Override
     public void loop() {
         teleop.sotm.setTimeScaleFactor(timeScaleFactor);
+        teleop.sotm.setConstantTimeFactor(constantTimeScaleFactor);
         teleop.loop();
     }
 

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.robot.robots;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -373,6 +374,72 @@ public class AutonomousRobot {
         return new StateMachine(
                 new State()
                         .onEnter(() -> follower.followPath(shoot, true))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> shootCommand.start())
+                        .transition(new Transition(() -> shootCommand.isFinished()))
+        );
+    }
+    // assumes that the robot is facing the direction of the pile. for blue, x neg corresponds to y neg, for red, x neg corresponds to y neg
+    public StateMachine visionPileCycle(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
+        return new StateMachine(
+                // we have to make the first one a runnable or else it may not work
+                new State()
+                        .onEnter(() -> {
+                            double x = vision.getLargestClusterX();
+                            PathChain intake = alliance == Alliance.BLUE ?
+                                    follower.pathBuilder()
+                                            .addPath(
+                                                    new BezierCurve(
+                                                            startPose,
+                                                            new Pose(55, 24+x),
+                                                            new Pose(50, 24+x),
+                                                            new Pose(12, 24+x)
+                                                    )
+                                            )
+                                            .setConstantHeadingInterpolation(Math.toRadians(180))
+                                            .build() :
+                                    follower.pathBuilder()
+                                            .addPath(
+                                                    new BezierCurve(
+                                                            startPose,
+                                                            new Pose(144-55, 24+x),
+                                                            new Pose(144-50, 24+x),
+                                                            new Pose(144-12, 24+x)
+                                                    )
+                                            )
+                                            .setConstantHeadingInterpolation(Math.toRadians(0))
+                                            .build();
+                            follower.followPath(intake, true);
+                            intakeCommand.start();
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> {
+                            PathChain shoot = alliance == Alliance.BLUE ?
+                                    follower.pathBuilder()
+                                            .addPath(
+                                                    new BezierLine(
+                                                            follower.getPose(),
+                                                            endPose
+                                                    )
+                                            )
+                                            .setLinearHeadingInterpolation(Math.toRadians(180), endPose.getHeading())
+                                            .build() :
+                                    follower.pathBuilder()
+                                            .addPath(
+                                                    new BezierLine(
+                                                            follower.getPose(),
+                                                            endPose
+                                                    )
+                                            )
+                                            .setLinearHeadingInterpolation(Math.toRadians(0), endPose.getHeading())
+                                            .build();
+                            follower.followPath(shoot, true);
+                        })
+                        .maxTime(400),
+                new State()
+                        .onEnter(() -> preventMultiPossessionCommand.start())
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> shootCommand.start())
