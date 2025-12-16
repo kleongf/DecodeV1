@@ -13,6 +13,7 @@ public class SOTM {
     private LUT velocityLUT;
     private double radius = 0.036; // 36 mm radius, 72mm wheel
     private double radiusBall = 0.06223; // 2.45 in
+    private double timeScaleFactor = 1;
 
     public SOTM(Pose goal) {
         this.goal = goal;
@@ -73,9 +74,9 @@ public class SOTM {
         double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (1/Math.cos(Math.toRadians(28)+thetaLUT.getValue(dist))); // (1/Math.cos(Math.toRadians(20)+thetaLUT.getValue(dist)))
 
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
-        // 0.2 seconds before shooting: always
+        // 0.2s before shooting: always
 
-        double timestep = 2 * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(28))));
+        double timestep = 0.25 + timeScaleFactor * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(28))));
 
         // blue perspective:
         // pure angle to goal. from small angles, it overshoots to the left (from blue perspective this is positive turret),
@@ -195,5 +196,9 @@ public class SOTM {
         // this method is the same but provides three values
         // TODO: methods in the robot classes that allow us to shootFirst, shootSecond, shootThird
         return out;
+    }
+
+    public void setTimeScaleFactor(double x) {
+        timeScaleFactor = x;
     }
 }

@@ -41,7 +41,7 @@ public class MainTeleop {
     private Pose parkPose;
     private SmartGamepad gp1;
     private Gamepad gamepad1;
-    private SOTM sotm;
+    public SOTM sotm;
     private HashMap<Integer, StateMachine> stateMap;
     private boolean holdingPose = false;
     private boolean automateRobot = true;
