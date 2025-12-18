@@ -130,6 +130,7 @@ public class AutonomousRobot {
 
     // TODO: modular autonomous, return states. example
     public StateMachine firstSpikeMark(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
+        // TODO: Make these the same BezierCurves (so it works) and use ConstantHeading so that they will line up fine
         PathChain intake = alliance == Alliance.BLUE ?
                 follower.pathBuilder()
                         .addPath(
@@ -142,7 +143,7 @@ public class AutonomousRobot {
                         .addPath(
                                 new BezierLine(
                                         new Pose(50, 84),
-                                        new Pose(12, 84)
+                                        new Pose(20, 84)
                                 )
                         )
                         .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -158,7 +159,7 @@ public class AutonomousRobot {
                         .addPath(
                                 new BezierLine(
                                         new Pose(144-50, 84),
-                                        new Pose(144-12, 84)
+                                        new Pose(144-20, 84)
                                 )
                         )
                         .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -168,7 +169,7 @@ public class AutonomousRobot {
                 follower.pathBuilder()
                         .addPath(
                                 new BezierLine(
-                                        new Pose(12, 60),
+                                        new Pose(20, 60),
                                         endPose
                                 )
                         )
@@ -177,7 +178,7 @@ public class AutonomousRobot {
                 follower.pathBuilder()
                         .addPath(
                                 new BezierLine(
-                                        new Pose(144-12, 60),
+                                        new Pose(144-20, 60),
                                         endPose
                                 )
                         )

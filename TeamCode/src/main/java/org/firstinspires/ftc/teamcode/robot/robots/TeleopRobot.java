@@ -16,6 +16,9 @@ import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import java.util.ArrayList;
 
 public class TeleopRobot {
+    // new idea: how about we stay in the idle state when the thing is !isFinished? or something. need better method
+    // or be able to call the stop multipossess on command, which is the main problem
+    // intake slow is 0.8 while intake fast is 1 i dont think it really makes a difference
     private final ArrayList<Subsystem> subsystems;
     public final BulkRead bulkRead;
     public final Intake intake;

@@ -27,10 +27,13 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class MainTeleop {
-    // TODO: SOTM tuning teleop with FTC dash, as well as Pose tuning teleop with dash
+    public enum RobotState {
+        IDLE,
+        SHOOTING
+    }
     private Timer endgameTimer;
+    private RobotState robotState;
     private ClosestPoint closestPoint;
-    private int state = 0;
     private boolean isAutoDriving = false;
     private Drivetrain drivetrain;
     private double turretOffset = 0;
@@ -42,7 +45,6 @@ public class MainTeleop {
     private SmartGamepad gp1;
     private Gamepad gamepad1;
     public SOTM sotm;
-    private HashMap<Integer, StateMachine> stateMap;
     private boolean holdingPose = false;
     private boolean automateRobot = true;
     private Telemetry telemetry;
@@ -60,10 +62,6 @@ public class MainTeleop {
         this.alliance = alliance;
         gp1 = new SmartGamepad(gamepad1);
 
-        stateMap = new HashMap<>();
-        stateMap.put(0, robot.idleCommand);
-        stateMap.put(1, robot.shootCommand);
-
         sotm = new SOTM(goalPose);
         closestPoint = new ClosestPoint();
         endgameTimer = new Timer();
@@ -79,18 +77,26 @@ public class MainTeleop {
 
     public void loop() {
         // wait: TODO: why do we need intake method? we can just reset intake at the end, so we remove a state?
+        // also, why do we even need these states?
+        // also for now i will change it so that turret always updates, there's not really a reason for it not to
+        // new logic: RobotState is idle or is shooting.
+        if (robot.shootCommand.isFinished()) {
+            robotState = RobotState.IDLE;
+        } else {
+            robotState = RobotState.SHOOTING;
+        }
+
         if (automateRobot) {
             // if we are idle and conditions are right, we shoot
             if (
-                    drivetrain.follower.getVelocity().getMagnitude() < 10 &&
-                    Math.floorMod(state, 2) == 1 &&
+                    robotState != RobotState.SHOOTING &&
+                    drivetrain.follower.getVelocity().getMagnitude() < 20 &&
                     robot.shooter.atTarget(20) && // 20 ticks
                     robot.turret.atTarget(20) && // 20 ticks
                     robot.intake.intakeFull() &&
                     robot.inShootingZone(drivetrain.follower.getPose())
             ) {
-                state++;
-                Objects.requireNonNull(stateMap.get(Math.floorMod(state, 2))).start();
+                robot.shootCommand.start();
             }
 
             if (
@@ -98,6 +104,7 @@ public class MainTeleop {
                     robot.intake.intakeFull() &&
                     !isAutoDriving
             ) {
+                // need to change this to just "push" the robot in the right direction
                 PathChain driveToClosestPoint = drivetrain.follower.pathBuilder()
                         .addPath(
                                 new Path(
@@ -109,8 +116,6 @@ public class MainTeleop {
                         )
                         .setConstantHeadingInterpolation(drivetrain.follower.getPose().getHeading())
                         .build();
-                state++;
-                Objects.requireNonNull(stateMap.get(Math.floorMod(state, 2))).start();
                 isAutoDriving = true;
                 drivetrain.follower.breakFollowing();
                 drivetrain.follower.followPath(driveToClosestPoint, true);
@@ -120,8 +125,7 @@ public class MainTeleop {
         gp1.update();
 
         if (gp1.rightBumperPressed()) {
-            state++;
-            Objects.requireNonNull(stateMap.get(Math.floorMod(state, 2))).start();
+            robot.shootCommand.start();
         }
 
         // slowmo button: turns on/off slowmo, left bumper
@@ -226,28 +230,38 @@ public class MainTeleop {
             robot.pivot.setPower(gamepad1.left_trigger);
         }
 
-        if (!(Math.floorMod(state, 3) == 0)) {
-            // working on new sotm don't need this
-            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-            robot.turret.setTarget(values[0]+turretOffset);
-            robot.shooter.setShooterPitch(values[1]);
-            robot.shooter.setTargetVelocity(values[2]);
+        double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+        robot.turret.setTarget(values[0]+turretOffset);
+        robot.shooter.setShooterPitch(values[1]);
+        robot.shooter.setTargetVelocity(values[2]);
 
-            telemetry.addData("pitch", values[1]);
-            telemetry.addData("velocity", values[2]);
-            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+        telemetry.addData("pitch", values[1]);
+        telemetry.addData("velocity", values[2]);
+        telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+        robot.turret.setFeedforward(0);
 
-        } else {
-            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-            robot.turret.setTarget(0 + turretOffset);
-            robot.shooter.setShooterPitch(values[1]);
-            robot.shooter.setTargetVelocity(values[2]);
-
-            telemetry.addData("pitch", values[1]);
-            telemetry.addData("velocity", values[2]);
-            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
-            robot.turret.setFeedforward(0);
-        }
+//        if (!(Math.floorMod(state, 2) == 0)) {
+//            // working on new sotm don't need this
+//            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+//            robot.turret.setTarget(values[0]+turretOffset);
+//            robot.shooter.setShooterPitch(values[1]);
+//            robot.shooter.setTargetVelocity(values[2]);
+//
+//            telemetry.addData("pitch", values[1]);
+//            telemetry.addData("velocity", values[2]);
+//            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+//
+//        } else {
+//            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+//            robot.turret.setTarget(0 + turretOffset);
+//            robot.shooter.setShooterPitch(values[1]);
+//            robot.shooter.setTargetVelocity(values[2]);
+//
+//            telemetry.addData("pitch", values[1]);
+//            telemetry.addData("velocity", values[2]);
+//            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+//            robot.turret.setFeedforward(0);
+//        }
 
         if (isAutoDriving) {
             if (!holdingPose) {

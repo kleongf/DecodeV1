@@ -12,8 +12,8 @@ public class Pivot extends Subsystem {
     public CRServo pivotServo1;
     public CRServo pivotServo2;
     public Pivot(HardwareMap hardwareMap) {
-        pivotServo1 = hardwareMap.get(CRServo.class, "pivotServo1");
-        pivotServo2 = hardwareMap.get(CRServo.class, "pivotServo2");
+        pivotServo1 = hardwareMap.get(CRServo.class, "hang1");
+        pivotServo2 = hardwareMap.get(CRServo.class, "hang2");
         pivotServo1.setDirection(DcMotorSimple.Direction.FORWARD);
         pivotServo2.setDirection(DcMotorSimple.Direction.FORWARD);
     }
