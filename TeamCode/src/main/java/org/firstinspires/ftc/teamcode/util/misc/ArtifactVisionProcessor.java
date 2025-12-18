@@ -43,7 +43,7 @@ public abstract class ArtifactVisionProcessor implements VisionProcessor {
     public Object processFrame(Mat frame, long captureTimeNanos) {
 
         Mat hsv = new Mat();
-        Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_BGR2HSV);
+        Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_RGB2HSV);
         Imgproc.medianBlur(hsv, hsv, 5);
 
         // Masks
