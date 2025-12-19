@@ -5,17 +5,18 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
 
 public class Pivot extends Subsystem {
-    public CRServo pivotServo1;
-    public CRServo pivotServo2;
+    public Servo pivotServo1;
+    public Servo pivotServo2;
     public Pivot(HardwareMap hardwareMap) {
-        pivotServo1 = hardwareMap.get(CRServo.class, "hang1");
-        pivotServo2 = hardwareMap.get(CRServo.class, "hang2");
-        pivotServo1.setDirection(DcMotorSimple.Direction.FORWARD);
-        pivotServo2.setDirection(DcMotorSimple.Direction.FORWARD);
+        pivotServo1 = hardwareMap.get(Servo.class, "hang1");
+        pivotServo2 = hardwareMap.get(Servo.class, "hang2");
+        //pivotServo1.setDirection(DcMotorSimple.Direction.FORWARD);
+        //pivotServo2.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     @Override
@@ -29,7 +30,7 @@ public class Pivot extends Subsystem {
     }
 
     public void setPower(double power) {
-        pivotServo1.setPower(power);
-        pivotServo2.setPower(power);
+        pivotServo1.setPosition((1+power)/2);
+        pivotServo2.setPosition(1-(1+power)/2);
     }
 }

@@ -224,10 +224,10 @@ public class MainTeleop {
         // endgame. can lock until last 20s: endgameTimer.getElapsedTimeSeconds() > 100 if accidentally pressed
         if (gamepad1.left_trigger > 0.01) {
             robot.pivot.setPower(-gamepad1.left_trigger);
-        }
-
-        if (gamepad1.right_trigger > 0.01) {
-            robot.pivot.setPower(gamepad1.left_trigger);
+        } else if (gamepad1.right_trigger > 0.01) {
+            robot.pivot.setPower(gamepad1.right_trigger);
+        } else {
+            robot.pivot.setPower(0);
         }
 
         double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
