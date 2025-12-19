@@ -2,20 +2,31 @@ package org.firstinspires.ftc.teamcode.opmode.test;
 
 import android.graphics.Canvas;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.util.misc.ArtifactVisionProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.opencv.core.Point;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
+@TeleOp(name="vision processor test")
+public class VisionTestProcessor extends OpMode {
+    private VisionPortal portal;
+    private ArtifactVisionProcessor processor;
 
-public class ArtifactProcessorTest {
+    @Override
+    public void loop() {
+        Point world = processor.getWorldPoint();
+        telemetry.addData("World X", world.x);
+        telemetry.addData("World Y", world.y);
+        telemetry.update();
 
-    private final VisionPortal portal;
-    private final ArtifactVisionProcessor processor;
+        telemetry.update();
+    }
 
-    public ArtifactProcessorTest(HardwareMap hardwareMap) {
-
+    @Override
+    public void init() {
         // Example homography (REPLACE WITH YOUR REAL ONE)
         double[][] H = {
                 { 0.012, -0.0003, -24 },
@@ -36,13 +47,8 @@ public class ArtifactProcessorTest {
                 .build();
     }
 
-    /** Returns world (x, y). If none detected → (0, 0). */
-    public Point getWorldPosition() {
-        return processor.getWorldPoint();
-    }
-
-    public void stop() {
-        portal.close();
+    @Override
+    public void start() {
     }
 }
 

@@ -23,7 +23,7 @@ public abstract class ArtifactVisionProcessor implements VisionProcessor {
     private final Mat H;
 
     // ===== Output =====
-    private volatile Point worldPoint = new Point(0, 0);
+    private final Point worldPoint = new Point(0, 0);
 
     public ArtifactVisionProcessor(double[][] homography) {
         H = new Mat(3, 3, CvType.CV_64F);
@@ -66,7 +66,8 @@ public abstract class ArtifactVisionProcessor implements VisionProcessor {
         );
 
         if (contours.isEmpty()) {
-            worldPoint = new Point(0, 0);
+            worldPoint.x = 0;
+            worldPoint.y = 0;
             return null;
         }
 
@@ -85,7 +86,8 @@ public abstract class ArtifactVisionProcessor implements VisionProcessor {
         // Centroid
         Moments m = Imgproc.moments(largest);
         if (m.m00 == 0) {
-            worldPoint = new Point(0, 0);
+            worldPoint.x = 0;
+            worldPoint.y = 0;
             return null;
         }
 
@@ -93,7 +95,8 @@ public abstract class ArtifactVisionProcessor implements VisionProcessor {
         double cy = m.m01 / m.m00;
 
         // Image → World
-        worldPoint = imageToWorld(cx, cy);
+        worldPoint.x = imageToWorld(cx, cy).x;
+        worldPoint.y = imageToWorld(cx, cy).y;
 
         // Optional visualization
         Imgproc.circle(frame, new Point(cx, cy), 8, new Scalar(0, 255, 0), 2);
