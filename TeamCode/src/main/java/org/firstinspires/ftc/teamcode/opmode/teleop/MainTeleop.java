@@ -206,13 +206,13 @@ public class MainTeleop {
             }
         }
 
-        if (gp1.dpadDownPressed()) {
-            Pose llPose = robot.vision.getCurrentPose(drivetrain.follower.getPose());
-            if (llPose.getX() != drivetrain.follower.getPose().getX() && llPose.getY() != drivetrain.follower.getPose().getY()) {
-                gamepad1.rumble(300);
-                drivetrain.follower.setCurrentPoseWithOffset(llPose);
-            }
-        }
+//        if (gp1.dpadDownPressed()) {
+//            Pose llPose = robot.limelightLocalizer.getCurrentPose(drivetrain.follower.getPose());
+//            if (llPose.getX() != drivetrain.follower.getPose().getX() && llPose.getY() != drivetrain.follower.getPose().getY()) {
+//                gamepad1.rumble(300);
+//                drivetrain.follower.setCurrentPoseWithOffset(llPose);
+//            }
+//        }
 
         if (gp1.dpadRightPressed()) {
             turretOffset -= Math.toRadians(2);

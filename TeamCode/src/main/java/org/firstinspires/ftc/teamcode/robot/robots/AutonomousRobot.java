@@ -8,9 +8,11 @@ import com.pedropathing.pathgen.PathChain;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.opmode.teleop.Alliance;
+import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
 import org.firstinspires.ftc.teamcode.robot.subsystems.BulkRead;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.robot.subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
@@ -50,7 +52,6 @@ public class AutonomousRobot {
         subsystems.add(turret);
 
         vision = new Vision(hardwareMap);
-        vision.setPipeline(Vision.Pipeline.ARTIFACT_DETECTION);
         subsystems.add(vision);
 
         commands = new ArrayList<>();
@@ -101,23 +102,21 @@ public class AutonomousRobot {
         shooter.setShooterPitch(Math.toRadians(0));
         // configure turret
         turret.setTarget(0);
-        // configure vision
-        vision.setPipeline(Vision.Pipeline.ARTIFACT_DETECTION);
         // configure intake
         intake.state = Intake.IntakeState.INTAKE_OFF;
     }
 
     public void update() {
-        for (Subsystem subsystem: subsystems) {
+        for (Subsystem subsystem : subsystems) {
             subsystem.update();
         }
-        for (StateMachine command: commands) {
+        for (StateMachine command : commands) {
             command.update();
         }
     }
 
     public void start() {
-        for (Subsystem subsystem: subsystems) {
+        for (Subsystem subsystem : subsystems) {
             subsystem.start();
         }
     }
@@ -134,14 +133,9 @@ public class AutonomousRobot {
         PathChain intake = alliance == Alliance.BLUE ?
                 follower.pathBuilder()
                         .addPath(
-                                new BezierLine(
+                                new BezierCurve(
                                         startPose,
-                                        new Pose(50, 84)
-                                )
-                        )
-                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(180))
-                        .addPath(
-                                new BezierLine(
+                                        new Pose(55, 84),
                                         new Pose(50, 84),
                                         new Pose(20, 84)
                                 )
@@ -150,16 +144,11 @@ public class AutonomousRobot {
                         .build() :
                 follower.pathBuilder()
                         .addPath(
-                                new BezierLine(
+                                new BezierCurve(
                                         startPose,
-                                        new Pose(144-50, 84)
-                                )
-                        )
-                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(0))
-                        .addPath(
-                                new BezierLine(
-                                        new Pose(144-50, 84),
-                                        new Pose(144-20, 84)
+                                        new Pose(144 - 55, 84),
+                                        new Pose(144 - 50, 84),
+                                        new Pose(144 - 20, 84)
                                 )
                         )
                         .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -169,7 +158,7 @@ public class AutonomousRobot {
                 follower.pathBuilder()
                         .addPath(
                                 new BezierLine(
-                                        new Pose(20, 60),
+                                        new Pose(20, 84),
                                         endPose
                                 )
                         )
@@ -178,7 +167,7 @@ public class AutonomousRobot {
                 follower.pathBuilder()
                         .addPath(
                                 new BezierLine(
-                                        new Pose(144-20, 60),
+                                        new Pose(144 - 20, 84),
                                         endPose
                                 )
                         )
@@ -194,45 +183,34 @@ public class AutonomousRobot {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shoot, true))
-                        .maxTime(400),
-                new State()
-                        .onEnter(() -> preventMultiPossessionCommand.start())
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> shootCommand.start())
                         .transition(new Transition(() -> shootCommand.isFinished()))
         );
     }
+
     public StateMachine secondSpikeMark(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
+        // TODO: Make these the same BezierCurves (so it works) and use ConstantHeading so that they will line up fine
         PathChain intake = alliance == Alliance.BLUE ?
                 follower.pathBuilder()
                         .addPath(
-                                new BezierLine(
+                                new BezierCurve(
                                         startPose,
-                                        new Pose(50, 60)
-                                )
-                        )
-                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(180))
-                        .addPath(
-                                new BezierLine(
+                                        new Pose(55, 60),
                                         new Pose(50, 60),
-                                        new Pose(12, 60)
+                                        new Pose(13, 60)
                                 )
                         )
                         .setConstantHeadingInterpolation(Math.toRadians(180))
                         .build() :
                 follower.pathBuilder()
                         .addPath(
-                                new BezierLine(
+                                new BezierCurve(
                                         startPose,
-                                        new Pose(144-50, 60)
-                                )
-                        )
-                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(0))
-                        .addPath(
-                                new BezierLine(
-                                        new Pose(144-50, 60),
-                                        new Pose(144-12, 60)
+                                        new Pose(144 - 55, 60),
+                                        new Pose(144 - 50, 60),
+                                        new Pose(144 - 13, 60)
                                 )
                         )
                         .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -242,7 +220,7 @@ public class AutonomousRobot {
                 follower.pathBuilder()
                         .addPath(
                                 new BezierLine(
-                                        new Pose(12, 60),
+                                        new Pose(13, 60),
                                         endPose
                                 )
                         )
@@ -251,7 +229,7 @@ public class AutonomousRobot {
                 follower.pathBuilder()
                         .addPath(
                                 new BezierLine(
-                                        new Pose(144-12, 60),
+                                        new Pose(144 - 13, 60),
                                         endPose
                                 )
                         )
@@ -267,9 +245,6 @@ public class AutonomousRobot {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shoot, true))
-                        .maxTime(400),
-                new State()
-                        .onEnter(() -> preventMultiPossessionCommand.start())
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> shootCommand.start())
@@ -278,35 +253,26 @@ public class AutonomousRobot {
     }
 
     public StateMachine thirdSpikeMark(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
+        // TODO: Make these the same BezierCurves (so it works) and use ConstantHeading so that they will line up fine
         PathChain intake = alliance == Alliance.BLUE ?
                 follower.pathBuilder()
                         .addPath(
-                                new BezierLine(
+                                new BezierCurve(
                                         startPose,
-                                        new Pose(50, 36)
-                                )
-                        )
-                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(180))
-                        .addPath(
-                                new BezierLine(
+                                        new Pose(55, 36),
                                         new Pose(50, 36),
-                                        new Pose(12, 36)
+                                        new Pose(13, 36)
                                 )
                         )
                         .setConstantHeadingInterpolation(Math.toRadians(180))
                         .build() :
                 follower.pathBuilder()
                         .addPath(
-                                new BezierLine(
+                                new BezierCurve(
                                         startPose,
-                                        new Pose(144-50, 36)
-                                )
-                        )
-                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(0))
-                        .addPath(
-                                new BezierLine(
-                                        new Pose(144-50, 36),
-                                        new Pose(144-12, 36)
+                                        new Pose(144 - 55, 36),
+                                        new Pose(144 - 50, 36),
+                                        new Pose(144 - 13, 36)
                                 )
                         )
                         .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -316,7 +282,7 @@ public class AutonomousRobot {
                 follower.pathBuilder()
                         .addPath(
                                 new BezierLine(
-                                        new Pose(12, 36),
+                                        new Pose(13, 36),
                                         endPose
                                 )
                         )
@@ -325,7 +291,7 @@ public class AutonomousRobot {
                 follower.pathBuilder()
                         .addPath(
                                 new BezierLine(
-                                        new Pose(144-12, 36),
+                                        new Pose(144 - 13, 36),
                                         endPose
                                 )
                         )
@@ -341,9 +307,6 @@ public class AutonomousRobot {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shoot, true))
-                        .maxTime(400),
-                new State()
-                        .onEnter(() -> preventMultiPossessionCommand.start())
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> shootCommand.start())
@@ -366,7 +329,7 @@ public class AutonomousRobot {
                         .addPath(
                                 new BezierLine(
                                         startPose,
-                                        new Pose(144-60, 84)
+                                        new Pose(144 - 60, 84)
                                 )
                         )
                         .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(0))
@@ -381,6 +344,7 @@ public class AutonomousRobot {
                         .transition(new Transition(() -> shootCommand.isFinished()))
         );
     }
+
     // assumes that the robot is facing the direction of the pile. for blue, x neg corresponds to y neg, for red, x neg corresponds to y neg
     public StateMachine visionPileCycle(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
         return new StateMachine(
@@ -393,9 +357,9 @@ public class AutonomousRobot {
                                             .addPath(
                                                     new BezierCurve(
                                                             startPose,
-                                                            new Pose(55, 24+x),
-                                                            new Pose(50, 24+x),
-                                                            new Pose(12, 24+x)
+                                                            new Pose(50, 24 + x),
+                                                            new Pose(45, 24 + x),
+                                                            new Pose(12, 24 + x)
                                                     )
                                             )
                                             .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -404,9 +368,9 @@ public class AutonomousRobot {
                                             .addPath(
                                                     new BezierCurve(
                                                             startPose,
-                                                            new Pose(144-55, 24+x),
-                                                            new Pose(144-50, 24+x),
-                                                            new Pose(144-12, 24+x)
+                                                            new Pose(144 - 50, 24 + x),
+                                                            new Pose(144 - 45, 24 + x),
+                                                            new Pose(144 - 12, 24 + x)
                                                     )
                                             )
                                             .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -438,13 +402,106 @@ public class AutonomousRobot {
                                             .build();
                             follower.followPath(shoot, true);
                         })
-                        .maxTime(400),
-                new State()
-                        .onEnter(() -> preventMultiPossessionCommand.start())
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> shootCommand.start())
                         .transition(new Transition(() -> shootCommand.isFinished()))
         );
     }
+
+    public StateMachine gateCycle(Alliance alliance, Follower follower, Pose startPose, Pose endPose, double timeAtGate) {
+        PathChain intake = alliance == Alliance.BLUE ?
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierCurve(
+                                        startPose,
+                                        new Pose(50, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
+                                        new Pose(45, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
+                                        PoseConstants.BLUE_GATE_AUTO_POSE
+                                )
+                        )
+                        .setConstantHeadingInterpolation(PoseConstants.BLUE_GATE_AUTO_POSE.getHeading())
+                        .build() :
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierCurve(
+                                        startPose,
+                                        new Pose(144 - 50, PoseConstants.RED_GATE_AUTO_POSE.getY()),
+                                        new Pose(144 - 45, PoseConstants.RED_GATE_AUTO_POSE.getY()),
+                                        PoseConstants.RED_GATE_AUTO_POSE
+                                )
+                        )
+                        .setConstantHeadingInterpolation(PoseConstants.RED_GATE_AUTO_POSE.getHeading())
+                        .build();
+
+        PathChain shoot = alliance == Alliance.BLUE ?
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        PoseConstants.BLUE_GATE_AUTO_POSE,
+                                        endPose
+                                )
+                        )
+                        .setLinearHeadingInterpolation(PoseConstants.BLUE_GATE_AUTO_POSE.getHeading(), endPose.getHeading())
+                        .build() :
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        PoseConstants.RED_GATE_AUTO_POSE,
+                                        endPose
+                                )
+                        )
+                        .setLinearHeadingInterpolation(PoseConstants.RED_GATE_AUTO_POSE.getHeading(), endPose.getHeading())
+                        .build();
+
+        return new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            follower.followPath(intake, true);
+                            intakeCommand.start();
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .maxTime(timeAtGate),
+                new State()
+                        .onEnter(() -> follower.followPath(shoot, true))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> shootCommand.start())
+                        .transition(new Transition(() -> shootCommand.isFinished()))
+        );
+    }
+
+    public StateMachine preloadFar(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
+        PathChain shoot = alliance == Alliance.BLUE ?
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        startPose,
+                                        new Pose(50, 10)
+                                )
+                        )
+                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(180))
+                        .build() :
+                follower.pathBuilder()
+                        .addPath(
+                                new BezierLine(
+                                        startPose,
+                                        new Pose(144-50, 10)
+                                )
+                        )
+                        .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(0))
+                        .build();
+
+        return new StateMachine(
+                new State()
+                        .onEnter(() -> follower.followPath(shoot, true))
+                        .transition(new Transition(() -> !follower.isBusy() && shooter.atTarget(40))),
+                new State()
+                        .onEnter(() -> shootCommand.start())
+                        .transition(new Transition(() -> shootCommand.isFinished()))
+        );
+    }
+
+    // TODO: make SOTM preload + intake second modular
 }

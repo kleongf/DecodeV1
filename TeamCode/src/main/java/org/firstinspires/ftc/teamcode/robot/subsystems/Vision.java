@@ -1,82 +1,51 @@
 package org.firstinspires.ftc.teamcode.robot.subsystems;
 
-import com.pedropathing.localization.Pose;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
+import android.graphics.Canvas;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.util.misc.ArtifactVisionProcessor;
 import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
-import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.opencv.core.Point;
 
 public class Vision extends Subsystem {
-    public enum Pipeline {
-        APRILTAG,
-        ARTIFACT_DETECTION
-    }
-    private final Limelight3A limelight;
-    private Pipeline pipeline;
-    private double staleness = 0;
-    private Pose currentPose;
-    private double largestClusterX = 0;
+    private VisionPortal portal;
+    private ArtifactVisionProcessor processor;
+    private Point world = new Point(0, 0);
 
-    // TODO: add an extra servo, which adjusts pitch based on pipeline
     public Vision(HardwareMap hardwareMap) {
-        currentPose = new Pose();
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(3);
-        limelight.start();
-    }
+        double[][] H = {
+                { 0.012, -0.0003, -24 },
+                { 0.0001, -0.015, 40 },
+                { 0.00002, -0.00001, 1 }
+        };
 
-    public void setPipeline(Pipeline pipeline) {
-        this.pipeline = pipeline;
-        if (pipeline == Pipeline.APRILTAG) {
-            limelight.pipelineSwitch(3);
-        } else if (pipeline == Pipeline.ARTIFACT_DETECTION) {
-            limelight.pipelineSwitch(2);
-        }
-    }
-    private double metersToInches(double meters) {
-        return meters * 39.3701;
-    }
+        processor = new ArtifactVisionProcessor(H) {
+            @Override
+            public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
 
-    private Pose toPinpointPose(Pose3D llpose, double heading) {
-        double x = 72 + (metersToInches(llpose.getPosition().y));
-        double y = 72 - (metersToInches(llpose.getPosition().x));
-        return new Pose(x, y, heading);
+            }
+        };
+
+        portal = new VisionPortal.Builder()
+                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .addProcessor(processor)
+                .build();
     }
 
     @Override
     public void update() {
-        LLResult result = limelight.getLatestResult();
-        staleness = result.getStaleness();
-        if (result != null && result.isValid()) {
-            if (pipeline == Pipeline.APRILTAG) {
-                Pose3D botPose = result.getBotpose();
-                double heading = MathFunctions.angleWrap(Math.toRadians(result.getBotpose().getOrientation().getYaw(AngleUnit.DEGREES) - 90));
-                currentPose = toPinpointPose(botPose, heading);
-            }
-            if (pipeline == Pipeline.ARTIFACT_DETECTION) {
-                double[] pythonOutput = result.getPythonOutput();
-                largestClusterX = pythonOutput[0];
-            }
-        }
-    }
-
-    public Pose getCurrentPose(Pose pinpointPose) {
-        if (currentPose.getX() == 72 && currentPose.getY() == 72) {
-            return pinpointPose;
-        }
-        return currentPose;
-    }
-
-    public double getLargestClusterX() {
-        return largestClusterX;
+        world = processor.getWorldPoint();
     }
 
     @Override
     public void start() {
-        limelight.start();
+    }
+
+    public double getLargestClusterX() {
+        return world.x;
     }
 }

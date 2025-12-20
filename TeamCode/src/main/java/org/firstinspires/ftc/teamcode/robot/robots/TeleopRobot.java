@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.robot.subsystems.BulkRead;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Pivot;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.robot.subsystems.Vision;
+import org.firstinspires.ftc.teamcode.robot.subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Turret;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
@@ -24,7 +24,7 @@ public class TeleopRobot {
     public final Intake intake;
     public final Shooter shooter;
     public final Turret turret;
-    public final Vision vision;
+    // public final LimelightLocalizer limelightLocalizer;
     public final Pivot pivot;
 
     private final ArrayList<StateMachine> commands;
@@ -46,9 +46,9 @@ public class TeleopRobot {
         turret = new Turret(hardwareMap);
         subsystems.add(turret);
 
-        vision = new Vision(hardwareMap);
-        vision.setPipeline(Vision.Pipeline.APRILTAG);
-        subsystems.add(vision);
+        // limelightLocalizer = new LimelightLocalizer(hardwareMap);
+        // limelightLocalizer.setPipeline(LimelightLocalizer.Pipeline.APRILTAG);
+        // subsystems.add(limelightLocalizer);
 
         pivot = new Pivot(hardwareMap);
         subsystems.add(pivot);
@@ -99,8 +99,7 @@ public class TeleopRobot {
         // configure shooter
         shooter.state = Shooter.ShooterState.SHOOTER_ON;
         shooter.closeLatch();
-        // configure vision (in the future this will also move servo)
-        vision.setPipeline(Vision.Pipeline.APRILTAG);
+        // limelightLocalizer.setPipeline(LimelightLocalizer.Pipeline.APRILTAG);
     }
 
     public void update() {

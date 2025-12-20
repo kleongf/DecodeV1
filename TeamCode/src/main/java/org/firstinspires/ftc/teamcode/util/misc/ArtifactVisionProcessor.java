@@ -21,6 +21,8 @@ public abstract class ArtifactVisionProcessor implements VisionProcessor {
     // ===== Homography (ASSUMED GIVEN) =====
     // 3x3 homography matrix
     private final Mat H;
+    // usually it is 640x480 or something, which maxes out at like 300000, so i guess min area is a ball
+    private final double MIN_AREA = 5000;
 
     // ===== Output =====
     private final Point worldPoint = new Point(0, 0);
@@ -44,7 +46,7 @@ public abstract class ArtifactVisionProcessor implements VisionProcessor {
 
         Mat hsv = new Mat();
         Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_RGB2HSV);
-        Imgproc.medianBlur(hsv, hsv, 5);
+        Imgproc.medianBlur(hsv, hsv, 3);
 
         // Masks
         Mat maskGreen = new Mat();
@@ -66,6 +68,13 @@ public abstract class ArtifactVisionProcessor implements VisionProcessor {
         );
 
         if (contours.isEmpty()) {
+            worldPoint.x = 0;
+            worldPoint.y = 0;
+            return null;
+        }
+
+        // checking if there are any large contours. if not, then it is probably noise.
+        if (Imgproc.contourArea(contours.get(0)) < MIN_AREA) {
             worldPoint.x = 0;
             worldPoint.y = 0;
             return null;
