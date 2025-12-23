@@ -125,7 +125,12 @@ public class MainTeleop {
         gp1.update();
 
         if (gp1.rightBumperPressed()) {
-            robot.shootCommand.start();
+            if(Math.hypot(goalPose.getX()-drivetrain.follower.getPose().getX(),goalPose.getY() - drivetrain.follower.getPose().getY())>130){
+                robot.shootCommandSlow.start();
+            }
+            else{
+                robot.shootCommand.start();
+            }
         }
 
         // slowmo button: turns on/off slowmo, left bumper

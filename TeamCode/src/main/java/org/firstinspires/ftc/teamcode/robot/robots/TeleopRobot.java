@@ -28,7 +28,7 @@ public class TeleopRobot {
     public final Pivot pivot;
 
     private final ArrayList<StateMachine> commands;
-    public StateMachine shootCommand;
+    public StateMachine shootCommand, shootCommandSlow;
     public StateMachine idleCommand;
 
     public TeleopRobot(HardwareMap hardwareMap) {
@@ -77,6 +77,30 @@ public class TeleopRobot {
                         .maxTime(100)
         );
         commands.add(shootCommand);
+
+        shootCommandSlow = new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
+                            shooter.openLatch();
+                        })
+                        .maxTime(150),
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_SLOW;
+                        })
+                        // TODO: .transition(new Transition(() -> !intake.intakeFull()))
+                        // this does not quite work unless we know exactly how many we have
+                        .maxTime(800),
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_FAST;
+                            shooter.closeLatch();
+                        })
+                        .maxTime(100)
+        );
+
+        commands.add(shootCommandSlow);
 
         idleCommand = new StateMachine(
                 new State()
