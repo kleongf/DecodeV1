@@ -76,6 +76,10 @@ public class Shooter extends Subsystem {
     public double getCurrentVelocity() {
         return shooterMotor.getVelocity();
     }
+    public double getCurrentPower() {
+        return shooterMotor.getPower();
+    }
+
 
     // useful trust
     public boolean atTarget(double threshold) {
