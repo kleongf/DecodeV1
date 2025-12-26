@@ -34,17 +34,15 @@ public class VisionTestProcessor extends OpMode {
                 { 0.00002, -0.00001, 1 }
         };
 
-        processor = new ArtifactVisionProcessor(H) {
-            @Override
-            public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
+        processor = new ArtifactVisionProcessor(H);
+        portal = VisionPortal.easyCreateWithDefaults(
+                hardwareMap.get(WebcamName.class, "Webcam 1"), processor);
 
-            }
-        };
-
-        portal = new VisionPortal.Builder()
-                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                .addProcessor(processor)
-                .build();
+//        portal = new VisionPortal.Builder()
+//                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+//                .addProcessor(processor)
+//                .enableLiveView(true)
+//                .build();
     }
 
     @Override

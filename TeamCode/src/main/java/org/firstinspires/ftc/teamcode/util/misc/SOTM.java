@@ -13,9 +13,10 @@ public class SOTM {
     private LUT velocityLUT;
     private double radius = 0.036; // 36 mm radius, 72mm wheel
     private double radiusBall = 0.06223; // 2.45 in
-    private double timeScaleFactor = 1;
-    private double constantTimeFactor = 0.15;
-    private double offsetFactor = 0.15;
+    public double timeScaleFactor = 2.4;
+    public double constantTimeFactor = 0.05;
+    public double offsetFactor = 0.105;
+    double radialVelocityScaleFactor = 1.25;
 
     public SOTM(Pose goal) {
         this.goal = goal;
@@ -73,7 +74,8 @@ public class SOTM {
 
         // now subtract it from the velocity
         // v = r * omega, omega = v (inches to meters) / r (meters) -> divide by 2pi and the multiply by 28. also account for angle
-        double inchesToTicks = (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (1/Math.cos(Math.toRadians(28)+thetaLUT.getValue(dist))); // (1/Math.cos(Math.toRadians(20)+thetaLUT.getValue(dist)))
+
+        double inchesToTicks = radialVelocityScaleFactor * (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (1/Math.cos(Math.toRadians(28)+thetaLUT.getValue(dist))); // (1/Math.cos(Math.toRadians(20)+thetaLUT.getValue(dist)))
 
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
         // 0.2s before shooting: always
@@ -83,6 +85,10 @@ public class SOTM {
         // blue perspective:
         // pure angle to goal. from small angles, it overshoots to the left (from blue perspective this is positive turret),
         double angleToGoal = Math.atan2(-(dx-vTangential.getXComponent()*timestep), (dy-vTangential.getYComponent()*timestep));
+
+        System.out.println("timestep: " + timestep);
+        System.out.println("Tangential X: " + vTangential.getXComponent());
+        System.out.println("Tangential Y: " + vTangential.getYComponent());
         double offset = isBlue ? (angleToGoal - Math.PI / 4) * offsetFactor : (angleToGoal + Math.PI / 4) * offsetFactor;
         // when angle is big, aim more left (which is positive direction), when it is small, aim more right (negative direction)
         // opposite for red, and all this helps i guess? backboard area is better when we higher so it makes sense idk

@@ -6,6 +6,8 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.MathFunctions;
+import com.pedropathing.pathgen.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -17,8 +19,8 @@ public class SOTMTeleop extends OpMode {
     private Pose startPose = PoseConstants.BLUE_FAR_AUTO_POSE;
     private Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
     public static double timeScaleFactor = 1;
-    public static double constantTimeScaleFactor = 0.15;
-    public static double offsetFactor = 0.15;
+    public static double constantTimeScaleFactor = 0.05;
+    public static double offsetFactor = 0.105;
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -27,10 +29,11 @@ public class SOTMTeleop extends OpMode {
 
     @Override
     public void loop() {
-        teleop.sotm.setTimeScaleFactor(timeScaleFactor);
-        teleop.sotm.setConstantTimeFactor(constantTimeScaleFactor);
-        teleop.sotm.setOffsetFactor(offsetFactor);
+        teleop.sotm.timeScaleFactor = timeScaleFactor;
+        teleop.sotm.constantTimeFactor = constantTimeScaleFactor;
+        teleop.sotm.offsetFactor = offsetFactor;
         teleop.loop();
+        telemetry.update();
     }
 
     @Override
