@@ -62,7 +62,6 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Disabled
 @TeleOp(name = "vision test processor 4", group = "Not Concept")
 public class VisionTestProcessor4 extends LinearOpMode
 {
