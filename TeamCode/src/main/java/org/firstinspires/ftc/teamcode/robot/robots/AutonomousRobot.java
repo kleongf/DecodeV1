@@ -31,9 +31,9 @@ public class AutonomousRobot {
     public final Vision vision;
 
     private final ArrayList<StateMachine> commands;
-    private StateMachine intakeCommand;
-    private StateMachine shootCommand;
-    private StateMachine preventMultiPossessionCommand;
+    public StateMachine intakeCommand;
+    public StateMachine shootCommand;
+    public StateMachine preventMultiPossessionCommand;
 
     public AutonomousRobot(HardwareMap hardwareMap) {
         subsystems = new ArrayList<>();

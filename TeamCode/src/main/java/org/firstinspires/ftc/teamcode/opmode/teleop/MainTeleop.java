@@ -31,6 +31,7 @@ public class MainTeleop {
         IDLE,
         SHOOTING
     }
+    private boolean isHoldingTurret = false;
     private Timer endgameTimer;
     private RobotState robotState;
     private ClosestPoint closestPoint;
@@ -133,18 +134,22 @@ public class MainTeleop {
             }
         }
 
-        // slowmo button: turns on/off slowmo, left bumper
+        // slowmo button: turns on/off slowmo, left bumper TODO: uncomment whenever
         if (gp1.leftBumperPressed()) {
-            if (longitudinalSpeed == 1 && lateralSpeed == 1 && rotationSpeed == 1) {
-                longitudinalSpeed = 0.5;
-                lateralSpeed = 0.5;
-                rotationSpeed = 0.2;
-            } else {
-                longitudinalSpeed = 1;
-                lateralSpeed = 1;
-                rotationSpeed = 1;
-            }
+            isHoldingTurret = !isHoldingTurret;
         }
+
+//        if (gp1.leftBumperPressed()) {
+//            if (longitudinalSpeed == 1 && lateralSpeed == 1 && rotationSpeed == 1) {
+//                longitudinalSpeed = 0.5;
+//                lateralSpeed = 0.5;
+//                rotationSpeed = 0.2;
+//            } else {
+//                longitudinalSpeed = 1;
+//                lateralSpeed = 1;
+//                rotationSpeed = 1;
+//            }
+//        }
 
         // mapped to a button because b button is used for controller
         if (gp1.aPressed()) {
@@ -211,13 +216,13 @@ public class MainTeleop {
             }
         }
 
-//        if (gp1.dpadDownPressed()) {
-//            Pose llPose = robot.limelightLocalizer.getCurrentPose(drivetrain.follower.getPose());
-//            if (llPose.getX() != drivetrain.follower.getPose().getX() && llPose.getY() != drivetrain.follower.getPose().getY()) {
-//                gamepad1.rumble(300);
-//                drivetrain.follower.setCurrentPoseWithOffset(llPose);
-//            }
-//        }
+        if (gp1.dpadDownPressed()) {
+            Pose llPose = robot.limelightLocalizer.getCurrentPose(drivetrain.follower.getPose());
+            if (llPose.getX() != drivetrain.follower.getPose().getX() && llPose.getY() != drivetrain.follower.getPose().getY()) {
+                gamepad1.rumble(300);
+                drivetrain.follower.setCurrentPoseWithOffset(llPose);
+            }
+        }
 
         if (gp1.dpadRightPressed()) {
             turretOffset -= Math.toRadians(2);
@@ -235,38 +240,27 @@ public class MainTeleop {
             robot.pivot.setPower(0);
         }
 
-        double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-        robot.turret.setTarget(values[0]+turretOffset);
-        robot.shooter.setShooterPitch(values[1]);
-        robot.shooter.setTargetVelocity(values[2]);
+        if (isHoldingTurret) {
+            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+            robot.turret.setTarget(turretOffset);
+            robot.shooter.setShooterPitch(values[1]);
+            robot.shooter.setTargetVelocity(values[2]);
 
-        telemetry.addData("pitch", values[1]);
-        telemetry.addData("velocity", values[2]);
-        telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
-        robot.turret.setFeedforward(0);
+            telemetry.addData("pitch", values[1]);
+            telemetry.addData("velocity", values[2]);
+            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+            robot.turret.setFeedforward(0);
+        } else {
+            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+            robot.turret.setTarget(values[0]+turretOffset);
+            robot.shooter.setShooterPitch(values[1]);
+            robot.shooter.setTargetVelocity(values[2]);
 
-//        if (!(Math.floorMod(state, 2) == 0)) {
-//            // working on new sotm don't need this
-//            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-//            robot.turret.setTarget(values[0]+turretOffset);
-//            robot.shooter.setShooterPitch(values[1]);
-//            robot.shooter.setTargetVelocity(values[2]);
-//
-//            telemetry.addData("pitch", values[1]);
-//            telemetry.addData("velocity", values[2]);
-//            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
-//
-//        } else {
-//            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-//            robot.turret.setTarget(0 + turretOffset);
-//            robot.shooter.setShooterPitch(values[1]);
-//            robot.shooter.setTargetVelocity(values[2]);
-//
-//            telemetry.addData("pitch", values[1]);
-//            telemetry.addData("velocity", values[2]);
-//            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
-//            robot.turret.setFeedforward(0);
-//        }
+            telemetry.addData("pitch", values[1]);
+            telemetry.addData("velocity", values[2]);
+            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+            robot.turret.setFeedforward(0);
+        }
 
         if (isAutoDriving) {
             if (!holdingPose) {

@@ -7,11 +7,19 @@ import java.util.ArrayList;
 public class ClosestPoint {
     private ArrayList<Pose> poses = new ArrayList<>();
     public ClosestPoint() {
+        // CLOSE POSES
         for (int i = 24; i < 72; i++) {
             poses.add(new Pose(i, 144-i, Math.toRadians(0)));
         }
         for (int i = 72; i < 120; i++) {
             poses.add(new Pose(i, i, Math.toRadians(0)));
+        }
+        // FAR POSES
+        for (int i = 54; i < 72; i++) {
+            poses.add(new Pose(i, 48 + i, Math.toRadians(0)));
+        }
+        for (int i = 72; i < 90; i++) {
+            poses.add(new Pose(i, 96 - i, Math.toRadians(0)));
         }
     }
 

@@ -24,7 +24,7 @@ public class TeleopRobot {
     public final Intake intake;
     public final Shooter shooter;
     public final Turret turret;
-    // public final LimelightLocalizer limelightLocalizer;
+    public final LimelightLocalizer limelightLocalizer;
     public final Pivot pivot;
 
     private final ArrayList<StateMachine> commands;
@@ -46,9 +46,9 @@ public class TeleopRobot {
         turret = new Turret(hardwareMap);
         subsystems.add(turret);
 
-        // limelightLocalizer = new LimelightLocalizer(hardwareMap);
-        // limelightLocalizer.setPipeline(LimelightLocalizer.Pipeline.APRILTAG);
-        // subsystems.add(limelightLocalizer);
+        limelightLocalizer = new LimelightLocalizer(hardwareMap);
+        limelightLocalizer.setPipeline(LimelightLocalizer.Pipeline.APRILTAG);
+        subsystems.add(limelightLocalizer);
 
         pivot = new Pivot(hardwareMap);
         subsystems.add(pivot);
@@ -123,7 +123,7 @@ public class TeleopRobot {
         // configure shooter
         shooter.state = Shooter.ShooterState.SHOOTER_ON;
         shooter.closeLatch();
-        // limelightLocalizer.setPipeline(LimelightLocalizer.Pipeline.APRILTAG);
+        limelightLocalizer.setPipeline(LimelightLocalizer.Pipeline.APRILTAG);
     }
 
     public void update() {
@@ -152,8 +152,20 @@ public class TeleopRobot {
         double zoneY = 72 + 1 * (pose.getX()-72);
         return pose.getX() >= 72 && pose.getY() > zoneY;
     }
+
+    private boolean inFarLeftZone(Pose pose) {
+        // left side, robot pose must be below line, it starts at -48 i think and goes to 24
+        double zoneY = -48 + 1 * pose.getX();
+        return pose.getX() >= 48 && pose.getX() <= 72 && pose.getY() < zoneY;
+    }
+
+    private boolean inFarRightZone(Pose pose) {
+        // left side, robot pose must be below line, it starts at -48 i think and goes to 24
+        double zoneY = 96 - 1 * pose.getX();
+        return pose.getX() >= 72 && pose.getX() <= 144 && pose.getY() < zoneY;
+    }
     public boolean inShootingZone(Pose pose) {
-        return inRightZone(pose) || inLeftZone(pose);
+        return inRightZone(pose) || inLeftZone(pose) || inFarLeftZone(pose) || inFarRightZone(pose);
     }
 }
 
