@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.opmode.teleop.Alliance;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
+import org.firstinspires.ftc.teamcode.robot.subsystems.ArtifactVision;
 import org.firstinspires.ftc.teamcode.robot.subsystems.BulkRead;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
@@ -28,7 +29,7 @@ public class AutonomousRobot {
     public final Intake intake;
     public final Shooter shooter;
     public final Turret turret;
-    public final Vision vision;
+    public final ArtifactVision vision;
 
     private final ArrayList<StateMachine> commands;
     public StateMachine intakeCommand;
@@ -51,7 +52,7 @@ public class AutonomousRobot {
         turret.resetEncoder();
         subsystems.add(turret);
 
-        vision = new Vision(hardwareMap);
+        vision = new ArtifactVision(hardwareMap);
         subsystems.add(vision);
 
         commands = new ArrayList<>();
