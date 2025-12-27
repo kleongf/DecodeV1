@@ -15,8 +15,11 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.RotatedRect;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,17 +70,19 @@ public class ArtifactVision extends Subsystem {
         // may want to subtract a bit, because balls usually have a bit of downward velocity
 
         List<Double> distances = new ArrayList<>();
+        List<Double> areas = new ArrayList<>(); // calculating these first to save on computations
         for(ArtifactProcessor.Blob b : blobs)
         {
             RotatedRect boxFit = b.getBoxFit();
             distances.add(imageToWorld(boxFit.center.x, boxFit.center.y).x);
+            areas.add((double) b.getContourArea());
         }
 
         double maxAreaLoc = -19;
         double maxArea = 0;
 
         for (int i = -19; i < 19; i++) {
-            double area = calculateArea(distances, blobs, i-5, i+5);
+            double area = calculateArea(distances, areas, i-5, i+5);
             if (area > maxArea) {
                 maxArea = area;
                 maxAreaLoc = i;
@@ -110,12 +115,12 @@ public class ArtifactVision extends Subsystem {
 
         return new Point(wx / w, wy / w);
     }
-    private double calculateArea(List<Double> dists, List<ArtifactProcessor.Blob> blobs, double lower, double upper) {
+    private double calculateArea(List<Double> dists, List<Double> areas, double lower, double upper) {
                 double totalArea = 0;
                 for (int i = 0; i < dists.size(); i++) {
                     double x = dists.get(i);
                     if (x >= lower && x <= upper) {
-                        totalArea += blobs.get(i).getContourArea();
+                        totalArea += areas.get(i);
                     }
                 }
                 return totalArea;
