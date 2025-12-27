@@ -27,7 +27,7 @@ public class Shooter extends Subsystem {
     public DcMotorEx shooterMotor2;
     private FeedForwardController controller;
     private VoltageSensor voltageSensor;
-    private double nominalVoltage = 12.4; // i would say that it's usually 12.4 when tuning
+    private double nominalVoltage = 12.4; // i would say that it's usually 12.4 when tuning (i didnt change this b/c shooter was tuned using tuned shooter)
     public Shooter(HardwareMap hardwareMap) {
         voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
         shooterMotor = hardwareMap.get(DcMotorEx.class, "shooterMotor");

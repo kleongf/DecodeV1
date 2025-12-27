@@ -13,8 +13,8 @@ public class SOTM {
     private LUT velocityLUT;
     private double radius = 0.036; // 36 mm radius, 72mm wheel
     private double radiusBall = 0.06223; // 2.45 in
-    public double timeScaleFactor = 2.4;
-    public double constantTimeFactor = 0.05;
+    public double timeScaleFactor = 1.0;
+    public double constantTimeFactor = 0.1;
     public double offsetFactor = 0.105;
     double radialVelocityScaleFactor = 1.25;
 
@@ -22,36 +22,48 @@ public class SOTM {
         this.goal = goal;
 
         thetaLUT = new LUT();
-        thetaLUT.addData(53, Math.toRadians(2));
-        thetaLUT.addData(58, Math.toRadians(6));
-        thetaLUT.addData(68, Math.toRadians(12));
-        thetaLUT.addData(78, Math.toRadians(15));
-        thetaLUT.addData(88, Math.toRadians(16.5));
-        thetaLUT.addData(98, Math.toRadians(16.5));
-        thetaLUT.addData(108, Math.toRadians(15));
-        thetaLUT.addData(118, Math.toRadians(15));
-        thetaLUT.addData(128, Math.toRadians(16));
-        thetaLUT.addData(138, Math.toRadians(16));
-        thetaLUT.addData(148, Math.toRadians(17));
+        thetaLUT.addData(163, Math.toRadians(17));
         thetaLUT.addData(158, Math.toRadians(17));
+        thetaLUT.addData(153, Math.toRadians(17));
+        thetaLUT.addData(148, Math.toRadians(17));
+        thetaLUT.addData(143, Math.toRadians(17));
+        thetaLUT.addData(138, Math.toRadians(17));
+        thetaLUT.addData(133, Math.toRadians(17));
+        thetaLUT.addData(128, Math.toRadians(17));
+        thetaLUT.addData(118, Math.toRadians(17));
+        thetaLUT.addData(108, Math.toRadians(16));
+        thetaLUT.addData(98, Math.toRadians(15));
+        thetaLUT.addData(88, Math.toRadians(14));
+        thetaLUT.addData(78, Math.toRadians(12));
+        thetaLUT.addData(68, Math.toRadians(7));
+        thetaLUT.addData(58, Math.toRadians(3));
+        thetaLUT.addData(53, Math.toRadians(0));
 
         velocityLUT = new LUT();
-        velocityLUT.addData(158, 1520+40);
-        velocityLUT.addData(148, 1480+40);
-        velocityLUT.addData(138, 1410+40);
-        velocityLUT.addData(128, 1380+40);
-        velocityLUT.addData(118, 1300+40);
-        velocityLUT.addData(108, 1260+40); // and this too
-        velocityLUT.addData(98, 1320);
-        velocityLUT.addData(88, 1240);
-        velocityLUT.addData(78, 1180);
-        velocityLUT.addData(68, 1120);
-        velocityLUT.addData(58, 1060);
-        velocityLUT.addData(53, 1020);
+        velocityLUT.addData(163, 1520);
+        velocityLUT.addData(158, 1510);
+        velocityLUT.addData(153, 1500);
+        velocityLUT.addData(148, 1480);
+        velocityLUT.addData(143, 1460);
+        velocityLUT.addData(138, 1440);
+        velocityLUT.addData(133, 1420);
+        velocityLUT.addData(128, 1400);
+        velocityLUT.addData(118, 1360);
+        velocityLUT.addData(108, 1300); 
+        velocityLUT.addData(98, 1220);
+        velocityLUT.addData(88, 1160);
+        velocityLUT.addData(78, 1120);
+        velocityLUT.addData(68, 1080);
+        velocityLUT.addData(58, 1020);
+        velocityLUT.addData(53, 1000);
 
     }
     private double calculateLinearVelocityInches(double ticksPerSecond) {
         return (ticksPerSecond * 2 * Math.PI / 28.0) * radius * (39.3701);
+    }
+
+    private double calculateLinearVelocityMeters(double ticksPerSecond) {
+        return (ticksPerSecond * 2 * Math.PI / 28.0) * radius;
     }
     public double[] calculateAzimuthThetaVelocity(Pose robotPose, Vector robotVelocity) {
         double dx = goal.getX() - robotPose.getX();
@@ -80,7 +92,7 @@ public class SOTM {
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
         // 0.2s before shooting: always
 
-        double timestep = constantTimeFactor + timeScaleFactor * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(28))));
+        double timestep = constantTimeFactor + timeScaleFactor * simulateProjectileTOF(dist, thetaLUT.getValue(dist), velocityLUT.getValue(dist));
 
         // blue perspective:
         // pure angle to goal. from small angles, it overshoots to the left (from blue perspective this is positive turret),
@@ -214,4 +226,42 @@ public class SOTM {
         timeScaleFactor = x;
     }
     public void setOffsetFactor(double x) {offsetFactor=x;}
+
+    // returns the amount of time a projectile will take in air. not yet implemented but
+    // should be better than current sotm.
+    // note that a timeconstant (like 0.1s) is needed b/c turret doesn't update instantly to target, it lags a bit,
+    // so a larger target is always necessary
+    // however there shouldn't need to be a scaling constant for this new one, if there is, it is small
+    private double simulateProjectileTOF(double dist, double theta, double velocityTicks) {
+        double m = 0.07845; // mass of ball in kg
+        double v = calculateLinearVelocityMeters(velocityTicks); // ticks -> linear velocity
+        double c = 0.5 * 1 * 1.225 * 0.01216604657; // 1/2 Cd * rho * cross sectional area in m^2
+
+        theta += Math.toRadians(28); // because of weird offset trust
+        double vx = v * Math.cos(theta); // x velocity
+        double vy = v * Math.sin(theta); // y velocity
+
+        // simulation constants!
+        double dt = 0.001;
+        double g = 9.8;
+        double d = dist / 39.3701; // converting to meters
+        double MAX_ITERATIONS = 10000;
+
+        double x = 0;
+
+        for (int i = 0; i < MAX_ITERATIONS; i++) {
+            double ax = (-c * Math.hypot(vx, vy) * vx) / m;
+            double ay = (m * g -c * Math.hypot(vx, vy) * vy) / m;
+            vx = vx + ax * dt;
+            vy = vy + ay * dt;
+
+            x += vx * dt;
+
+            if (x >= d) {
+                return i/1000d;
+            }
+        }
+
+        return 0.5; // just in case
+    }
 }
