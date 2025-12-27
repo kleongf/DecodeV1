@@ -15,7 +15,7 @@ public class SOTM {
     private double radiusBall = 0.06223; // 2.45 in
     public double timeScaleFactor = 1.0;
     public double constantTimeFactor = 0.1;
-    public double offsetFactor = 0.105;
+    public double offsetFactor = 0.125;
     double radialVelocityScaleFactor = 1.25;
 
     public SOTM(Pose goal) {
