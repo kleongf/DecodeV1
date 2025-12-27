@@ -141,28 +141,30 @@ public class TeleopRobot {
         }
     }
 
+    // TODO: editing these to give 6 inch tolerance because robot is like 6 inches wide
+
     private boolean inLeftZone(Pose pose) {
         // right side. robot pose must be above the line with slope -1
-        double zoneY = 144 + -1 * pose.getX();
+        double zoneY = 138 -1 * pose.getX();
         return pose.getX() < 72 && pose.getY() > zoneY;
     }
 
     private boolean inRightZone(Pose pose) {
         // left side. robot pose must be above line with slope 1
-        double zoneY = 72 + 1 * (pose.getX()-72);
+        double zoneY = pose.getX()-6;
         return pose.getX() >= 72 && pose.getY() > zoneY;
     }
 
     private boolean inFarLeftZone(Pose pose) {
         // left side, robot pose must be below line, it starts at -48 i think and goes to 24
-        double zoneY = -48 + 1 * pose.getX();
-        return pose.getX() >= 48 && pose.getX() <= 72 && pose.getY() < zoneY;
+        double zoneY = -42 + 1 * pose.getX();
+        return pose.getX() >= 42 && pose.getX() <= 72 && pose.getY() < zoneY;
     }
 
     private boolean inFarRightZone(Pose pose) {
         // left side, robot pose must be below line, it starts at -48 i think and goes to 24
-        double zoneY = 96 - 1 * pose.getX();
-        return pose.getX() >= 72 && pose.getX() <= 144 && pose.getY() < zoneY;
+        double zoneY = 102 - 1 * pose.getX();
+        return pose.getX() >= 72 && pose.getX() <= 102 && pose.getY() < zoneY;
     }
     public boolean inShootingZone(Pose pose) {
         return inRightZone(pose) || inLeftZone(pose) || inFarLeftZone(pose) || inFarRightZone(pose);

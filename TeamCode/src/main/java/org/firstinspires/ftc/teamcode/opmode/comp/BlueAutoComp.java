@@ -379,6 +379,9 @@ public class BlueAutoComp extends OpMode {
     @Override
     public void loop() {
         double[] values;
+        // this sotm doesn't work, because path starts at idx 0
+        // from < 1: set target to pose 38 115
+        // from 1 < pathnum < 2: sotm
         if (isSOTMing) {
             if (follower.getCurrentPathNumber() < 2) {
                 // maybe faster updating is better here? idk we can revert to new Vector()
