@@ -13,8 +13,8 @@ public class SOTM {
     private LUT velocityLUT;
     private double radius = 0.036; // 36 mm radius, 72mm wheel
     private double radiusBall = 0.06223; // 2.45 in
-    public double timeScaleFactor = 1.0;
-    public double constantTimeFactor = 0.1;
+    public double timeScaleFactor = 2.4;
+    public double constantTimeFactor = 0.05;
     public double offsetFactor = 0.125;
     double radialVelocityScaleFactor = 1.25;
 
@@ -92,7 +92,8 @@ public class SOTM {
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
         // 0.2s before shooting: always
 
-        double timestep = constantTimeFactor + timeScaleFactor * simulateProjectileTOF(dist, thetaLUT.getValue(dist), velocityLUT.getValue(dist));
+        double timestep = constantTimeFactor + timeScaleFactor * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(28))));
+                // simulateProjectileTOF(dist, thetaLUT.getValue(dist), velocityLUT.getValue(dist));
 
         // blue perspective:
         // pure angle to goal. from small angles, it overshoots to the left (from blue perspective this is positive turret),
