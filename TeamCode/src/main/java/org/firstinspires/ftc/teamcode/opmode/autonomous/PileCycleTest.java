@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="pile cycle test blue 24", group="not a comp")
+@Autonomous(name="pile cycle test blue 30", group="not a comp")
 public class PileCycleTest extends OpMode {
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
@@ -33,7 +33,7 @@ public class PileCycleTest extends OpMode {
     private final Pose startPose = PoseConstants.BLUE_FAR_AUTO_POSE;
     private Pose shootPose = new Pose(48, 9, Math.toRadians(180)); // i dont care but 62, 24, 180 deg
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
-    private PathChain scorePreload, intakeCorner, shootCorner, intakeThird, shootThird, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3, intakePile4, shootPile4, intakePile5, shootPile5;
+    private PathChain scorePreload, intakeCorner, shootCorner, intakeThird, shootThird, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3, intakePile4, shootPile4, intakePile5, shootPile5, intakePile6, shootPile6, intakePile7, shootPile7;
     public void buildPaths() {
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(new Pose(55.500, 6.000), new Pose(48.000, 9.000)))
@@ -291,6 +291,77 @@ public class PileCycleTest extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.shootCommand.start())
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // pile 6
+                new State()
+                        .onEnter(() -> {
+                            double optimalX = robot.vision.getLargestClusterX();
+                            intakePile6 = follower.pathBuilder()
+                                    .addPath(
+                                            new BezierCurve(
+                                                    new Pose(62.000, 24.000),
+                                                    new Pose(55.000, 24+optimalX),
+                                                    new Pose(50.000, 24+optimalX),
+                                                    new Pose(9.000, 24+optimalX)
+                                            )
+                                    )
+                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .build();
+                            shootPile6 = follower.pathBuilder()
+                                    .addPath(
+                                            new BezierCurve(
+                                                    new Pose(9.000, 24+optimalX),
+                                                    new Pose(62.000, 24.000)
+                                            )
+                                    )
+                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .build();
+                            robot.intakeCommand.start();
+                            follower.followPath(intakePile6, true);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootPile6, true))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.shootCommand.start())
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // pile 7
+                new State()
+                        .onEnter(() -> {
+                            double optimalX = robot.vision.getLargestClusterX();
+                            intakePile5 = follower.pathBuilder()
+                                    .addPath(
+                                            new BezierCurve(
+                                                    new Pose(62.000, 24.000),
+                                                    new Pose(55.000, 24+optimalX),
+                                                    new Pose(50.000, 24+optimalX),
+                                                    new Pose(9.000, 24+optimalX)
+                                            )
+                                    )
+                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .build();
+                            shootPile5 = follower.pathBuilder()
+                                    .addPath(
+                                            new BezierCurve(
+                                                    new Pose(9.000, 24+optimalX),
+                                                    new Pose(62.000, 24.000)
+                                            )
+                                    )
+                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .build();
+                            robot.intakeCommand.start();
+                            follower.followPath(intakePile5, true);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootPile5, true))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> {
+                            robot.shootCommand.start();
+                            blackboard.put(RobotConstants.END_POSE_KEY, follower.getPose());
+                        })
                         .onExit(() -> blackboard.put(RobotConstants.END_POSE_KEY, follower.getPose()))
                         .transition(new Transition(() -> robot.shootCommand.isFinished()))
         );

@@ -127,7 +127,18 @@ public class ArtifactVision extends Subsystem {
         }
         // x = vot + 1/2 at^2, but change to meters first, then back to inches
         // assuming v <= 0 then friction acts in the opposite direction
-        double offsetX = ((currentV/39.37) * pathTime + 0.5 * (g * uk2) * pathTime * pathTime) * 39.37;
+        // time when v = 0.
+        double offsetX = 0;
+        double timeAtStop = (currentV / 39.37) / (uk2 * g);
+        if (timeAtStop < pathTime) {
+            // if the ball stops early, stop extrapolating its position
+            // from the work-kinetic energy thm:
+            offsetX = (Math.pow((currentV / 39.37), 2) / (2 * uk2 * g)) * 39.37;
+        } else {
+            // the ball is still moving before the robot finishes the path.
+            // from basic kinematics:
+            offsetX = ((currentV/39.37) * pathTime + 0.5 * (g * uk2) * pathTime * pathTime);
+        }
         if (offsetX > 0) {offsetX = 0;} // offset should be negative
         // postprocessing: compensating for ball velocity
         // double offsetX = calculateVelocity(maxAreaLoc) * pathTime;

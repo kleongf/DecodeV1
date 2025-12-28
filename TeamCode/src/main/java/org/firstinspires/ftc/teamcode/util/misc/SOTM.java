@@ -16,7 +16,7 @@ public class SOTM {
     public double timeScaleFactor = 2.4;
     public double constantTimeFactor = 0.05;
     public double offsetFactor = 0.125;
-    double radialVelocityScaleFactor = 1.25;
+    double radialVelocityScaleFactor = 2.4; // made to match the timeScale b/c if we're using bad physics we may as well use it for both right?
 
     public SOTM(Pose goal) {
         this.goal = goal;
