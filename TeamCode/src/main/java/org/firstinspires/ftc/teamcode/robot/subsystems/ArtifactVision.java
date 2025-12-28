@@ -5,6 +5,7 @@ import android.util.Size;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -37,6 +38,11 @@ public class ArtifactVision extends Subsystem {
     private double h = 0.61;
     private double uk = 0.55;
     private double energyScaleFactor = 0.2; // idk what im doing but compensates for friction energy lost on ramp + air resistance + if ball hits gate and weird stuff, this factor makes sense physics-wise
+    private double uk2 = 0.25; // random estimate lol
+    private ElapsedTime elapsedTime;
+    private double prevX = 0;
+    private double currentV = 0;
+    int frames = 0;
 
     public ArtifactVision(HardwareMap hardwareMap) {
         colorLocator = new ArtifactProcessor.Builder()
@@ -55,16 +61,19 @@ public class ArtifactVision extends Subsystem {
             { -6.01290894e-05, -4.77537046e-03,  1.00000000e+00 }
         };
 
+        // TODO: different homography matrix for red
         this.H = new Mat(3, 3, CvType.CV_64F);
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
                 H.put(r, c, homography[r][c]);
             }
         }
+
     }
 
     @Override
     public void update() {
+        frames++;
         if (colorLocator == null) {
             colorLocatorNull = true;
             return;
@@ -99,16 +108,30 @@ public class ArtifactVision extends Subsystem {
         double maxArea = 0;
 
         hasMaxArea = false;
-        for (int i = -24; i < 20; i++) {
-            double area = calculateArea(distances, areas, i-5, i+5);
+        for (int i = -240; i < 300; i++) {
+            double area = calculateArea(distances, areas, i/10d-5, i/10d+5);
             hasMaxArea = true;
             if (area > maxArea) {
                 maxArea = area;
-                maxAreaLoc = i;
+                maxAreaLoc = i/10d;
             }
         }
+        if (frames % 10 == 0) { // check velocity every 10 frames idk why i chose 10
+            double dt = elapsedTime.seconds();
+            if (dt > 0) { // no div 0 errors pls
+                currentV = (maxAreaLoc - prevX) / dt;
+                if (currentV > 0) {currentV = 0;} // balls should NOT be going right, if so it's a mistake
+                prevX = maxAreaLoc;
+                elapsedTime.reset();
+            }
+        }
+        // x = vot + 1/2 at^2, but change to meters first, then back to inches
+        // assuming v <= 0 then friction acts in the opposite direction
+        double offsetX = ((currentV/39.37) * pathTime + 0.5 * (g * uk2) * pathTime * pathTime) * 39.37;
+        if (offsetX > 0) {offsetX = 0;} // offset should be negative
         // postprocessing: compensating for ball velocity
-        double offsetX = calculateVelocity(maxAreaLoc) * pathTime;
+        // double offsetX = calculateVelocity(maxAreaLoc) * pathTime;
+        // better postprocessing
         maxAreaLoc -= offsetX;
         // making sure it doesn't aim too low!
         if (maxAreaLoc < -16) { maxAreaLoc = -16; }
@@ -118,13 +141,14 @@ public class ArtifactVision extends Subsystem {
 
     @Override
     public void start() {
+        elapsedTime.reset();
     }
 
     private double calculateVelocity(double x) {
         // step 1: -24 gets mapped to 0, 20 gets mapped to 44, and we do 72-xloc to find d
         double d = (72 - (x + 24)) / 39.37;
         if (h-uk*d < 0) { return 0; }
-        return Math.sqrt((1.5*g*energyScaleFactor) * (h-uk*d)) * 39.37; // back to inches
+        return Math.sqrt(((6/5d)*g*energyScaleFactor) * (h-uk*d)) * 39.37; // back to inches
     }
 
     public double getLargestClusterX() {
