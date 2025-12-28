@@ -1,123 +1,160 @@
-//package org.firstinspires.ftc.teamcode.robot.subsystems;
-//
-//import android.graphics.Canvas;
-//import android.util.Size;
-//
-//import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-//import com.qualcomm.robotcore.hardware.HardwareMap;
-//
-//import org.firstinspires.ftc.robotcore.external.Telemetry;
-//import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-//import org.firstinspires.ftc.teamcode.util.misc.ArtifactProcessor;
-//import org.firstinspires.ftc.teamcode.util.misc.ArtifactVisionProcessor;
-//import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
-//import org.firstinspires.ftc.vision.VisionPortal;
-//import org.opencv.core.Core;
-//import org.opencv.core.CvType;
-//import org.opencv.core.Mat;
-//import org.opencv.core.Point;
-//import org.opencv.core.RotatedRect;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//
-//public class ArtifactVision extends Subsystem {
-//    private VisionPortal portal;
-//    private ArtifactProcessor colorLocator;
-//    private double bestX = -19;
-//    private Mat H;
-//
-//    public ArtifactVision(HardwareMap hardwareMap) {
-//        ArtifactProcessor colorLocator = new ArtifactProcessor.Builder()
-//                .build();
-//
-//        VisionPortal portal = new VisionPortal.Builder()
-//                .addProcessor(colorLocator)
-//                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
-//                .setCameraResolution(new Size(640, 480))
-//                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-//                .build();
-//
-//        double[][] homography = {
-//            { 0.012, -0.0003, -24 },
-//            { 0.0001, -0.015, 40 },
-//            { 0.00002, -0.00001, 1 }
-//        };
-//
-//        this.H = new Mat(3, 3, CvType.CV_64F);
-//        for (int r = 0; r < 3; r++) {
-//            for (int c = 0; c < 3; c++) {
-//                H.put(r, c, homography[r][c]);
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void update() {
-//        List<ArtifactProcessor.Blob> blobs = colorLocator.getBlobs();
-//
-//        ArtifactProcessor.Util.filterByCriteria(
-//                ArtifactProcessor.BlobCriteria.BY_CONTOUR_AREA,
-//                50, 20000, blobs);  // filter out very small blobs.
-//
-//        if (blobs.isEmpty()) { return; }
-//
-//        // new idea method: find world x and y, loop through a range, range with most total area wins
-//        // may want to subtract a bit, because balls usually have a bit of downward velocity
-//
-//        List<Double> distances = new ArrayList<>();
-//        for(ArtifactProcessor.Blob b : blobs)
-//        {
-//            RotatedRect boxFit = b.getBoxFit();
-//            distances.add(imageToWorld(boxFit.center.x, boxFit.center.y).x);
-//        }
-//
-//        double maxAreaLoc = -19;
-//        double maxArea = 0;
-//
-//        for (int i = -19; i < 19; i++) {
-//            double area = calculateArea(distances, blobs, i-5, i+5);
-//            if (area > maxArea) {
-//                maxArea = area;
-//                maxAreaLoc = i;
-//            }
-//        }
-//        bestX = maxAreaLoc;
-//    }
-//
-//    @Override
-//    public void start() {
-//    }
-//
-//    public double getLargestClusterX() {
-//        return bestX;
-//    }
-//    private Point imageToWorld(double x, double y) {
-//        Mat pt = new Mat(3, 1, CvType.CV_64F);
-//        pt.put(0, 0, x);
-//        pt.put(1, 0, y);
-//        pt.put(2, 0, 1.0);
-//
-//        Mat world = new Mat();
-//        Core.gemm(H, pt, 1, new Mat(), 0, world);
-//
-//        double wx = world.get(0, 0)[0];
-//        double wy = world.get(1, 0)[0];
-//        double w  = world.get(2, 0)[0];
-//
-//        if (w == 0) return new Point(0, 0);
-//
-//        return new Point(wx / w, wy / w);
-//    }
-//    private double calculateArea(List<Double> dists, List<ArtifactProcessor.Blob> blobs, double lower, double upper) {
-//                double totalArea = 0;
-//                for (int i = 0; i < dists.size(); i++) {
-//                    double x = dists.get(i);
-//                    if (x >= lower && x <= upper) {
-//                        totalArea += blobs.get(i).getContourArea();
-//                    }
-//                }
-//                return totalArea;
-//    }
-//}
+package org.firstinspires.ftc.teamcode.robot.subsystems;
+
+import android.graphics.Canvas;
+import android.util.Size;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.util.misc.ArtifactProcessor;
+import org.firstinspires.ftc.teamcode.util.misc.ArtifactVisionProcessor;
+import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.RotatedRect;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class ArtifactVision extends Subsystem {
+    private VisionPortal portal;
+    private ArtifactProcessor colorLocator;
+    private double bestX = -19;
+    private Mat H;
+    public boolean colorLocatorNull = true;
+    public boolean hasMaxArea = false;
+    private double pathTime = 0.8; // path usually takes 0.8s i guess
+    private double g = 9.8;
+    private double h = 0.61;
+    private double uk = 0.55;
+    private double energyScaleFactor = 0.2; // idk what im doing but compensates for friction energy lost on ramp + air resistance + if ball hits gate and weird stuff, this factor makes sense physics-wise
+
+    public ArtifactVision(HardwareMap hardwareMap) {
+        colorLocator = new ArtifactProcessor.Builder()
+                .build();
+
+        portal = new VisionPortal.Builder()
+                .addProcessor(colorLocator)
+                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
+                .setCameraResolution(new Size(640, 480))
+                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .build();
+
+        double[][] homography = {
+            { -4.98885709e-02, 2.91967072e-02, 9.88258249e+00 },
+            { 3.80623143e-03,  5.18877858e-02, -2.55240985e+01 },
+            { -6.01290894e-05, -4.77537046e-03,  1.00000000e+00 }
+        };
+
+        this.H = new Mat(3, 3, CvType.CV_64F);
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                H.put(r, c, homography[r][c]);
+            }
+        }
+    }
+
+    @Override
+    public void update() {
+        if (colorLocator == null) {
+            colorLocatorNull = true;
+            return;
+        } else {
+            colorLocatorNull = false;
+        }
+
+        List<ArtifactProcessor.Blob> blobs = colorLocator.getBlobs();
+        if (blobs == null) {
+            return;
+        }
+
+        ArtifactProcessor.Util.filterByCriteria(
+                ArtifactProcessor.BlobCriteria.BY_CONTOUR_AREA,
+                300, 20000, blobs);  // filter out very small blobs.
+
+        if (blobs.isEmpty()) { return; }
+
+        // new idea method: find world x and y, loop through a range, range with most total area wins
+        // may want to subtract a bit, because balls usually have a bit of downward velocity
+
+        List<Double> distances = new ArrayList<>();
+        List<Double> areas = new ArrayList<>(); // calculating these first to save on computations
+        for(ArtifactProcessor.Blob b : blobs)
+        {
+            RotatedRect boxFit = b.getBoxFit();
+            distances.add(imageToWorld(boxFit.center.x, boxFit.center.y).x);
+            areas.add((double) b.getContourArea());
+        }
+
+        double maxAreaLoc = -16;
+        double maxArea = 0;
+
+        hasMaxArea = false;
+        for (int i = -24; i < 20; i++) {
+            double area = calculateArea(distances, areas, i-5, i+5);
+            hasMaxArea = true;
+            if (area > maxArea) {
+                maxArea = area;
+                maxAreaLoc = i;
+            }
+        }
+        // postprocessing: compensating for ball velocity
+        double offsetX = calculateVelocity(maxAreaLoc) * pathTime;
+        maxAreaLoc -= offsetX;
+        // making sure it doesn't aim too low!
+        if (maxAreaLoc < -16) { maxAreaLoc = -16; }
+
+        bestX = maxAreaLoc;
+    }
+
+    @Override
+    public void start() {
+    }
+
+    private double calculateVelocity(double x) {
+        // step 1: -24 gets mapped to 0, 20 gets mapped to 44, and we do 72-xloc to find d
+        double d = (72 - (x + 24)) / 39.37;
+        if (h-uk*d < 0) { return 0; }
+        return Math.sqrt((1.5*g*energyScaleFactor) * (h-uk*d)) * 39.37; // back to inches
+    }
+
+    public double getLargestClusterX() {
+        return bestX;
+    }
+    private Point imageToWorld(double x, double y) {
+        Mat pt = new Mat(3, 1, CvType.CV_64F);
+        pt.put(0, 0, x);
+        pt.put(1, 0, y);
+        pt.put(2, 0, 1.0);
+
+        Mat world = new Mat();
+        Core.gemm(H, pt, 1, new Mat(), 0, world);
+
+        double wx = world.get(0, 0)[0];
+        double wy = world.get(1, 0)[0];
+        double w  = world.get(2, 0)[0];
+
+        if (w == 0) return new Point(0, 0);
+
+        return new Point(wx / w, wy / w);
+    }
+    private double calculateArea(List<Double> dists, List<Double> areas, double lower, double upper) {
+                double totalArea = 0;
+                for (int i = 0; i < dists.size(); i++) {
+                    double x = dists.get(i);
+                    if (x >= lower && x <= upper) {
+                        totalArea += areas.get(i);
+                    }
+                }
+                return totalArea;
+    }
+}

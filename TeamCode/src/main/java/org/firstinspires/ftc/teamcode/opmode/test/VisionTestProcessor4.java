@@ -91,7 +91,7 @@ public class VisionTestProcessor4 extends LinearOpMode
 
             ArtifactProcessor.Util.filterByCriteria(
                     ArtifactProcessor.BlobCriteria.BY_CONTOUR_AREA,
-                    50, 20000, blobs);  // filter out very small blobs.
+                    1000, 20000, blobs);  // filter out very small blobs.
 
 
             telemetry.addLine("Area Density Aspect Arc Circle Center");
