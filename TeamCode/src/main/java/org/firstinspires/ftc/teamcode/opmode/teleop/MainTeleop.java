@@ -91,19 +91,19 @@ public class MainTeleop {
             // if we are idle and conditions are right, we shoot
             if (
                     robotState != RobotState.SHOOTING &&
-                    drivetrain.follower.getVelocity().getMagnitude() < 20 &&
-                    robot.shooter.atTarget(20) && // 20 ticks
-                    robot.turret.atTarget(20) && // 20 ticks
-                    robot.intake.intakeFull() &&
-                    robot.inShootingZone(drivetrain.follower.getPose())
+                            drivetrain.follower.getVelocity().getMagnitude() < 20 &&
+                            robot.shooter.atTarget(20) && // 20 ticks
+                            robot.turret.atTarget(20) && // 20 ticks
+                            robot.intake.intakeFull() &&
+                            robot.inShootingZone(drivetrain.follower.getPose())
             ) {
                 robot.shootCommand.start();
             }
 
             if (
                     !robot.inShootingZone(drivetrain.follower.getPose()) &&
-                    robot.intake.intakeFull() &&
-                    !isAutoDriving
+                            robot.intake.intakeFull() &&
+                            !isAutoDriving
             ) {
                 // need to change this to just "push" the robot in the right direction
                 PathChain driveToClosestPoint = drivetrain.follower.pathBuilder()
@@ -227,11 +227,9 @@ public class MainTeleop {
 
         if (gp1.dpadRightPressed()) {
             turretOffset -= Math.toRadians(2);
-            robot.turret.setOffset(turretOffset);
         }
         if (gp1.dpadLeftPressed()) {
             turretOffset += Math.toRadians(2);
-            robot.turret.setOffset(turretOffset);
         }
 
         // endgame. can lock until last 20s: endgameTimer.getElapsedTimeSeconds() > 100 if accidentally pressed

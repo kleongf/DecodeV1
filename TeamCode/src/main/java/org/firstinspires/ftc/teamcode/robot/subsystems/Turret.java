@@ -12,7 +12,6 @@ public class Turret extends Subsystem {
     public DcMotorEx turretMotor;
     public PIDFController turretController;
     public double target = 0;
-    public double offset = 0;
     private double ticksPerRevolution = 1931; // 383.6*5
     private double ticksPerRadian = ticksPerRevolution / (2 * Math.PI);
     private double feedforward = 0;
@@ -32,7 +31,7 @@ public class Turret extends Subsystem {
 
     @Override
     public void update() {
-        double c = turretMotor.getCurrentPosition() - offset*ticksPerRadian;
+        double c = turretMotor.getCurrentPosition() - offset/ticksPerRadian;
         double t = weirdAngleWrap(target) * ticksPerRadian;
 
         double power = turretController.calculate(c, t);
@@ -53,19 +52,15 @@ public class Turret extends Subsystem {
 
     }
 
-    public void setOffset(double x) {
-        offset = x;
-    }
-
     public void setFeedforward(double x) {
         feedforward = x;
     }
 
     private double weirdAngleWrap(double radians) {
-        while (radians > Math.PI + offset) {
+        while (radians > Math.PI) {
             radians -= 2 * Math.PI;
         }
-        while (radians < -Math.PI + offset) {
+        while (radians < -Math.PI) {
             radians += 2 * Math.PI;
         }
         return radians;
