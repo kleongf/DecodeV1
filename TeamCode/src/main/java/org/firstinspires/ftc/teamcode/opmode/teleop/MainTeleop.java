@@ -227,9 +227,11 @@ public class MainTeleop {
 
         if (gp1.dpadRightPressed()) {
             turretOffset -= Math.toRadians(2);
+            robot.turret.setOffset(turretOffset);
         }
         if (gp1.dpadLeftPressed()) {
             turretOffset += Math.toRadians(2);
+            robot.turret.setOffset(turretOffset);
         }
 
         // endgame. can lock until last 20s: endgameTimer.getElapsedTimeSeconds() > 100 if accidentally pressed
