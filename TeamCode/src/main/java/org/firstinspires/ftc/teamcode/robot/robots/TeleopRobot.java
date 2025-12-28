@@ -68,7 +68,7 @@ public class TeleopRobot {
                         })
                         // TODO: .transition(new Transition(() -> !intake.intakeFull()))
                         // this does not quite work unless we know exactly how many we have
-                        .maxTime(600),
+                        .maxTime(800),
                 new State()
                         .onEnter(() -> {
                             intake.state = Intake.IntakeState.INTAKE_FAST;

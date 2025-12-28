@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.opmode.teleop.Alliance;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
-import org.firstinspires.ftc.teamcode.robot.subsystems.ArtifactVision;
+//import org.firstinspires.ftc.teamcode.robot.subsystems.ArtifactVision;
 import org.firstinspires.ftc.teamcode.robot.subsystems.BulkRead;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
@@ -29,11 +29,12 @@ public class AutonomousRobot {
     public final Intake intake;
     public final Shooter shooter;
     public final Turret turret;
-    public final ArtifactVision vision;
+//    public final ArtifactVision vision;
 
     private final ArrayList<StateMachine> commands;
     public StateMachine intakeCommand;
     public StateMachine shootCommand;
+    public StateMachine shootCommandSlow;
     public StateMachine preventMultiPossessionCommand;
 
     public AutonomousRobot(HardwareMap hardwareMap) {
@@ -52,8 +53,8 @@ public class AutonomousRobot {
         turret.resetEncoder();
         subsystems.add(turret);
 
-        vision = new ArtifactVision(hardwareMap);
-        subsystems.add(vision);
+//        vision = new ArtifactVision(hardwareMap);
+//        subsystems.add(vision);
 
         commands = new ArrayList<>();
 
@@ -82,6 +83,22 @@ public class AutonomousRobot {
                         // this does not quite work unless we know exactly how many we have
                         .maxTime(600));
         commands.add(shootCommand);
+
+        shootCommandSlow = new StateMachine(
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_OFF;
+                            shooter.openLatch();
+                        })
+                        .maxTime(150),
+                new State()
+                        .onEnter(() -> {
+                            intake.state = Intake.IntakeState.INTAKE_FAST;
+                        })
+                        // TODO: .transition(new Transition(() -> !intake.intakeFull()))
+                        // this does not quite work unless we know exactly how many we have
+                        .maxTime(1500));
+        commands.add(shootCommandSlow);
 
         // meant to be called _ seconds (usually 0.8?) into a path.
         preventMultiPossessionCommand = new StateMachine(
@@ -347,68 +364,68 @@ public class AutonomousRobot {
     }
 
     // assumes that the robot is facing the direction of the pile. for blue, x neg corresponds to y neg, for red, x neg corresponds to y neg
-    public StateMachine visionPileCycle(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
-        return new StateMachine(
-                // we have to make the first one a runnable or else it may not work
-                new State()
-                        .onEnter(() -> {
-                            double x = vision.getLargestClusterX();
-                            PathChain intake = alliance == Alliance.BLUE ?
-                                    follower.pathBuilder()
-                                            .addPath(
-                                                    new BezierCurve(
-                                                            startPose,
-                                                            new Pose(50, 24 + x),
-                                                            new Pose(45, 24 + x),
-                                                            new Pose(12, 24 + x)
-                                                    )
-                                            )
-                                            .setConstantHeadingInterpolation(Math.toRadians(180))
-                                            .build() :
-                                    follower.pathBuilder()
-                                            .addPath(
-                                                    new BezierCurve(
-                                                            startPose,
-                                                            new Pose(144 - 50, 24 + x),
-                                                            new Pose(144 - 45, 24 + x),
-                                                            new Pose(144 - 12, 24 + x)
-                                                    )
-                                            )
-                                            .setConstantHeadingInterpolation(Math.toRadians(0))
-                                            .build();
-                            follower.followPath(intake, true);
-                            intakeCommand.start();
-                        })
-                        .transition(new Transition(() -> !follower.isBusy())),
-                new State()
-                        .onEnter(() -> {
-                            PathChain shoot = alliance == Alliance.BLUE ?
-                                    follower.pathBuilder()
-                                            .addPath(
-                                                    new BezierLine(
-                                                            follower.getPose(),
-                                                            endPose
-                                                    )
-                                            )
-                                            .setLinearHeadingInterpolation(Math.toRadians(180), endPose.getHeading())
-                                            .build() :
-                                    follower.pathBuilder()
-                                            .addPath(
-                                                    new BezierLine(
-                                                            follower.getPose(),
-                                                            endPose
-                                                    )
-                                            )
-                                            .setLinearHeadingInterpolation(Math.toRadians(0), endPose.getHeading())
-                                            .build();
-                            follower.followPath(shoot, true);
-                        })
-                        .transition(new Transition(() -> !follower.isBusy())),
-                new State()
-                        .onEnter(() -> shootCommand.start())
-                        .transition(new Transition(() -> shootCommand.isFinished()))
-        );
-    }
+//    public StateMachine visionPileCycle(Alliance alliance, Follower follower, Pose startPose, Pose endPose) {
+//        return new StateMachine(
+//                // we have to make the first one a runnable or else it may not work
+//                new State()
+//                        .onEnter(() -> {
+//                            double x = vision.getLargestClusterX();
+//                            PathChain intake = alliance == Alliance.BLUE ?
+//                                    follower.pathBuilder()
+//                                            .addPath(
+//                                                    new BezierCurve(
+//                                                            startPose,
+//                                                            new Pose(50, 24 + x),
+//                                                            new Pose(45, 24 + x),
+//                                                            new Pose(12, 24 + x)
+//                                                    )
+//                                            )
+//                                            .setConstantHeadingInterpolation(Math.toRadians(180))
+//                                            .build() :
+//                                    follower.pathBuilder()
+//                                            .addPath(
+//                                                    new BezierCurve(
+//                                                            startPose,
+//                                                            new Pose(144 - 50, 24 + x),
+//                                                            new Pose(144 - 45, 24 + x),
+//                                                            new Pose(144 - 12, 24 + x)
+//                                                    )
+//                                            )
+//                                            .setConstantHeadingInterpolation(Math.toRadians(0))
+//                                            .build();
+//                            follower.followPath(intake, true);
+//                            intakeCommand.start();
+//                        })
+//                        .transition(new Transition(() -> !follower.isBusy())),
+//                new State()
+//                        .onEnter(() -> {
+//                            PathChain shoot = alliance == Alliance.BLUE ?
+//                                    follower.pathBuilder()
+//                                            .addPath(
+//                                                    new BezierLine(
+//                                                            follower.getPose(),
+//                                                            endPose
+//                                                    )
+//                                            )
+//                                            .setLinearHeadingInterpolation(Math.toRadians(180), endPose.getHeading())
+//                                            .build() :
+//                                    follower.pathBuilder()
+//                                            .addPath(
+//                                                    new BezierLine(
+//                                                            follower.getPose(),
+//                                                            endPose
+//                                                    )
+//                                            )
+//                                            .setLinearHeadingInterpolation(Math.toRadians(0), endPose.getHeading())
+//                                            .build();
+//                            follower.followPath(shoot, true);
+//                        })
+//                        .transition(new Transition(() -> !follower.isBusy())),
+//                new State()
+//                        .onEnter(() -> shootCommand.start())
+//                        .transition(new Transition(() -> shootCommand.isFinished()))
+//        );
+//    }
 
     public StateMachine gateCycle(Alliance alliance, Follower follower, Pose startPose, Pose endPose, double timeAtGate) {
         PathChain intake = alliance == Alliance.BLUE ?

@@ -12,8 +12,8 @@ public class PoseConstants {
 
     public static Pose RED_GATE_POSE = new Pose(144-13, 70, Math.toRadians(270));
 
-    public static Pose RED_PARK_POSE = new Pose(39, 33, Math.toRadians(90));
-    public static Pose BLUE_PARK_POSE = new Pose(144-39, 33, Math.toRadians(90));
+    public static Pose RED_PARK_POSE = new Pose(39, 35, Math.toRadians(90));
+    public static Pose BLUE_PARK_POSE = new Pose(144-39, 35, Math.toRadians(90));
 
     // Autonomous Poses
     // TODO: REMEMBER TO SET TO 138 DURING COMP!!!!! (done)+accounted for, i measured distance to end trust

@@ -126,12 +126,13 @@ public class MainTeleop {
         gp1.update();
 
         if (gp1.rightBumperPressed()) {
-            if(Math.hypot(goalPose.getX()-drivetrain.follower.getPose().getX(),goalPose.getY() - drivetrain.follower.getPose().getY())>130){
-                robot.shootCommandSlow.start();
-            }
-            else{
-                robot.shootCommand.start();
-            }
+            robot.shootCommand.start();
+//            if(Math.hypot(goalPose.getX()-drivetrain.follower.getPose().getX(),goalPose.getY() - drivetrain.follower.getPose().getY())>130){
+//                robot.shootCommandSlow.start();
+//            }
+//            else{
+//                robot.shootCommand.start();
+//            }
         }
 
         // slowmo button: turns on/off slowmo, left bumper TODO: uncomment whenever
@@ -252,7 +253,11 @@ public class MainTeleop {
             robot.turret.setFeedforward(0);
         } else {
             double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-            robot.turret.setTarget(values[0]+turretOffset);
+
+            robot.turret.setOffset(turretOffset);
+            robot.turret.setTarget(values[0]);
+
+
             robot.shooter.setShooterPitch(values[1]);
             robot.shooter.setTargetVelocity(values[2]);
 

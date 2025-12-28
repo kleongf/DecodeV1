@@ -16,18 +16,22 @@ public class Turret extends Subsystem {
     private double ticksPerRadian = ticksPerRevolution / (2 * Math.PI);
     private double feedforward = 0;
 
+    private double offset = 0;
+
 
     public Turret(HardwareMap hardwareMap) {
         turretMotor = hardwareMap.get(DcMotorEx.class, "turretMotor");
         turretMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+
+        //turretController = new PIDFController(0.005, 0, 0.00005, 0);
         turretController = new PIDFController(0.005, 0, 0.00005, 0);
     }
 
     @Override
     public void update() {
-        double c = turretMotor.getCurrentPosition();
+        double c = turretMotor.getCurrentPosition() - offset*ticksPerRadian;
         double t = weirdAngleWrap(target) * ticksPerRadian;
 
         double power = turretController.calculate(c, t);
@@ -69,6 +73,9 @@ public class Turret extends Subsystem {
 
     public void setTarget(double x) {
         target = x;
+    }
+    public void setOffset(double x) {
+        offset = x;
     }
     public boolean atTarget(double threshold) {
         return Math.abs(turretMotor.getCurrentPosition()-weirdAngleWrap(target) * ticksPerRadian) < threshold;
