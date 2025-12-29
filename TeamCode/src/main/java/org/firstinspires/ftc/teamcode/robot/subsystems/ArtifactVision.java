@@ -43,6 +43,8 @@ public class ArtifactVision extends Subsystem {
     private double prevX = 0;
     private double currentV = 0;
     int frames = 0;
+    // TODO: make it not scan the top half or eliminate anything in the top half
+    // change roi in the vision processor impl or something
 
     public ArtifactVision(HardwareMap hardwareMap) {
         colorLocator = new ArtifactProcessor.Builder()
