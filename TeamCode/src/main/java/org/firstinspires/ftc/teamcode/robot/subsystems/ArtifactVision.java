@@ -102,9 +102,21 @@ public class ArtifactVision extends Subsystem {
         for(ArtifactProcessor.Blob b : blobs)
         {
             RotatedRect boxFit = b.getBoxFit();
-            distances.add(imageToWorld(boxFit.center.x, boxFit.center.y).x);
-            areas.add((double) b.getContourArea());
+            // filtering out any blobs that are too high, as they might be a person's clothes. this works with opencv coord system.
+            if (boxFit.center.y > 200) {
+                // just x distance
+                distances.add(imageToWorld(boxFit.center.x, boxFit.center.y).x);
+                // TODO: THIS IS IMPORTANT: IF THE Y COORDINATE IS TOO SMALL, THEN CAP THE MAX AREA (or just ignore)
+                // Importantly, object size is roughly inversely proportional from distance from camera
+                // however, because this is size and i measure area, it's about d^2
+                Point pt = imageToWorld(boxFit.center.x, boxFit.center.y);
+                // dealing with very close distances
+                double distance = Math.hypot(pt.x, pt.y) < 8 ? 8 : Math.hypot(pt.x, pt.y);
+                double proportionalArea = b.getContourArea() * Math.pow(distance, 2);
+                areas.add(proportionalArea);
+            }
         }
+
 
         double maxAreaLoc = -16;
         double maxArea = 0;
