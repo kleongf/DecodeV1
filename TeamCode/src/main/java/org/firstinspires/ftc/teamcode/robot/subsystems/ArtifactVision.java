@@ -36,7 +36,7 @@ public class ArtifactVision extends Subsystem {
     private double pathTime = 0.8; // path usually takes 0.8s i guess
     private double g = 9.8;
     private double h = 0.61;
-    private double uk = 0.55;
+    private double uk = 0.1;
     private double energyScaleFactor = 0.2; // idk what im doing but compensates for friction energy lost on ramp + air resistance + if ball hits gate and weird stuff, this factor makes sense physics-wise
     private double uk2 = 0.25; // random estimate lol
     private ElapsedTime elapsedTime;
@@ -130,34 +130,36 @@ public class ArtifactVision extends Subsystem {
                 maxAreaLoc = i/10d;
             }
         }
-        if (frames % 10 == 0) { // check velocity every 10 frames idk why i chose 10
-            double dt = elapsedTime.seconds();
-            if (dt > 0) { // no div 0 errors pls
-                currentV = (maxAreaLoc - prevX) / dt;
-                if (currentV > 0) {currentV = 0;} // balls should NOT be going right, if so it's a mistake
-                prevX = maxAreaLoc;
-                elapsedTime.reset();
-            }
-        }
-        // x = vot + 1/2 at^2, but change to meters first, then back to inches
-        // assuming v <= 0 then friction acts in the opposite direction
-        // time when v = 0.
-        double offsetX = 0;
-        double timeAtStop = (currentV / 39.37) / (uk2 * g);
-        if (timeAtStop < pathTime) {
-            // if the ball stops early, stop extrapolating its position
-            // from the work-kinetic energy thm:
-            offsetX = (Math.pow((currentV / 39.37), 2) / (2 * uk2 * g)) * 39.37;
-        } else {
-            // the ball is still moving before the robot finishes the path.
-            // from basic kinematics:
-            offsetX = ((currentV/39.37) * pathTime + 0.5 * (g * uk2) * pathTime * pathTime);
-        }
-        if (offsetX > 0) {offsetX = 0;} // offset should be negative
-        // postprocessing: compensating for ball velocity
-        // double offsetX = calculateVelocity(maxAreaLoc) * pathTime;
+        // low key too complex lmao and susceptible to weird stuff. will test it tho.
+//        if (frames % 10 == 0) { // check velocity every 10 frames idk why i chose 10
+//            double dt = elapsedTime.seconds();
+//            if (dt > 0) { // no div 0 errors pls
+//                currentV = (maxAreaLoc - prevX) / dt;
+//                if (currentV > 0) {currentV = 0;} // balls should NOT be going right, if so it's a mistake
+//                prevX = maxAreaLoc;
+//                elapsedTime.reset();
+//            }
+//        }
+//        // x = vot + 1/2 at^2, but change to meters first, then back to inches
+//        // assuming v <= 0 then friction acts in the opposite direction
+//        // time when v = 0.
+//        double offsetX = 0;
+//        double timeAtStop = (currentV / 39.37) / (uk2 * g);
+//        if (timeAtStop < pathTime) {
+//            // if the ball stops early, stop extrapolating its position
+//            // from the work-kinetic energy thm:
+//            offsetX = (Math.pow((currentV / 39.37), 2) / (2 * uk2 * g)) * 39.37;
+//        } else {
+//            // the ball is still moving before the robot finishes the path.
+//            // from basic kinematics:
+//            offsetX = ((currentV/39.37) * pathTime + 0.5 * (g * uk2) * pathTime * pathTime);
+//        }
+//        if (offsetX > 0) {offsetX = 0;} // offset should be negative
+
+
         // better postprocessing
-        maxAreaLoc -= offsetX;
+        double offsetX = calculateDistanceOffset(maxAreaLoc);
+        maxAreaLoc += offsetX;
         // making sure it doesn't aim too low!
         if (maxAreaLoc < -16) { maxAreaLoc = -16; }
 
@@ -169,11 +171,18 @@ public class ArtifactVision extends Subsystem {
         elapsedTime.reset();
     }
 
-    private double calculateVelocity(double x) {
-        // step 1: -24 gets mapped to 0, 20 gets mapped to 44, and we do 72-xloc to find d
-        double d = (72 - (x + 24)) / 39.37;
-        if (h-uk*d < 0) { return 0; }
-        return Math.sqrt(((6/5d)*g*energyScaleFactor) * (h-uk*d)) * 39.37; // back to inches
+    private double calculateDistanceOffset(double x) { // NOTE THAT THIS SHOULD BE ADDED NOT SUBTRACTED
+        // step 1: -24 gets mapped to 0, 20 gets mapped to 44, and we do 66-xloc to find d traveled from classifier
+        double d = (66 - (x + 24)) / 39.37;
+        // we know based on videos that initial velocity is about 1.21 m/s when ball exits classifier
+        double v0 = 1.21;
+        // this equation will check to see whether the square rooted number is positive
+        if (Math.pow(v0, 2) - (6/5d) * (g * uk * d) <= 0) {
+            return 0; // no velocity, so ball stops moving.
+        }
+        double v = Math.sqrt(Math.pow(v0, 2) - (6/5d) * (g * uk * d));
+        double offset = -v * pathTime + 0.5 * (uk * g) * Math.pow(pathTime, 2);
+        return offset * 39.37; // back to inches
     }
 
     public double getLargestClusterX() {
