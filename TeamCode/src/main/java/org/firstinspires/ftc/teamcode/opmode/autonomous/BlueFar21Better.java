@@ -29,7 +29,7 @@ public class BlueFar21Better extends OpMode {
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM sotm2;
-    private final Pose startPose = PoseConstants.BLUE_CLOSE_AUTO_POSE;
+    private final Pose startPose = PoseConstants.BLUE_FAR_AUTO_POSE;
     private Pose shootPose = new Pose(60, 84, Math.toRadians(180));
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
     private PathChain shootPreload, intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeThird, shootThird, intakeFirst, shootFirst;
