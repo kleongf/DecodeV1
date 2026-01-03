@@ -41,12 +41,14 @@ public class ArtifactVision extends Subsystem {
     private double uk2 = 0.25; // random estimate lol
     private ElapsedTime elapsedTime;
     private double prevX = 0;
-    private double currentV = 0;
+    public double currentV = 0;
+    private double speedScaleFactor = 1.5;
     int frames = 0;
     // TODO: make it not scan the top half or eliminate anything in the top half
     // change roi in the vision processor impl or something
 
     public ArtifactVision(HardwareMap hardwareMap) {
+        elapsedTime = new ElapsedTime();
         colorLocator = new ArtifactProcessor.Builder()
                 .build();
 
@@ -61,6 +63,12 @@ public class ArtifactVision extends Subsystem {
             { -4.98885709e-02, 2.91967072e-02, 9.88258249e+00 },
             { 3.80623143e-03,  5.18877858e-02, -2.55240985e+01 },
             { -6.01290894e-05, -4.77537046e-03,  1.00000000e+00 }
+        };
+
+        double[][] homographyRed = {
+                { 3.56423511e-02, -3.54066283e-02, -3.46991136e+00},
+                { 3.79738251e-03,  2.79198165e-02, -1.59729952e+01},
+                { 9.16521855e-05, -4.75490455e-03,  1.00000000e+00}
         };
 
         // TODO: different homography matrix for red
@@ -122,7 +130,7 @@ public class ArtifactVision extends Subsystem {
         double maxArea = 0;
 
         hasMaxArea = false;
-        for (int i = -240; i < 300; i++) {
+        for (int i = -240; i < 240; i++) {
             double area = calculateArea(distances, areas, i/10d-5, i/10d+5);
             hasMaxArea = true;
             if (area > maxArea) {
@@ -131,34 +139,34 @@ public class ArtifactVision extends Subsystem {
             }
         }
         // low key too complex lmao and susceptible to weird stuff. will test it tho.
-//        if (frames % 10 == 0) { // check velocity every 10 frames idk why i chose 10
-//            double dt = elapsedTime.seconds();
-//            if (dt > 0) { // no div 0 errors pls
-//                currentV = (maxAreaLoc - prevX) / dt;
-//                if (currentV > 0) {currentV = 0;} // balls should NOT be going right, if so it's a mistake
-//                prevX = maxAreaLoc;
-//                elapsedTime.reset();
-//            }
-//        }
-//        // x = vot + 1/2 at^2, but change to meters first, then back to inches
-//        // assuming v <= 0 then friction acts in the opposite direction
-//        // time when v = 0.
-//        double offsetX = 0;
-//        double timeAtStop = (currentV / 39.37) / (uk2 * g);
-//        if (timeAtStop < pathTime) {
-//            // if the ball stops early, stop extrapolating its position
-//            // from the work-kinetic energy thm:
-//            offsetX = (Math.pow((currentV / 39.37), 2) / (2 * uk2 * g)) * 39.37;
-//        } else {
-//            // the ball is still moving before the robot finishes the path.
-//            // from basic kinematics:
-//            offsetX = ((currentV/39.37) * pathTime + 0.5 * (g * uk2) * pathTime * pathTime);
-//        }
-//        if (offsetX > 0) {offsetX = 0;} // offset should be negative
+        if (frames % 5 == 0) { // check velocity every 10 frames idk why i chose 10
+            double dt = elapsedTime.seconds();
+            if (dt > 0) { // no div 0 errors pls
+                currentV = ((maxAreaLoc - prevX) / dt) * speedScaleFactor;
+                if (currentV > 0) {currentV = 0;} // balls should NOT be going right, if so it's a mistake
+                prevX = maxAreaLoc;
+                elapsedTime.reset();
+            }
+        }
+        // x = vot + 1/2 at^2, but change to meters first, then back to inches
+        // assuming v <= 0 then friction acts in the opposite direction
+        // time when v = 0.
+        double offsetX = 0;
+        double timeAtStop = (currentV / 39.37) / (uk2 * g);
+        if (timeAtStop < pathTime) {
+            // if the ball stops early, stop extrapolating its position
+            // from the work-kinetic energy thm:
+            offsetX = (Math.pow((currentV / 39.37), 2) / (2 * uk2 * g)) * 39.37;
+        } else {
+            // the ball is still moving before the robot finishes the path.
+            // from basic kinematics:
+            offsetX = ((currentV/39.37) * pathTime + 0.5 * (g * uk2) * pathTime * pathTime);
+        }
+        if (offsetX > 0) {offsetX = 0;} // offset should be negative
 
 
         // better postprocessing
-        double offsetX = calculateDistanceOffset(maxAreaLoc);
+        // double offsetX = calculateDistanceOffset(maxAreaLoc);
         maxAreaLoc += offsetX;
         // making sure it doesn't aim too low!
         if (maxAreaLoc < -16) { maxAreaLoc = -16; }
