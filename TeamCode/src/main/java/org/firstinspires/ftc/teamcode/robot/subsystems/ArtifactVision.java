@@ -135,7 +135,7 @@ public class ArtifactVision extends Subsystem {
         }
 
 
-        double maxAreaLoc = -16;
+        double maxAreaLoc = -13;
         double maxArea = 0;
 
         hasMaxArea = false;
@@ -178,7 +178,7 @@ public class ArtifactVision extends Subsystem {
         // double offsetX = calculateDistanceOffset(maxAreaLoc);
         maxAreaLoc += offsetX;
         // making sure it doesn't aim too low!
-        if (maxAreaLoc < -16) { maxAreaLoc = -16; }
+        if (maxAreaLoc < -13) { maxAreaLoc = -13; }
 
         bestX = maxAreaLoc;
     }
