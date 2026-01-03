@@ -98,7 +98,7 @@ public class PileCycleTest extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootCorner, true))
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.shootCommand.start())
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
@@ -111,7 +111,7 @@ public class PileCycleTest extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootThird, true))
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.shootCommand.start())
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
@@ -145,7 +145,7 @@ public class PileCycleTest extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile1, true))
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.shootCommand.start())
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
@@ -179,7 +179,7 @@ public class PileCycleTest extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile2, true))
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.shootCommand.start())
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
@@ -213,7 +213,7 @@ public class PileCycleTest extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile3, true))
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.shootCommand.start())
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
@@ -247,7 +247,7 @@ public class PileCycleTest extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile4, true))
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.shootCommand.start())
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
@@ -281,44 +281,44 @@ public class PileCycleTest extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile5, true))
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> robot.shootCommand.start())
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
                 // pile 6
-                new State()
-                        .onEnter(() -> {
-                            double optimalX = robot.vision.getLargestClusterX();
-                            intakePile6 = follower.pathBuilder()
-                                    .addPath(
-                                            new BezierCurve(
-                                                    new Pose(56, 20),
-                                                    new Pose(49.000, 20+optimalX),
-                                                    new Pose(44.000, 20+optimalX),
-                                                    new Pose(9.000, 20+optimalX)
-                                            )
-                                    )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .build();
-                            shootPile6 = follower.pathBuilder()
-                                    .addPath(
-                                            new BezierCurve(
-                                                    new Pose(9.000, 20+optimalX),
-                                                    new Pose(56, 20)
-                                            )
-                                    )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .build();
-                            robot.intakeCommand.start();
-                            follower.followPath(intakePile6, false);
-                        })
-                        .transition(new Transition(() -> !follower.isBusy())),
-                new State()
-                        .onEnter(() -> follower.followPath(shootPile6, true))
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
-                new State()
-                        .onEnter(() -> robot.shootCommand.start())
-                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+//                new State()
+//                        .onEnter(() -> {
+//                            double optimalX = robot.vision.getLargestClusterX();
+//                            intakePile6 = follower.pathBuilder()
+//                                    .addPath(
+//                                            new BezierCurve(
+//                                                    new Pose(56, 20),
+//                                                    new Pose(49.000, 20+optimalX),
+//                                                    new Pose(44.000, 20+optimalX),
+//                                                    new Pose(9.000, 20+optimalX)
+//                                            )
+//                                    )
+//                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+//                                    .build();
+//                            shootPile6 = follower.pathBuilder()
+//                                    .addPath(
+//                                            new BezierCurve(
+//                                                    new Pose(9.000, 20+optimalX),
+//                                                    new Pose(56, 20)
+//                                            )
+//                                    )
+//                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+//                                    .build();
+//                            robot.intakeCommand.start();
+//                            follower.followPath(intakePile6, false);
+//                        })
+//                        .transition(new Transition(() -> !follower.isBusy())),
+//                new State()
+//                        .onEnter(() -> follower.followPath(shootPile6, true))
+//                        .transition(new Transition(() -> !follower.isBusy())),
+//                new State()
+//                        .onEnter(() -> robot.shootCommand.start())
+//                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
                 // pile 8
                 new State()
                         .onEnter(() -> {
@@ -349,7 +349,7 @@ public class PileCycleTest extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile8, true))
-                        .transition(new Transition(() -> follower.getCurrentTValue() > 0.9)),
+                        .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> {
                             robot.shootCommand.start();
@@ -382,6 +382,8 @@ public class PileCycleTest extends OpMode {
 
     @Override
     public void start() {
+        follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0015,0.6,0.0));
+        follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.002,0.6,0.0));
         double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(48, 9, Math.toRadians(180)), new Vector());
         robot.setAzimuthThetaVelocity(values);
 

@@ -31,7 +31,8 @@ public class Turret extends Subsystem {
 
     @Override
     public void update() {
-        double c = turretMotor.getCurrentPosition() - offset/ticksPerRadian;
+        double c = turretMotor.getCurrentPosition();
+                // - offset/ticksPerRadian;
         double t = weirdAngleWrap(target) * ticksPerRadian;
 
         double power = turretController.calculate(c, t);

@@ -57,6 +57,8 @@ public class TeleopRobot {
 
         shootCommand = new StateMachine(
                 new State()
+                        .maxTime(500),
+                new State()
                         .onEnter(() -> {
                             intake.state = Intake.IntakeState.INTAKE_OFF;
                             shooter.openLatch();

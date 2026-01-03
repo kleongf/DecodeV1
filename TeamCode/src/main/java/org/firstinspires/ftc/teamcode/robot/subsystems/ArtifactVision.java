@@ -43,7 +43,7 @@ public class ArtifactVision extends Subsystem {
     private ElapsedTime elapsedTime;
     private double prevX = 0;
     public double currentV = 0;
-    private double speedScaleFactor = 1.5;
+    private double speedScaleFactor = 3;
     int frames = 0;
     // TODO: make it not scan the top half or eliminate anything in the top half
     // change roi in the vision processor impl or something

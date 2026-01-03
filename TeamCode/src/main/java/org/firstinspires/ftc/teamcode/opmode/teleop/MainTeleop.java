@@ -77,6 +77,8 @@ public class MainTeleop {
     }
 
     public void loop() {
+        // TODO: a temporary solution
+        isHoldingTurret = robotState == RobotState.IDLE;
         // wait: TODO: why do we need intake method? we can just reset intake at the end, so we remove a state?
         // also, why do we even need these states?
         // also for now i will change it so that turret always updates, there's not really a reason for it not to
@@ -226,10 +228,10 @@ public class MainTeleop {
         }
 
         if (gp1.dpadRightPressed()) {
-            turretOffset -= Math.toRadians(2);
+            turretOffset -= Math.toRadians(4);
         }
         if (gp1.dpadLeftPressed()) {
-            turretOffset += Math.toRadians(2);
+            turretOffset += Math.toRadians(4);
         }
 
         // endgame. can lock until last 20s: endgameTimer.getElapsedTimeSeconds() > 100 if accidentally pressed
@@ -240,6 +242,8 @@ public class MainTeleop {
         } else {
             robot.pivot.setPower(0);
         }
+
+
 
         if (isHoldingTurret) {
             double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
@@ -254,8 +258,8 @@ public class MainTeleop {
         } else {
             double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
 
-            robot.turret.setOffset(turretOffset);
-            robot.turret.setTarget(values[0]);
+            // robot.turret.setOffset(turretOffset);
+            robot.turret.setTarget(values[0]+turretOffset);
 
 
             robot.shooter.setShooterPitch(values[1]);
