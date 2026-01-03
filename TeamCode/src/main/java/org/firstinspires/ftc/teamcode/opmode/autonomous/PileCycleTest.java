@@ -30,30 +30,25 @@ public class PileCycleTest extends OpMode {
     private AutonomousRobot robot;
     private SOTM sotm2;
     private boolean isSOTMing = true;
-    private final Pose startPose = PoseConstants.BLUE_FAR_AUTO_POSE;
-    private Pose shootPose = new Pose(48, 9, Math.toRadians(180)); // i dont care but 62, 24, 180 deg
+    private final Pose startPose = new Pose(42.65,8,Math.toRadians(180));
+    private Pose shootPose = new Pose(42.65,8,Math.toRadians(180));
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
-    private PathChain scorePreload, intakeCorner, shootCorner, intakeThird, shootThird, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3, intakePile4, shootPile4, intakePile5, shootPile5, intakePile6, shootPile6, intakePile7, shootPile7, intakePile8, shootPile8;
+    private PathChain intakeCorner, shootCorner, intakeThird, shootThird, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3, intakePile4, shootPile4, intakePile5, shootPile5, intakePile6, shootPile6, intakePile7, shootPile7, intakePile8, shootPile8;
     public void buildPaths() {
-        scorePreload = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(55.500, 6.000), new Pose(48.000, 9.000)))
-                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
-                .build();
 
         intakeCorner = follower.pathBuilder()
                 .addPath(new BezierLine(new Pose(48.000, 9.000), new Pose(9.000, 9.000)))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
-
         shootCorner = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(9.000, 9.000), new Pose(62.000, 24.000)))
+                .addPath(new BezierLine(new Pose(9.000, 9.000), new Pose(56,20)))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         intakeThird = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(62.000, 24.000),
+                                new Pose(56,20),
                                 new Pose(55.000, 36.000),
                                 new Pose(50.000, 36.000),
                                 new Pose(13.000, 36.000)
@@ -65,7 +60,7 @@ public class PileCycleTest extends OpMode {
         shootThird = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(13.000, 36.000), new Pose(62.000, 24.000))
+                        new BezierLine(new Pose(13.000, 36.000), new Pose(56, 20))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
@@ -83,10 +78,6 @@ public class PileCycleTest extends OpMode {
         stateMachine = new StateMachine(
                 // preload
                 new State()
-                        .onEnter(() -> {
-                            follower.setMaxPower(0.6);
-                            follower.followPath(scorePreload, true);
-                        })
                         .maxTime(3000) // in case it takes too long
                         .transition(new Transition(() -> robot.shooter.atTarget(20) && !follower.isBusy())),
                 new State()
@@ -100,7 +91,7 @@ public class PileCycleTest extends OpMode {
                         .onEnter(() -> {
                             robot.intakeCommand.start();
                             follower.followPath(intakeCorner, false);
-                            shootPose = new Pose(62, 24, Math.toRadians(180));
+                            shootPose = new Pose(56, 20, Math.toRadians(180));
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -129,10 +120,10 @@ public class PileCycleTest extends OpMode {
                             intakePile1 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(62.000, 24.000),
-                                                    new Pose(55.000, 24+optimalX),
-                                                    new Pose(50.000, 24+optimalX),
-                                                    new Pose(9.000, 24+optimalX)
+                                                    new Pose(56, 20),
+                                                    new Pose(55.000, 20+optimalX),
+                                                    new Pose(50.000, 20+optimalX),
+                                                    new Pose(9.000, 20+optimalX)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -140,8 +131,8 @@ public class PileCycleTest extends OpMode {
                             shootPile1 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 24+optimalX),
-                                                    new Pose(62.000, 24.000)
+                                                    new Pose(9.000, 20+optimalX),
+                                                    new Pose(56, 20)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -163,10 +154,10 @@ public class PileCycleTest extends OpMode {
                             intakePile2 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(62.000, 24.000),
-                                                    new Pose(55.000, 24+optimalX),
-                                                    new Pose(50.000, 24+optimalX),
-                                                    new Pose(9.000, 24+optimalX)
+                                                    new Pose(56, 20),
+                                                    new Pose(55.000, 20+optimalX),
+                                                    new Pose(50.000, 20+optimalX),
+                                                    new Pose(9.000, 20+optimalX)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -174,8 +165,8 @@ public class PileCycleTest extends OpMode {
                             shootPile2 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 24+optimalX),
-                                                    new Pose(62.000, 24.000)
+                                                    new Pose(9.000, 20+optimalX),
+                                                    new Pose(56, 20)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -197,10 +188,10 @@ public class PileCycleTest extends OpMode {
                             intakePile3 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(62.000, 24.000),
-                                                    new Pose(55.000, 24+optimalX),
-                                                    new Pose(50.000, 24+optimalX),
-                                                    new Pose(9.000, 24+optimalX)
+                                                    new Pose(56, 20),
+                                                    new Pose(55.000, 20+optimalX),
+                                                    new Pose(50.000, 20+optimalX),
+                                                    new Pose(9.000, 20+optimalX)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -208,8 +199,8 @@ public class PileCycleTest extends OpMode {
                             shootPile3 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 24+optimalX),
-                                                    new Pose(62.000, 24.000)
+                                                    new Pose(9.000, 20+optimalX),
+                                                    new Pose(56, 20)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -231,10 +222,10 @@ public class PileCycleTest extends OpMode {
                             intakePile4 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(62.000, 24.000),
-                                                    new Pose(55.000, 24+optimalX),
-                                                    new Pose(50.000, 24+optimalX),
-                                                    new Pose(9.000, 24+optimalX)
+                                                    new Pose(56, 20),
+                                                    new Pose(55.000, 20+optimalX),
+                                                    new Pose(50.000, 20+optimalX),
+                                                    new Pose(9.000, 20+optimalX)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -242,8 +233,8 @@ public class PileCycleTest extends OpMode {
                             shootPile4 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 24+optimalX),
-                                                    new Pose(62.000, 24.000)
+                                                    new Pose(9.000, 20+optimalX),
+                                                    new Pose(56, 20)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -265,10 +256,10 @@ public class PileCycleTest extends OpMode {
                             intakePile5 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(62.000, 24.000),
-                                                    new Pose(55.000, 24+optimalX),
-                                                    new Pose(50.000, 24+optimalX),
-                                                    new Pose(9.000, 24+optimalX)
+                                                    new Pose(56, 20),
+                                                    new Pose(55.000, 20+optimalX),
+                                                    new Pose(50.000, 20+optimalX),
+                                                    new Pose(9.000, 20+optimalX)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -276,8 +267,8 @@ public class PileCycleTest extends OpMode {
                             shootPile5 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 24+optimalX),
-                                                    new Pose(62.000, 24.000)
+                                                    new Pose(9.000, 20+optimalX),
+                                                    new Pose(56, 20)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -299,10 +290,10 @@ public class PileCycleTest extends OpMode {
                             intakePile6 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(62.000, 24.000),
-                                                    new Pose(55.000, 24+optimalX),
-                                                    new Pose(50.000, 24+optimalX),
-                                                    new Pose(9.000, 24+optimalX)
+                                                    new Pose(56, 20),
+                                                    new Pose(55.000, 20+optimalX),
+                                                    new Pose(50.000, 20+optimalX),
+                                                    new Pose(9.000, 20+optimalX)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -310,8 +301,8 @@ public class PileCycleTest extends OpMode {
                             shootPile6 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 24+optimalX),
-                                                    new Pose(62.000, 24.000)
+                                                    new Pose(9.000, 20+optimalX),
+                                                    new Pose(56, 20)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -333,10 +324,10 @@ public class PileCycleTest extends OpMode {
                             intakePile8 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(62.000, 24.000),
-                                                    new Pose(55.000, 24+optimalX),
-                                                    new Pose(50.000, 24+optimalX),
-                                                    new Pose(9.000, 24+optimalX)
+                                                    new Pose(56, 20),
+                                                    new Pose(55.000, 20+optimalX),
+                                                    new Pose(50.000, 20+optimalX),
+                                                    new Pose(9.000, 20+optimalX)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -344,8 +335,8 @@ public class PileCycleTest extends OpMode {
                             shootPile8 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 24+optimalX),
-                                                    new Pose(62.000, 24.000)
+                                                    new Pose(9.000, 20+optimalX),
+                                                    new Pose(56, 20)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
