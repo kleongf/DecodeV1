@@ -8,6 +8,7 @@ import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.opmode.teleop.Alliance;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.subsystems.ArtifactVision;
@@ -33,7 +34,7 @@ public class VisionTestSubsystem extends OpMode {
 
     @Override
     public void init() {
-        vision = new ArtifactVision(hardwareMap);
+        vision = new ArtifactVision(hardwareMap, Alliance.BLUE);
     }
 
     @Override

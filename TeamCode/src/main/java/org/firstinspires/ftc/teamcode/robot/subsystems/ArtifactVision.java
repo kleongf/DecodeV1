@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.opmode.teleop.Alliance;
 import org.firstinspires.ftc.teamcode.util.misc.ArtifactProcessor;
 import org.firstinspires.ftc.teamcode.util.misc.ArtifactVisionProcessor;
 import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
@@ -47,7 +48,7 @@ public class ArtifactVision extends Subsystem {
     // TODO: make it not scan the top half or eliminate anything in the top half
     // change roi in the vision processor impl or something
 
-    public ArtifactVision(HardwareMap hardwareMap) {
+    public ArtifactVision(HardwareMap hardwareMap, Alliance alliance) {
         elapsedTime = new ElapsedTime();
         colorLocator = new ArtifactProcessor.Builder()
                 .build();
@@ -59,7 +60,7 @@ public class ArtifactVision extends Subsystem {
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .build();
 
-        double[][] homography = {
+        double[][] homographyBlue = {
             { -4.98885709e-02, 2.91967072e-02, 9.88258249e+00 },
             { 3.80623143e-03,  5.18877858e-02, -2.55240985e+01 },
             { -6.01290894e-05, -4.77537046e-03,  1.00000000e+00 }
@@ -71,11 +72,19 @@ public class ArtifactVision extends Subsystem {
                 { 9.16521855e-05, -4.75490455e-03,  1.00000000e+00}
         };
 
-        // TODO: different homography matrix for red
-        this.H = new Mat(3, 3, CvType.CV_64F);
-        for (int r = 0; r < 3; r++) {
-            for (int c = 0; c < 3; c++) {
-                H.put(r, c, homography[r][c]);
+        if (alliance == Alliance.BLUE) {
+            this.H = new Mat(3, 3, CvType.CV_64F);
+            for (int r = 0; r < 3; r++) {
+                for (int c = 0; c < 3; c++) {
+                    H.put(r, c, homographyBlue[r][c]);
+                }
+            }
+        } else {
+            this.H = new Mat(3, 3, CvType.CV_64F);
+            for (int r = 0; r < 3; r++) {
+                for (int c = 0; c < 3; c++) {
+                    H.put(r, c, homographyRed[r][c]);
+                }
             }
         }
 

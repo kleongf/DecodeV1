@@ -37,7 +37,7 @@ public class AutonomousRobot {
     public StateMachine shootCommandSlow;
     public StateMachine preventMultiPossessionCommand;
 
-    public AutonomousRobot(HardwareMap hardwareMap) {
+    public AutonomousRobot(HardwareMap hardwareMap, Alliance alliance) {
         subsystems = new ArrayList<>();
 
         bulkRead = new BulkRead(hardwareMap);
@@ -53,7 +53,7 @@ public class AutonomousRobot {
         turret.resetEncoder();
         subsystems.add(turret);
 
-        vision = new ArtifactVision(hardwareMap);
+        vision = new ArtifactVision(hardwareMap, alliance);
         subsystems.add(vision);
 
         commands = new ArrayList<>();

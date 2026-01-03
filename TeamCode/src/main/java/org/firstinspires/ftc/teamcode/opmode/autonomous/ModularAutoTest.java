@@ -35,7 +35,7 @@ public class ModularAutoTest extends OpMode {
     public void init() {
         follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
-        robot = new AutonomousRobot(hardwareMap);
+        robot = new AutonomousRobot(hardwareMap, Alliance.BLUE);
         sotm2 = new SOTM(goalPose);
 
         preloadClose = robot.preloadClose(Alliance.BLUE, follower, startPose, shootPose);

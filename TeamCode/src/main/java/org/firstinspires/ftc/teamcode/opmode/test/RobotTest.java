@@ -5,6 +5,7 @@ import static java.lang.Thread.sleep;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.opmode.teleop.Alliance;
 import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobot;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
@@ -23,7 +24,7 @@ public class RobotTest extends OpMode {
 
     @Override
     public void init() {
-        robot = new AutonomousRobot(hardwareMap);
+        robot = new AutonomousRobot(hardwareMap, Alliance.BLUE);
         gp1 = new SmartGamepad(gamepad1);
 
         testTurret = new StateMachine(
