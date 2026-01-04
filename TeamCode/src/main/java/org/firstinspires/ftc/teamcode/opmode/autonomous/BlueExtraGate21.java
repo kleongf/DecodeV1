@@ -163,8 +163,7 @@ public class BlueExtraGate21 extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.BLUE_GATE_AUTO_POSE,
-                                new Pose(60,60),
-                                new Pose(60, 84)
+                                PoseConstants.BLUE_SHOOT_AUTO_POSE
                         )
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
