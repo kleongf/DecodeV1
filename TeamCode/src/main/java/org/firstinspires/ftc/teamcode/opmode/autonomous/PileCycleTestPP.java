@@ -1,0 +1,330 @@
+package org.firstinspires.ftc.teamcode.opmode.autonomous;
+
+import static java.lang.Thread.sleep;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.pathgen.Vector;
+import com.pedropathing.util.CustomFilteredPIDFCoefficients;
+import com.pedropathing.util.CustomPIDFCoefficients;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import org.firstinspires.ftc.teamcode.opmode.teleop.Alliance;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
+import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
+import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobot;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.util.fsm.State;
+import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
+import org.firstinspires.ftc.teamcode.util.fsm.Transition;
+import org.firstinspires.ftc.teamcode.util.misc.SOTM;
+import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
+import org.firstinspires.ftc.teamcode.util.purepursuit2.PPFollower;
+import org.firstinspires.ftc.teamcode.util.purepursuit2.PPPath;
+
+@Autonomous(name="pile cycle test blue 27 PP", group="not a comp")
+public class PileCycleTestPP extends OpMode {
+    private PPFollower follower;
+    private StateMachine stateMachine;
+    private AutonomousRobot robot;
+    private SOTM sotm2;
+    private boolean isSOTMing = true;
+    private final Pose startPose = new Pose(42.65,8,Math.toRadians(180));
+    private Pose shootPose = new Pose(42.65,8,Math.toRadians(180));
+    private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
+    private PPPath intakeCorner, shootCorner, intakeThird, shootThird, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3, intakePile4, shootPile4, intakePile5, shootPile5, intakePile6, shootPile6, intakePile7, shootPile7, intakePile8, shootPile8;
+    public void buildPaths() {
+        intakeCorner = new PPPath(
+                new Pose(42.65000, 8.000, Math.toRadians(180)),
+                new Pose(9.000, 9.000, Math.toRadians(180))
+        ).setTangent(false);
+
+        shootCorner = new PPPath(
+                new Pose(9.000, 9.000, Math.toRadians(180)),
+                new Pose(56,20, Math.toRadians(180))
+        ).setTangent(false);
+
+        intakeThird = new PPPath(
+                new Pose(56,20, Math.toRadians(180)),
+                new Pose(44.000, 36.000, Math.toRadians(180)),
+                new Pose(13.000, 36.000, Math.toRadians(180))
+        ).setTangent(false);
+
+        shootThird = new PPPath(
+                new Pose(13.000, 36.000, Math.toRadians(180)),
+                new Pose(56, 20, Math.toRadians(180))
+        ).setTangent(false);
+
+    }
+
+    @Override
+    public void init() {
+        follower = new PPFollower(hardwareMap);
+        follower.setStartingPose(startPose);
+        robot = new AutonomousRobot(hardwareMap, Alliance.BLUE);
+        sotm2 = new SOTM(goalPose);
+        buildPaths();
+
+        stateMachine = new StateMachine(
+                // preload
+                new State()
+                        .maxTime(3000) // in case it takes too long
+                        .transition(new Transition(() -> robot.shooter.atTarget(20) && !follower.isBusy())),
+                new State()
+                        .onEnter(() -> {
+                            robot.shootCommand.start();
+                        })
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // corner
+                new State()
+                        .onEnter(() -> {
+                            robot.intakeCommand.start();
+                            follower.followPath(intakeCorner);
+                            shootPose = new Pose(56, 20, Math.toRadians(180));
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootCorner))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.shootCommand.start())
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // third
+                new State()
+                        .onEnter(() -> {
+                            robot.intakeCommand.start();
+                            follower.followPath(intakeThird);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootThird))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.shootCommand.start())
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // pile 1
+                new State()
+                        .onEnter(() -> {
+                            double optimalX = robot.vision.getLargestClusterX();
+                            intakePile1 = new PPPath(
+                                    new Pose(56, 20, Math.toRadians(180)),
+                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
+                            ).setTangent(false);
+
+                            shootPile1 = new PPPath(
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(56, 20, Math.toRadians(180))
+                            ).setTangent(false);
+                            robot.intakeCommand.start();
+                            follower.followPath(intakePile1);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootPile1))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.shootCommand.start())
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // pile 2
+                new State()
+                        .onEnter(() -> {
+                            double optimalX = robot.vision.getLargestClusterX();
+                            intakePile2 = new PPPath(
+                                    new Pose(56, 20, Math.toRadians(180)),
+                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
+                            ).setTangent(false);
+
+                            shootPile2 = new PPPath(
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(56, 20, Math.toRadians(180))
+                            ).setTangent(false);
+                            robot.intakeCommand.start();
+                            follower.followPath(intakePile2);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootPile2))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.shootCommand.start())
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // pile 3
+                new State()
+                        .onEnter(() -> {
+                            double optimalX = robot.vision.getLargestClusterX();
+                            intakePile3 = new PPPath(
+                                    new Pose(56, 20, Math.toRadians(180)),
+                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
+                            ).setTangent(false);
+
+                            shootPile3 = new PPPath(
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(56, 20, Math.toRadians(180))
+                            ).setTangent(false);
+                            robot.intakeCommand.start();
+                            follower.followPath(intakePile3);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootPile3))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.shootCommand.start())
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // pile 4
+                new State()
+                        .onEnter(() -> {
+                            double optimalX = robot.vision.getLargestClusterX();
+                            intakePile4 = new PPPath(
+                                    new Pose(56, 20, Math.toRadians(180)),
+                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
+                            ).setTangent(false);
+
+                            shootPile4 = new PPPath(
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(56, 20, Math.toRadians(180))
+                            ).setTangent(false);
+                            robot.intakeCommand.start();
+                            follower.followPath(intakePile4);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootPile4))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.shootCommand.start())
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // pile 5
+                new State()
+                        .onEnter(() -> {
+                            double optimalX = robot.vision.getLargestClusterX();
+                            intakePile5 = new PPPath(
+                                    new Pose(56, 20, Math.toRadians(180)),
+                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
+                            ).setTangent(false);
+
+                            shootPile5 = new PPPath(
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(56, 20, Math.toRadians(180))
+                            ).setTangent(false);
+                            robot.intakeCommand.start();
+                            follower.followPath(intakePile5);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootPile5))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.shootCommand.start())
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // pile 6
+//                new State()
+//                        .onEnter(() -> {
+//                            double optimalX = robot.vision.getLargestClusterX();
+//                            intakePile6 = follower.pathBuilder()
+//                                    .addPath(
+//                                            new BezierCurve(
+//                                                    new Pose(56, 20),
+//                                                    new Pose(49.000, 20+optimalX),
+//                                                    new Pose(44.000, 20+optimalX),
+//                                                    new Pose(9.000, 20+optimalX)
+//                                            )
+//                                    )
+//                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+//                                    .build();
+//                            shootPile6 = follower.pathBuilder()
+//                                    .addPath(
+//                                            new BezierCurve(
+//                                                    new Pose(9.000, 20+optimalX),
+//                                                    new Pose(56, 20)
+//                                            )
+//                                    )
+//                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+//                                    .build();
+//                            robot.intakeCommand.start();
+//                            follower.followPath(intakePile6, false);
+//                        })
+//                        .transition(new Transition(() -> !follower.isBusy())),
+//                new State()
+//                        .onEnter(() -> follower.followPath(shootPile6, true))
+//                        .transition(new Transition(() -> !follower.isBusy())),
+//                new State()
+//                        .onEnter(() -> robot.shootCommand.start())
+//                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // pile 8
+                new State()
+                        .onEnter(() -> {
+                            double optimalX = robot.vision.getLargestClusterX();
+                            intakePile8 = new PPPath(
+                                    new Pose(56, 20, Math.toRadians(180)),
+                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
+                            ).setTangent(false);
+
+                            shootPile8 = new PPPath(
+                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose(56, 20, Math.toRadians(180))
+                            ).setTangent(false);
+                            robot.intakeCommand.start();
+                            follower.followPath(intakePile8);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> follower.followPath(shootPile8))
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> {
+                            robot.shootCommand.start();
+                            blackboard.put(RobotConstants.END_POSE_KEY, follower.currentPose);
+                        })
+                        .onExit(() -> blackboard.put(RobotConstants.END_POSE_KEY, follower.currentPose))
+                        .transition(new Transition(() -> robot.shootCommand.isFinished()))
+        );
+
+        try {
+            sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        robot.initPositions();
+    }
+    @Override
+    public void loop() {
+        double[] values;
+        robot.turret.setFeedforward(0);
+        values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
+        robot.setAzimuthThetaVelocity(values);
+        System.out.println(robot.vision.currentV);
+
+        stateMachine.update();
+        follower.update();
+        robot.update();
+        telemetry.update();
+    }
+
+    @Override
+    public void start() {
+        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(48, 9, Math.toRadians(180)), new Vector());
+        robot.setAzimuthThetaVelocity(values);
+
+        robot.shooter.state = Shooter.ShooterState.SHOOTER_ON;
+
+        stateMachine.start();
+        robot.start();
+    }
+
+    @Override
+    public void stop() {
+        blackboard.put(RobotConstants.END_POSE_KEY, follower.currentPose);
+    }
+}

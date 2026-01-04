@@ -21,6 +21,8 @@ public class PPFollowerConstants {
     public static double KV_Y;
     public static double KA_X;
     public static double KA_Y;
+    public static double KQ_X = 0.0002;
+    public static double KQ_Y = 0.0002;
     public static double KV_HEADING; // will be easy once we know the kV and kA and kS, also not as important. compensate accoringly to the previous 1-2-8
     public static PIDFCoefficients LONGITUDINAL_COEFFICIENTS = new PIDFCoefficients(0.02, 0, 0.0006, 0);
     public static PIDFCoefficients LATERAL_COEFFICIENTS = new PIDFCoefficients(0.05, 0, 0.0015, 0);

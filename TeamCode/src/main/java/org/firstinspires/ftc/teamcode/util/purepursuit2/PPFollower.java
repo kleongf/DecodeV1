@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.util.purepursuit2;
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.FRICTION_CONSTANT;
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.HEADING_COEFFICIENTS;
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.HOLD_POINT_SCALE_FACTOR;
+import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.KQ_X;
+import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.KQ_Y;
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.LATERAL_COEFFICIENTS;
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.LONGITUDINAL_COEFFICIENTS;
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.LOOK_AHEAD_DISTANCE;
@@ -31,6 +33,7 @@ import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollo
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.PID_MAX_VELOCITY;
 
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.Vector;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -63,9 +66,11 @@ public class PPFollower {
     private double lookAheadDistance;
     private double maxVelocity;
     private double maxAcceleration;
+    private double maxPower;
     private double pathEndDistanceConstraint;
     private double pathEndHeadingConstraint;
     private double pathEndSpeedConstraint;
+    private boolean holdPoint;
 
     public PPFollower(HardwareMap hardwareMap) {
         this.localizer = new PPLocalizer(hardwareMap);
@@ -106,6 +111,8 @@ public class PPFollower {
         this.pathEndDistanceConstraint = PATH_END_DISTANCE_CONSTRAINT;
         this.pathEndSpeedConstraint = PATH_END_SPEED_CONSTRAINT;
         this.pathEndHeadingConstraint = PATH_END_HEADING_CONSTRAINT;
+        this.holdPoint = true;
+        this.maxPower = 1.0;
 
         this.voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
     }
@@ -197,7 +204,7 @@ public class PPFollower {
         double dx = pose.getX()-currentPose.getX();
         double dTheta = MathUtil.normalizeAngle(pose.getHeading()-currentPose.getHeading());
 
-        // TODO: New Formulas for this: Ks*signum() + KV * desiredV + Ka * desired A
+        // TODO: New Formulas for this: Ks*signum() + KV * desiredV + Ka * desired A nvm
         // if the desired velocity has been reached, remove kA
         double cosH = Math.cos(currentPose.getHeading());
         double sinH = Math.sin(currentPose.getHeading());
@@ -211,35 +218,27 @@ public class PPFollower {
 
         Matrix X = new Matrix(new double[][]{
                 {dx, dy, dTheta}
-        }).transpose().normalize(); // needed to transpose this first and need to normalize
+        }).transpose(); // needed to transpose this first and need to normalize
 
         Matrix B = C.multiply(X);
 
-        // kS matrix
-        Matrix sgn = new Matrix(new double[][]{
-                {KS_X * Math.signum(B.get(0, 0)), KS_Y * Math.signum(B.get(1, 0)), 0},
-        }).transpose();
-
         // kV matrix transformation
+        double kY = 1.0;
+        double kX = 2.0;
+        double kTheta = 8.0;
+
         Matrix V = new Matrix(new double[][]{
-                {KV_X * maxVelocity, 0, 0},
-                {0,  KV_Y * maxVelocity, 0},
-                {0,     0,    KV_HEADING},
+                {kX, 0, 0},
+                {0,  kY, 0},
+                {0,  0,  kTheta},
         });
 
-        // kA matrix transformation
-        Matrix A = new Matrix(new double[][]{
-                {KA_X * maxAcceleration, 0, 0},
-                {0,  KA_Y * maxAcceleration, 0},
-                {0,     0,    0},
-        });
 
-        Matrix T = localizer.getSpeed() >= maxVelocity ? sgn.add(V.multiply(B)) : sgn.add(V.multiply(B)).add(A.multiply(B));
-
+        Matrix T = V.multiply(B);
 
         double xPower = T.get(0, 0);
         double yPower = T.get(1, 0);
-        double thetaPower = T.get(1, 0);
+        double thetaPower = T.get(2, 0);
 
         double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(thetaPower);
         xPower /= total;
@@ -247,7 +246,7 @@ public class PPFollower {
         thetaPower /= total;
 
         // thetaPower is negative because our coordinate system. also no negative scalefactor here, it dont make sense, it would reverse error
-        setMotorPowers(xPower,  yPower, -thetaPower);
+        setMotorPowers(maxPower * xPower,  maxPower * yPower, maxPower * -thetaPower);
     }
 
     private void setMotorPowers(double x, double y, double rx) {
@@ -272,7 +271,6 @@ public class PPFollower {
     }
 
     private void PIDToPose(double scaleFactor) {
-        // TODO: new idea: decelerate to a certain velocity, then remove the kA feedforward, no need for tuning quadratic damping
         double cosH = Math.cos(currentPose.getHeading());
         double sinH = Math.sin(currentPose.getHeading());
 
@@ -310,16 +308,16 @@ public class PPFollower {
 
         Matrix V2 = C.multiply(V);
 
-        double xVel = V2.get(0, 0);;
-        double yVel = V2.get(1, 0);;
+        double xVel = V2.get(0, 0);
+        double yVel = V2.get(1, 0);
 
         // TODO: we need separate constants for x and y. cannot be the same, also name them lateral and longitudinal
         if (xVel > PID_MAX_VELOCITY) {
-            xPower += KA_X * -MAX_ACCELERATION * Math.signum(xVel); // brake, so that we go in opposite direction
+            xPower += KQ_X * -Math.abs(xVel) * xVel; // brake, so that we go in opposite direction
         }
 
         if (yVel > PID_MAX_VELOCITY) {
-            yPower += KA_Y * -MAX_ACCELERATION * Math.signum(yVel); // brake, so that we go in opposite direction
+            yPower += KQ_Y * -Math.abs(yVel) * yVel; // brake, so that we go in opposite direction
         }
 
         setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, scaleFactor * headingPower);
@@ -333,6 +331,8 @@ public class PPFollower {
         pathEndSpeedConstraint = path.getPathEndSpeedConstraint();
         pathEndHeadingConstraint = path.getPathEndHeadingConstraint();
         pathEndDistanceConstraint = path.getPathEndDistanceConstraint();
+        maxPower = path.getMaxPower();
+        holdPoint = path.getHoldPoint();
         currentPath = path;
         currentPathIndex = 0;
         lastFoundIndex = 0;
@@ -364,9 +364,13 @@ public class PPFollower {
                 break;
             case PID_TO_POINT:
                 if (MathUtil.distance(currentPose, goalPose) < pathEndDistanceConstraint && speed < pathEndSpeedConstraint && Math.abs(MathUtil.normalizeAngle(currentPose.getHeading()-goalPose.getHeading())) < pathEndHeadingConstraint) {
-                    state = PPState.HOLDING_POINT;
+                    if (holdPoint) {
+                        state = PPState.HOLDING_POINT;
+                    } else {
+                        breakFollowing();
+                    }
                 } else {
-                    PIDToPose(1);
+                    PIDToPose(maxPower);
                 }
                 break;
             case HOLDING_POINT:
@@ -377,6 +381,8 @@ public class PPFollower {
                 pathEndSpeedConstraint = PATH_END_SPEED_CONSTRAINT;
                 pathEndHeadingConstraint = PATH_END_HEADING_CONSTRAINT;
                 pathEndDistanceConstraint = PATH_END_DISTANCE_CONSTRAINT;
+                maxPower = 1.0;
+                holdPoint = true;
                 currentPath = null;
                 currentPathIndex = 0;
                 lastFoundIndex = 0;
@@ -393,6 +399,8 @@ public class PPFollower {
         pathEndSpeedConstraint = PATH_END_SPEED_CONSTRAINT;
         pathEndHeadingConstraint = PATH_END_HEADING_CONSTRAINT;
         pathEndDistanceConstraint = PATH_END_DISTANCE_CONSTRAINT;
+        maxPower = 1.0;
+        holdPoint = true;
         currentPath = null;
         currentPathIndex = 0;
         lastFoundIndex = 0;
@@ -400,5 +408,13 @@ public class PPFollower {
 
     public boolean isBusy() {
         return (state == PPState.FOLLOWING_PATH || state == PPState.PID_TO_POINT);
+    }
+
+    public int getCurrentPathIndex() {
+        return currentPathIndex;
+    }
+
+    public Vector getCurrentVelocity() {
+        return getCurrentVelocity();
     }
 }

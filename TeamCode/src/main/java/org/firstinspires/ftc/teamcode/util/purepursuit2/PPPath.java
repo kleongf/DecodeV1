@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.util.purepursuit2;
 
 import com.pedropathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.util.purepursuit.PurePursuitConstants;
 import org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants;
 
 import java.util.ArrayList;
@@ -17,6 +16,8 @@ public class PPPath {
     private double pathEndDistanceConstraint = PPFollowerConstants.PATH_END_DISTANCE_CONSTRAINT;
     private double pathEndHeadingConstraint = PPFollowerConstants.PATH_END_HEADING_CONSTRAINT;
     private double pathEndSpeedConstraint = PPFollowerConstants.PATH_END_SPEED_CONSTRAINT;
+    private boolean holdPoint = true;
+    private double maxPower = 1.0;
 
     public PPPath(Pose...waypoints) {
         this.waypoints = new ArrayList<>(Arrays.asList(waypoints));
@@ -66,6 +67,16 @@ public class PPPath {
         return this;
     }
 
+    public PPPath setHoldPoint(boolean x) {
+        this.holdPoint = x;
+        return this;
+    }
+
+    public PPPath setMaxPower(double x) {
+        maxPower = x;
+        return this;
+    }
+
     public boolean isTangent() {return tangent;}
 
     public int getSize() {
@@ -85,4 +96,7 @@ public class PPPath {
     public double getPathEndDistanceConstraint() {return pathEndDistanceConstraint;}
     public double getPathEndHeadingConstraint() {return pathEndHeadingConstraint;}
     public double getPathEndSpeedConstraint() {return pathEndSpeedConstraint;}
+
+    public boolean getHoldPoint() {return holdPoint;}
+    public double getMaxPower() {return maxPower;}
 }
