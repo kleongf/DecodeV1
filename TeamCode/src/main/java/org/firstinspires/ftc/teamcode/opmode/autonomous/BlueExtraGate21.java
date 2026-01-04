@@ -133,17 +133,17 @@ public class BlueExtraGate21 extends OpMode {
                 .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
                 .setPathEndTValueConstraint(0.99)
                 .build();
-
         shootGate3 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.BLUE_GATE_AUTO_POSE,
-                                new Pose(60,60),
-                                new Pose(60, 84)
+                                PoseConstants.BLUE_SHOOT_AUTO_POSE
                         )
                 )
-                .setLinearHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading(), Math.toRadians(180))
+                .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .build();
+
+
 
         intakeGate4 = follower.pathBuilder()
                 .addPath(
@@ -158,15 +158,15 @@ public class BlueExtraGate21 extends OpMode {
                 .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
                 .setPathEndTValueConstraint(0.99)
                 .build();
-
         shootGate4 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.BLUE_GATE_AUTO_POSE,
-                                PoseConstants.BLUE_SHOOT_AUTO_POSE
+                                new Pose(60,60),
+                                new Pose(60, 84)
                         )
                 )
-                .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
+                .setLinearHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading(), Math.toRadians(180))
                 .build();
 
         intakeFirst = follower.pathBuilder()
@@ -317,7 +317,7 @@ public class BlueExtraGate21 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.intakeCommand.start();
-                            follower.followPath(intakeGate4, true);
+                            follower.followPath(intakeGate3, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -326,7 +326,7 @@ public class BlueExtraGate21 extends OpMode {
                         .onEnter(() -> {
                             follower.breakFollowing();
                             follower.setMaxPower(1);
-                            follower.followPath(shootGate4, true);
+                            follower.followPath(shootGate3, true);
                         })
                         .maxTime(700),
                 new State()
@@ -347,7 +347,7 @@ public class BlueExtraGate21 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.intakeCommand.start();
-                            follower.followPath(intakeGate3, true);
+                            follower.followPath(intakeGate4, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -357,7 +357,7 @@ public class BlueExtraGate21 extends OpMode {
                         .onEnter(() -> {
                             follower.breakFollowing();
                             follower.setMaxPower(1);
-                            follower.followPath(shootGate3, true);
+                            follower.followPath(shootGate4, true);
                             shootPose = new Pose(60, 84, Math.toRadians(180));
                         })
                         .maxTime(700),
