@@ -12,6 +12,8 @@ import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollo
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.NOMINAL_VOLTAGE;
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.PATH_END_DISTANCE_CONSTRAINT;
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.VOLTAGE_COMP_AUTO;
+import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.X_ZPA;
+import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.Y_ZPA;
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.leftFrontMotorDirection;
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.leftFrontMotorName;
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.leftRearMotorDirection;
@@ -33,6 +35,7 @@ import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollo
 import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.PID_MAX_VELOCITY;
 
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.MathFunctions;
 import com.pedropathing.pathgen.Vector;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -311,12 +314,26 @@ public class PPFollower {
         double xVel = V2.get(0, 0);
         double yVel = V2.get(1, 0);
 
-        // TODO: we need separate constants for x and y. cannot be the same, also name them lateral and longitudinal
-        if (xVel > PID_MAX_VELOCITY) {
+        // calculate dist to end as speed^2 / 2 * zpam
+        // if this dist is less than dist to end then no ff is needed, we can basically coast to the end.
+        double xDistZPA = (xVel * xVel) / (2 * X_ZPA);
+        double yDistZPA = (yVel * yVel) / (2 * Y_ZPA);
+
+        double dy = goalPose.getY()-currentPose.getY();
+        double dx = goalPose.getX()-currentPose.getX();
+
+        Matrix E = new Matrix(new double[][]{
+                {dx, dy, 0}
+        }).transpose();
+
+        Matrix E2 = C.multiply(E);
+
+        // if distance is too large for zpa, then continue applying quadratic braking
+        if (E2.get(0, 0) > xDistZPA) {
             xPower += KQ_X * -Math.abs(xVel) * xVel; // brake, so that we go in opposite direction
         }
 
-        if (yVel > PID_MAX_VELOCITY) {
+        if (E2.get(1, 0) > yDistZPA) {
             yPower += KQ_Y * -Math.abs(yVel) * yVel; // brake, so that we go in opposite direction
         }
 
@@ -343,13 +360,26 @@ public class PPFollower {
         localizer.update();
         currentPose = localizer.getPose();
         double speed = localizer.getSpeed();
-        double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
+        // i don't like this method, because it's not guaranteed that the direction of the velocity vector
+        // is the same direction as the path it needs to follow
+        // we could project the velocity vector onto the vector of the path, take its magnitude.
+        // double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
 
         switch (state) {
             case IDLE:
                 break;
             case FOLLOWING_PATH:
                 // the second condition is a better catch, so that we don't go backwards from pure pursuit
+                Vector v = com.pedropathing.pathgen.MathFunctions.subtractVectors(goalPose.getVector(), currentPose.getVector());
+                Vector u = localizer.getVelocityVector();
+
+                // (u ⋅ v / |v|²) * v
+                Vector projuv = com.pedropathing.pathgen.MathFunctions.scalarMultiplyVector(v, com.pedropathing.pathgen.MathFunctions.dotProduct(u, v) / com.pedropathing.pathgen.MathFunctions.dotProduct(v, v));
+
+                double velToGoal = projuv.getMagnitude();
+
+                double distanceToEnd = (velToGoal * velToGoal) / (2 * MAX_ACCELERATION);
+
                 if ((MathUtil.distance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd) || MathUtil.distance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < lookAheadDistance) {
                     goalPose = currentPath.getPose(currentPath.getSize() - 1);
                     state = PPState.PID_TO_POINT;

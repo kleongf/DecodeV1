@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.util.hardware.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.misc.ClosestPoint;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
+import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -90,35 +91,69 @@ public class MainTeleop {
         }
 
         if (automateRobot) {
-            // if we are idle and conditions are right, we shoot
-            if (
-                    robotState != RobotState.SHOOTING &&
-                            drivetrain.follower.getVelocity().getMagnitude() < 20 &&
-                            robot.shooter.atTarget(20) && // 20 ticks
-                            robot.turret.atTarget(20) && // 20 ticks
-                            robot.intake.intakeFull() &&
-                            robot.inShootingZone(drivetrain.follower.getPose())
-            ) {
-                robot.shootCommand.start();
-            }
+            // if we are idle and conditions are right, we shoot. realistically this might be kinda stupid, so imma take it out
+//            if (
+//                    robotState != RobotState.SHOOTING &&
+//                            drivetrain.follower.getVelocity().getMagnitude() < 20 &&
+//                            robot.shooter.atTarget(20) && // 20 ticks
+//                            robot.turret.atTarget(20) && // 20 ticks
+//                            robot.intake.intakeFull() &&
+//                            robot.inShootingZone(drivetrain.follower.getPose())
+//            ) {
+//                robot.shootCommand.start();
+//            }
 
-            if (
-                    !robot.inShootingZone(drivetrain.follower.getPose()) &&
-                            robot.intake.intakeFull() &&
-                            !isAutoDriving
-            ) {
-                // need to change this to just "push" the robot in the right direction
-                PathChain driveToClosestPoint = drivetrain.follower.pathBuilder()
-                        .addPath(
-                                new Path(
-                                        new BezierLine(
-                                                new Point(drivetrain.follower.getPose()),
-                                                new Point(closestPoint.closestPose(drivetrain.follower.getPose()))
+            if (!robot.inShootingZone(drivetrain.follower.getPose()) && robot.intake.intakeFull() && !isAutoDriving) {
+                // might need to change this to just "push" the robot in the right direction
+                PathChain driveToClosestPoint = new PathChain();
+                Pose closestPose = closestPoint.closestPose(drivetrain.follower.getPose());
+                Pose currentPose = drivetrain.follower.getPose();
+                // case 1: the current pose is close to the closestPose, in this case no heading change is best. say it's 20 inches idk
+                if (Math.hypot(currentPose.getX()- closestPose.getX(), currentPose.getY()- closestPose.getY()) < 20) {
+                    driveToClosestPoint = drivetrain.follower.pathBuilder()
+                            .addPath(
+                                    new Path(
+                                            new BezierLine(
+                                                    new Point(drivetrain.follower.getPose()),
+                                                    new Point(closestPoint.closestPose(drivetrain.follower.getPose()))
+                                            )
+                                    )
+                            )
+                            .setConstantHeadingInterpolation(drivetrain.follower.getPose().getHeading())
+                            .build();
+                } else {
+                    // case 2: the current pose is NOT close to the closestPose, in which case we need to find the closest angle
+                    double targetAngle = Math.atan2(closestPose.getY()- currentPose.getY(), closestPose.getX()- currentPose.getX());
+                    double currentAngle = currentPose.getHeading();
+                    // case 2a: tangential is closer, so we need to turn less
+                    if (Math.abs(MathFunctions.angleWrap(targetAngle-currentAngle)) < Math.abs(MathFunctions.angleWrap(targetAngle-currentAngle-Math.PI))) {
+                        driveToClosestPoint = drivetrain.follower.pathBuilder()
+                                .addPath(
+                                        new Path(
+                                                new BezierLine(
+                                                        new Point(drivetrain.follower.getPose()),
+                                                        new Point(closestPoint.closestPose(drivetrain.follower.getPose()))
+                                                )
                                         )
                                 )
-                        )
-                        .setConstantHeadingInterpolation(drivetrain.follower.getPose().getHeading())
-                        .build();
+                                .setTangentHeadingInterpolation()
+                                .build();
+                    } else {
+                        driveToClosestPoint = drivetrain.follower.pathBuilder()
+                                .addPath(
+                                        new Path(
+                                                new BezierLine(
+                                                        new Point(drivetrain.follower.getPose()),
+                                                        new Point(closestPoint.closestPose(drivetrain.follower.getPose()))
+                                                )
+                                        )
+                                )
+                                .setReversed(true)
+                                .setTangentHeadingInterpolation()
+                                .build();
+                    }
+                }
+
                 isAutoDriving = true;
                 drivetrain.follower.breakFollowing();
                 drivetrain.follower.followPath(driveToClosestPoint, true);
