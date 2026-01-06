@@ -9,6 +9,7 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -75,6 +76,26 @@ public class MainTeleop {
     // TODO: not sure if Timoe wants this, otherwise i guess Robotcube may still want to be driver
     private double normalizeInput(double input) {
         return Math.signum(input) * Math.sqrt(Math.abs(input));
+    }
+
+    private void prepareAutoDrive() {
+        drivetrain.fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        drivetrain.bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        drivetrain.fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        drivetrain.br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        isAutoDriving = true;
+        drivetrain.follower.breakFollowing();
+    }
+
+    private void prepareTeleopDrive() {
+        drivetrain.fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        drivetrain.bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        drivetrain.fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        drivetrain.br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        isAutoDriving = false;
+        drivetrain.follower.breakFollowing();
     }
 
     public void loop() {
@@ -153,9 +174,7 @@ public class MainTeleop {
                                 .build();
                     }
                 }
-
-                isAutoDriving = true;
-                drivetrain.follower.breakFollowing();
+                prepareAutoDrive();
                 drivetrain.follower.followPath(driveToClosestPoint, true);
             }
         }
@@ -216,8 +235,7 @@ public class MainTeleop {
                     )
                     .setConstantHeadingInterpolation(gatePose.getHeading())
                     .build();
-            isAutoDriving = true;
-            drivetrain.follower.breakFollowing();
+            prepareAutoDrive();
             drivetrain.follower.followPath(driveGate, true);
         }
 
@@ -234,15 +252,13 @@ public class MainTeleop {
                     )
                     .setLinearHeadingInterpolation(drivetrain.follower.getPose().getHeading(), parkPose.getHeading())
                     .build();
-            isAutoDriving = true;
-            drivetrain.follower.breakFollowing();
+            prepareAutoDrive();
             drivetrain.follower.followPath(park, true);
         }
 
         // safety for autodrive
         if (gamepad1.leftStickButtonWasPressed() || gamepad1.rightStickButtonWasPressed()) {
-            isAutoDriving = false;
-            drivetrain.follower.breakFollowing();
+            prepareTeleopDrive();
         }
 
         // relocalization
@@ -309,8 +325,7 @@ public class MainTeleop {
         if (isAutoDriving) {
             if (!holdingPose) {
                 if (!drivetrain.follower.isBusy()) {
-                    isAutoDriving = false;
-                    drivetrain.follower.breakFollowing();
+                    prepareTeleopDrive();
                     drivetrain.setTargetHeading(drivetrain.follower.getPose().getHeading());
                 }
             }

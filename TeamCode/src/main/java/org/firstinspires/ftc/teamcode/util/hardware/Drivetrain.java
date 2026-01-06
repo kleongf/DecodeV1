@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.util.controllers.PIDFController;
 import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
 
 public class Drivetrain {
-    private DcMotorEx fl, bl, fr, br;
+    public DcMotorEx fl, bl, fr, br;
     private HardwareMap hardwareMap;
     public Follower follower;
     private HeadingPIDFController headingController;
