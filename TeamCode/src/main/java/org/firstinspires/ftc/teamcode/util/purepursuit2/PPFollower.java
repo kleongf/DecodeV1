@@ -282,7 +282,8 @@ public class PPFollower {
         // double outHeading = -headingController.calculate(MathUtil.normalizeAngle(currentPose.getHeading()), MathUtil.normalizeAngle(goalPose.getHeading()));
 
         double headingError = MathUtil.normalizeAngle(goalPose.getHeading() - currentPose.getHeading());
-        double outHeading = -headingController.calculate(0, headingError);
+        double outHeading = -1.5 * headingError; // simplified
+        // double outHeading = -headingController.calculate(0, headingError);
 
         // double outHeading = 1.5 * MathUtil.normalizeAngle(goalPose.getHeading()-currentPose.getHeading());
         System.out.println("OUT HEADING: " + outHeading);
