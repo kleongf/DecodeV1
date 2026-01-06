@@ -279,7 +279,15 @@ public class PPFollower {
 
         double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
         double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
-        double outHeading = -headingController.calculate(MathUtil.normalizeAngle(currentPose.getHeading()), MathUtil.normalizeAngle(goalPose.getHeading()));
+        // double outHeading = -headingController.calculate(MathUtil.normalizeAngle(currentPose.getHeading()), MathUtil.normalizeAngle(goalPose.getHeading()));
+
+        double headingError = MathUtil.normalizeAngle(goalPose.getHeading() - currentPose.getHeading());
+        double outHeading = -headingController.calculate(0, headingError);
+
+        // double outHeading = 1.5 * MathUtil.normalizeAngle(goalPose.getHeading()-currentPose.getHeading());
+        System.out.println("OUT HEADING: " + outHeading);
+        System.out.println("GOAL POSE HEADING: " + goalPose.getHeading());
+        System.out.println("CURRENT POSE HEADING: " + currentPose.getHeading());
 
         Matrix C = new Matrix(new double[][]{
                 {sinH, -cosH, 0},
@@ -296,14 +304,6 @@ public class PPFollower {
         double xPower =  B.get(0, 0);
         double yPower =  B.get(1, 0);
         double headingPower = B.get(2, 0);
-
-        double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(headingPower);
-
-        if (total > 1) {
-            xPower /= total;
-            yPower /= total;
-            headingPower /= total;
-        }
 
         Matrix V = new Matrix(new double[][]{
                 {localizer.getVelocity().getX(), localizer.getVelocity().getY(), 0}
@@ -337,6 +337,18 @@ public class PPFollower {
             yPower += KQ_Y * -Math.abs(yVel) * yVel; // brake, so that we go in opposite direction
         }
 
+        double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(headingPower);
+
+        if (total > 1) {
+            xPower /= total;
+            yPower /= total;
+            headingPower /= total;
+        }
+        System.out.println("XPOWER: " + xPower);
+        System.out.println("YPOWER: " + yPower);
+        System.out.println("HEADING POWER: " + headingPower);
+        // scaleFactor * headingPower
+
         setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, scaleFactor * headingPower);
     }
 
@@ -356,7 +368,6 @@ public class PPFollower {
     }
 
     public void update() {
-
         localizer.update();
         currentPose = localizer.getPose();
         double speed = localizer.getSpeed();
@@ -369,6 +380,8 @@ public class PPFollower {
             case IDLE:
                 break;
             case FOLLOWING_PATH:
+                System.out.println("FOLLOWING PATH");
+                calculateGoalPose();
                 // the second condition is a better catch, so that we don't go backwards from pure pursuit
                 Vector v = com.pedropathing.pathgen.MathFunctions.subtractVectors(goalPose.getVector(), currentPose.getVector());
                 Vector u = localizer.getVelocityVector();
@@ -384,7 +397,6 @@ public class PPFollower {
                     goalPose = currentPath.getPose(currentPath.getSize() - 1);
                     state = PPState.PID_TO_POINT;
                 } else {
-                    calculateGoalPose();
                     if (currentPath.isReversed() && currentPath.isTangent()) {
                         moveToPose(MathUtil.reverseHeading(goalPose));
                     } else {
@@ -393,6 +405,8 @@ public class PPFollower {
                 }
                 break;
             case PID_TO_POINT:
+                System.out.println("PID TO POSE");
+                System.out.println("DISTANCE TO END: " + MathUtil.distance(currentPose, goalPose));
                 if (MathUtil.distance(currentPose, goalPose) < pathEndDistanceConstraint && speed < pathEndSpeedConstraint && Math.abs(MathUtil.normalizeAngle(currentPose.getHeading()-goalPose.getHeading())) < pathEndHeadingConstraint) {
                     if (holdPoint) {
                         state = PPState.HOLDING_POINT;

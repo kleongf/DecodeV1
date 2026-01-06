@@ -7,8 +7,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class LocalizerConstants {
     public static String hardwareMapName = "pinpoint";
-    public static double forwardY = -2.4;
-    public static double strafeX = -5.02;
+    public static double forwardY = -4.35;;
+    public static double strafeX = -2.5197;
     public static DistanceUnit distanceUnit = DistanceUnit.INCH;
     public static boolean useYawScalar = false;
     public static double yawScalar = 1.0;

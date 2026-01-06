@@ -407,38 +407,16 @@ public class BlueExtraGate21 extends OpMode {
     @Override
     public void loop() {
         double[] values;
-        // this sotm doesn't work, because path starts at idx 0
-        // from < 1: set target to pose 38 115
-        // from 1 < pathnum < 2: sotm
         if (isSOTMing) {
-            if (follower.getCurrentPathNumber() < 2) {
-                // maybe faster updating is better here? idk we can revert to new Vector()
-                values = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), follower.getVelocity());
-                // values[2] += 25;
-                values[0] -= Math.toRadians(6);
-                // values[1] -= Math.toRadians(0);
-                double currentTimeStamp = (double) System.nanoTime() / 1E9;
-                if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
-                double period = currentTimeStamp - lastTimeStamp;
-
-                double dx = goalPose.getX() - follower.getPose().getX();
-                double dy = goalPose.getY() - follower.getPose().getY();
-                double currentAngleToGoal = Math.atan2(-dx, dy) - follower.getPose().getHeading() + Math.toRadians(90);
-                double vGoal = (currentAngleToGoal-lastAngleToGoal)/period;
-
-                double ff = 0.1 * vGoal;
-                robot.turret.setFeedforward(ff);
-                lastAngleToGoal = currentAngleToGoal;
-                lastTimeStamp = currentTimeStamp;
-                //values[2] -= 140;
+            if (follower.getCurrentPathNumber() < 1) {
+                // this is probably about right, about 30 m/s away from goal. we want shooter vel to change as little as possible.
+                values = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), new Vector(20, Math.toRadians(-45)));
+                values[2] -= 160;
             } else {
-                robot.turret.setFeedforward(0);
                 values = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), follower.getVelocity());
-                // values[0] = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), new Vector())[0];
-                //values[2] -= 140;
+                values[2] -= 160;
             }
         } else {
-            robot.turret.setFeedforward(0);
             values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
         }
 

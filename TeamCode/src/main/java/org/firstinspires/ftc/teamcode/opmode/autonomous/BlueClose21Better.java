@@ -232,7 +232,7 @@ public class BlueClose21Better extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.intakeCommand.start();
-                            follower.followPath(intakeGate1, true);
+                            follower.followPath(intakeGate1, false);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -261,7 +261,7 @@ public class BlueClose21Better extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.intakeCommand.start();
-                            follower.followPath(intakeGate2, true);
+                            follower.followPath(intakeGate2, false);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -291,7 +291,7 @@ public class BlueClose21Better extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.intakeCommand.start();
-                            follower.followPath(intakeGate3, true);
+                            follower.followPath(intakeGate3, false);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -323,7 +323,7 @@ public class BlueClose21Better extends OpMode {
                         .onEnter(() -> {
                             follower.setMaxPower(.8);
                             robot.intakeCommand.start();
-                            follower.followPath(intakeFirst, true);
+                            follower.followPath(intakeFirst, false);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -386,8 +386,10 @@ public class BlueClose21Better extends OpMode {
             if (follower.getCurrentPathNumber() < 1) {
                 // this is probably about right, about 30 m/s away from goal. we want shooter vel to change as little as possible.
                 values = sotm2.calculateAzimuthThetaVelocity(new Pose(38, 115, Math.toRadians(180)), new Vector(30, Math.toRadians(-45)));
+                values[2] -= 40;
             } else {
                 values = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), follower.getVelocity());
+                values[2] -= 40;
             }
         } else {
             values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());

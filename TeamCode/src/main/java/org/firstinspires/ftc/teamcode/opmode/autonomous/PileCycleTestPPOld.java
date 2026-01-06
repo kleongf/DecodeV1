@@ -1,71 +1,65 @@
 package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
 import static java.lang.Thread.sleep;
+
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
-import com.pedropathing.util.CustomFilteredPIDFCoefficients;
-import com.pedropathing.util.CustomPIDFCoefficients;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.opmode.teleop.Alliance;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
-import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.robots.AutonomousRobot;
-import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.robot.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.fsm.State;
 import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
-import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
+import org.firstinspires.ftc.teamcode.util.purepursuit.Path2D;
+import org.firstinspires.ftc.teamcode.util.purepursuit.Pose2D;
+import org.firstinspires.ftc.teamcode.util.purepursuit.PurePursuit;
 import org.firstinspires.ftc.teamcode.util.purepursuit2.PPFollower;
-import org.firstinspires.ftc.teamcode.util.purepursuit2.PPPath;
 
-@Autonomous(name="pile cycle test blue 27 PP", group="not a comp")
-public class PileCycleTestPP extends OpMode {
-    private PPFollower follower;
+@Autonomous(name="pile cycle test blue 27 PP OLD", group="not a comp")
+public class PileCycleTestPPOld extends OpMode {
+    private PurePursuit follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM sotm2;
     private boolean isSOTMing = true;
-    private final Pose startPose = new Pose(42.65,8,Math.toRadians(180));
+    private final Pose2D startPose = new Pose2D(42.65,8,Math.toRadians(180));
     private Pose shootPose = new Pose(42.65,8,Math.toRadians(180));
-    private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
-    private PPPath intakeCorner, shootCorner, intakeThird, shootThird, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3, intakePile4, shootPile4, intakePile5, shootPile5, intakePile6, shootPile6, intakePile7, shootPile7, intakePile8, shootPile8;
+    private final Pose goalPose = new Pose(0, 144, Math.toRadians(45));
+    private Path2D intakeCorner, shootCorner, intakeThird, shootThird, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3, intakePile4, shootPile4, intakePile5, shootPile5, intakePile6, shootPile6, intakePile7, shootPile7, intakePile8, shootPile8;
     public void buildPaths() {
-        intakeCorner = new PPPath(
-                new Pose(42.65000, 8.000, Math.toRadians(180)),
-                new Pose(9.000, 9.000, Math.toRadians(180))
-        ).setTangent(false).setReversed(false);
+        intakeCorner = new Path2D(
+                new Pose2D(42.65000, 8.000, Math.toRadians(180)),
+                new Pose2D(9.000, 9.000, Math.toRadians(180))
+        );
 
-        shootCorner = new PPPath(
-                new Pose(9.000, 9.000, Math.toRadians(180)),
-                new Pose(56,20, Math.toRadians(180))
-        ).setTangent(false).setReversed(false);;
+        shootCorner = new Path2D(
+                new Pose2D(9.000, 9.000, Math.toRadians(180)),
+                new Pose2D(56,20, Math.toRadians(180))
+        );
 
-        intakeThird = new PPPath(
-                new Pose(56,20, Math.toRadians(180)),
-                new Pose(44.000, 36.000, Math.toRadians(180)),
-                new Pose(13.000, 36.000, Math.toRadians(180))
-        ).setTangent(false).setReversed(false);;
+        intakeThird = new Path2D(
+                new Pose2D(56,20, Math.toRadians(180)),
+                new Pose2D(44.000, 36.000, Math.toRadians(180)),
+                new Pose2D(13.000, 36.000, Math.toRadians(180))
+        );
 
-        shootThird = new PPPath(
-                new Pose(13.000, 36.000, Math.toRadians(180)),
-                new Pose(56, 20, Math.toRadians(180))
-        ).setTangent(false).setReversed(false);;
+        shootThird = new Path2D(
+                new Pose2D(13.000, 36.000, Math.toRadians(180)),
+                new Pose2D(56, 20, Math.toRadians(180))
+        );
 
     }
 
     @Override
     public void init() {
-        follower = new PPFollower(hardwareMap);
-        follower.setStartingPose(startPose);
+        follower = new PurePursuit(hardwareMap);
+        follower.setStartingPose(new Pose(startPose.getX(), startPose.getY(), startPose.getHeading()));
         robot = new AutonomousRobot(hardwareMap, Alliance.BLUE);
         sotm2 = new SOTM(goalPose);
         buildPaths();
@@ -111,16 +105,16 @@ public class PileCycleTestPP extends OpMode {
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
-                            intakePile1 = new PPPath(
-                                    new Pose(56, 20, Math.toRadians(180)),
-                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            intakePile1 = new Path2D(
+                                    new Pose2D(56, 20, Math.toRadians(180)),
+                                    new Pose2D(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180))
+                            );
 
-                            shootPile1 = new PPPath(
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(56, 20, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            shootPile1 = new Path2D(
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(56, 20, Math.toRadians(180))
+                            );
                             robot.intakeCommand.start();
                             follower.followPath(intakePile1);
                         })
@@ -135,16 +129,16 @@ public class PileCycleTestPP extends OpMode {
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
-                            intakePile2 = new PPPath(
-                                    new Pose(56, 20, Math.toRadians(180)),
-                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            intakePile2 = new Path2D(
+                                    new Pose2D(56, 20, Math.toRadians(180)),
+                                    new Pose2D(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180))
+                            );
 
-                            shootPile2 = new PPPath(
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(56, 20, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            shootPile2 = new Path2D(
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(56, 20, Math.toRadians(180))
+                            );
                             robot.intakeCommand.start();
                             follower.followPath(intakePile2);
                         })
@@ -159,16 +153,16 @@ public class PileCycleTestPP extends OpMode {
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
-                            intakePile3 = new PPPath(
-                                    new Pose(56, 20, Math.toRadians(180)),
-                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            intakePile3 = new Path2D(
+                                    new Pose2D(56, 20, Math.toRadians(180)),
+                                    new Pose2D(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180))
+                            );
 
-                            shootPile3 = new PPPath(
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(56, 20, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            shootPile3 = new Path2D(
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(56, 20, Math.toRadians(180))
+                            );
                             robot.intakeCommand.start();
                             follower.followPath(intakePile3);
                         })
@@ -183,16 +177,16 @@ public class PileCycleTestPP extends OpMode {
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
-                            intakePile4 = new PPPath(
-                                    new Pose(56, 20, Math.toRadians(180)),
-                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            intakePile4 = new Path2D(
+                                    new Pose2D(56, 20, Math.toRadians(180)),
+                                    new Pose2D(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180))
+                            );
 
-                            shootPile4 = new PPPath(
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(56, 20, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            shootPile4 = new Path2D(
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(56, 20, Math.toRadians(180))
+                            );
                             robot.intakeCommand.start();
                             follower.followPath(intakePile4);
                         })
@@ -207,16 +201,16 @@ public class PileCycleTestPP extends OpMode {
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
-                            intakePile5 = new PPPath(
-                                    new Pose(56, 20, Math.toRadians(180)),
-                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            intakePile5 = new Path2D(
+                                    new Pose2D(56, 20, Math.toRadians(180)),
+                                    new Pose2D(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180))
+                            );
 
-                            shootPile5 = new PPPath(
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(56, 20, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            shootPile5 = new Path2D(
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(56, 20, Math.toRadians(180))
+                            );
                             robot.intakeCommand.start();
                             follower.followPath(intakePile5);
                         })
@@ -234,10 +228,10 @@ public class PileCycleTestPP extends OpMode {
 //                            intakePile6 = follower.pathBuilder()
 //                                    .addPath(
 //                                            new BezierCurve(
-//                                                    new Pose(56, 20),
-//                                                    new Pose(49.000, 20+optimalX),
-//                                                    new Pose(44.000, 20+optimalX),
-//                                                    new Pose(9.000, 20+optimalX)
+//                                                    new Pose2D(56, 20),
+//                                                    new Pose2D(49.000, 20+optimalX),
+//                                                    new Pose2D(44.000, 20+optimalX),
+//                                                    new Pose2D(9.000, 20+optimalX)
 //                                            )
 //                                    )
 //                                    .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -245,8 +239,8 @@ public class PileCycleTestPP extends OpMode {
 //                            shootPile6 = follower.pathBuilder()
 //                                    .addPath(
 //                                            new BezierCurve(
-//                                                    new Pose(9.000, 20+optimalX),
-//                                                    new Pose(56, 20)
+//                                                    new Pose2D(9.000, 20+optimalX),
+//                                                    new Pose2D(56, 20)
 //                                            )
 //                                    )
 //                                    .setConstantHeadingInterpolation(Math.toRadians(180))
@@ -265,16 +259,16 @@ public class PileCycleTestPP extends OpMode {
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
-                            intakePile8 = new PPPath(
-                                    new Pose(56, 20, Math.toRadians(180)),
-                                    new Pose(44.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            intakePile8 = new Path2D(
+                                    new Pose2D(56, 20, Math.toRadians(180)),
+                                    new Pose2D(44.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180))
+                            );
 
-                            shootPile8 = new PPPath(
-                                    new Pose(9.000, 20+optimalX, Math.toRadians(180)),
-                                    new Pose(56, 20, Math.toRadians(180))
-                            ).setTangent(false).setReversed(false);;
+                            shootPile8 = new Path2D(
+                                    new Pose2D(9.000, 20+optimalX, Math.toRadians(180)),
+                                    new Pose2D(56, 20, Math.toRadians(180))
+                            );
                             robot.intakeCommand.start();
                             follower.followPath(intakePile8);
                         })
@@ -285,9 +279,9 @@ public class PileCycleTestPP extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.shootCommand.start();
-                            blackboard.put(RobotConstants.END_POSE_KEY, follower.currentPose);
+                            // blackboard.put(RobotConstants.END_Pose_KEY, follower.currentPose2D);
                         })
-                        .onExit(() -> blackboard.put(RobotConstants.END_POSE_KEY, follower.currentPose))
+                        // .onExit(() -> blackboard.put(RobotConstants.END_Pose2D_KEY, follower.currentPose2D))
                         .transition(new Transition(() -> robot.shootCommand.isFinished()))
         );
 
@@ -325,6 +319,6 @@ public class PileCycleTestPP extends OpMode {
 
     @Override
     public void stop() {
-        blackboard.put(RobotConstants.END_POSE_KEY, follower.currentPose);
+        // blackboard.put(RobotConstants.END_Pose2D_KEY, follower.currentPose2D);
     }
 }
