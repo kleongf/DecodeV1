@@ -5,22 +5,32 @@ import com.pedropathing.localization.Pose;
 import java.util.ArrayList;
 
 public class ClosestPoint {
+    public enum ClosestPointType {
+        CLOSE,
+        FAR,
+        COMBINED
+    }
     private ArrayList<Pose> poses = new ArrayList<>();
-    public ClosestPoint() {
-        // CLOSE POSES
-        for (int i = 24; i < 72; i++) {
-            poses.add(new Pose(i, 144-i, Math.toRadians(0)));
+    // we SHOULD be able to tell it where to go, in case we play close or far
+    public ClosestPoint(ClosestPointType cpt) {
+        if (cpt == ClosestPointType.CLOSE || cpt == ClosestPointType.COMBINED) {
+            // CLOSE POSES
+            for (int i = 24; i < 72; i++) {
+                poses.add(new Pose(i, 144-i, Math.toRadians(0)));
+            }
+            for (int i = 72; i < 120; i++) {
+                poses.add(new Pose(i, i, Math.toRadians(0)));
+            }
+        } else if (cpt == ClosestPointType.FAR || cpt == ClosestPointType.COMBINED) {
+            // FAR POSES
+            for (int i = 54; i < 72; i++) {
+                poses.add(new Pose(i, 48 + i, Math.toRadians(0)));
+            }
+            for (int i = 72; i < 90; i++) {
+                poses.add(new Pose(i, 96 - i, Math.toRadians(0)));
+            }
         }
-        for (int i = 72; i < 120; i++) {
-            poses.add(new Pose(i, i, Math.toRadians(0)));
-        }
-        // FAR POSES
-        for (int i = 54; i < 72; i++) {
-            poses.add(new Pose(i, 48 + i, Math.toRadians(0)));
-        }
-        for (int i = 72; i < 90; i++) {
-            poses.add(new Pose(i, 96 - i, Math.toRadians(0)));
-        }
+
     }
 
     public Pose closestPose(Pose robotPose) {

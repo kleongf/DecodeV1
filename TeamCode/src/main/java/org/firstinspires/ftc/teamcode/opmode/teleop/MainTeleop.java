@@ -66,7 +66,9 @@ public class MainTeleop {
         gp1 = new SmartGamepad(gamepad1);
 
         sotm = new SOTM(goalPose);
-        closestPoint = new ClosestPoint();
+        // TODO: make different teleops based on far or close. right now it's close.
+        // we need a far auto far tele, far auto close tele, close auto close tele, and close auto far tele
+        closestPoint = new ClosestPoint(ClosestPoint.ClosestPointType.CLOSE);
         endgameTimer = new Timer();
 
         this.goalPose = alliance == Alliance.BLUE ? PoseConstants.BLUE_GOAL_POSE : PoseConstants.RED_GOAL_POSE;
