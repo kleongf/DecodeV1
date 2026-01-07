@@ -75,7 +75,7 @@ public class MainTeleop {
     }
     // TODO: not sure if Timoe wants this, otherwise i guess Robotcube may still want to be driver
     private double normalizeInput(double input) {
-        return Math.signum(input) * Math.sqrt(Math.abs(input));
+        return 1.2 * Math.signum(input) * Math.sqrt(Math.abs(input));
     }
 
     private void prepareAutoDrive() {
