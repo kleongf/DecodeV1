@@ -5,16 +5,24 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.util.misc.Subsystem;
 
+import java.util.ArrayList;
+import java.util.Timer;
+
 public class Intake extends Subsystem {
+    public ArrayList<Double> rollingCurrents;
+    public ElapsedTime startTimer;
     public enum IntakeState {
         INTAKE_FAST,
         INTAKE_MEDIUM,
         INTAKE_SLOW,
         INTAKE_OFF
     }
+    public double CURRENT_LIMIT = 3.0; // 3 amps
 
     public IntakeState state = IntakeState.INTAKE_OFF;
     public DcMotorEx intakeMotor;
@@ -27,10 +35,19 @@ public class Intake extends Subsystem {
 //        top = hardwareMap.get(DigitalChannel.class, "topSensor");
 //        middle = hardwareMap.get(DigitalChannel.class, "middleSensor");
 //        bottom = hardwareMap.get(DigitalChannel.class, "bottomSensor");
+        startTimer = new ElapsedTime();
+        rollingCurrents = new ArrayList<>();
     }
 
     @Override
     public void update() {
+        // ensure that there are 7 currents. 7 is quite arbitrary but it's whatever
+        if (startTimer.seconds() > 1) { // this is here b/c intake draws high current on start
+            if (rollingCurrents.size() <= 7) {
+                rollingCurrents.add(intakeMotor.getCurrent(CurrentUnit.AMPS));
+                rollingCurrents.remove(0);
+            }
+        }
         switch (state) {
             case INTAKE_FAST:
                 intakeMotor.setPower(1);
@@ -46,11 +63,17 @@ public class Intake extends Subsystem {
 
     @Override
     public void start() {
-
+        startTimer.reset();
     }
     // TODO: DO WHEN WE GET THE THE SENSOR
     public boolean intakeFull() {
         // return top.getState() && middle.getState() && bottom.getState();
+        // ah yes don't you just love my naming conventions?
+        // we are checking this first, because there has to be a certain number of currents first
+        if (rollingCurrents.size() >= 7) {
+            boolean rollingCurrentIsHigh = rollingCurrents.stream().allMatch(n -> n > CURRENT_LIMIT);
+            return rollingCurrentIsHigh;
+        }
         return false;
     }
 }

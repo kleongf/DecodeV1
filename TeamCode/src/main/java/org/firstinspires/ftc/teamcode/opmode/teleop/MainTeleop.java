@@ -48,7 +48,7 @@ public class MainTeleop {
     private SmartGamepad gp1;
     private Gamepad gamepad1;
     public SOTM sotm;
-    private boolean automateRobot = false;
+    private boolean automateRobot = true;
     private Telemetry telemetry;
     private Alliance alliance;
 
@@ -125,7 +125,7 @@ public class MainTeleop {
 //                robot.shootCommand.start();
 //            }
 
-            if (!robot.inShootingZone(drivetrain.follower.getPose()) && robot.intake.intakeFull() && !isAutoDriving) {
+            if (!robot.inShootingZone(drivetrain.follower.getPose()) && robot.intake.intakeFull() && !isAutoDriving && robotState == RobotState.IDLE) {
                 // might need to change this to just "push" the robot in the right direction
                 PathChain driveToClosestPoint = new PathChain();
                 Pose closestPose = closestPoint.closestPose(drivetrain.follower.getPose());
