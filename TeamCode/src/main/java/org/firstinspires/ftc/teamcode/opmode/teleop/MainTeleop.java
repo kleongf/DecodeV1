@@ -48,8 +48,7 @@ public class MainTeleop {
     private SmartGamepad gp1;
     private Gamepad gamepad1;
     public SOTM sotm;
-    private boolean holdingPose = false;
-    private boolean automateRobot = true;
+    private boolean automateRobot = false;
     private Telemetry telemetry;
     private Alliance alliance;
 
@@ -325,12 +324,11 @@ public class MainTeleop {
         }
 
         if (isAutoDriving) {
-            if (!holdingPose) {
-                if (!drivetrain.follower.isBusy()) {
-                    prepareTeleopDrive();
-                    drivetrain.setTargetHeading(drivetrain.follower.getPose().getHeading());
-                }
+            if (!drivetrain.follower.isBusy()) {
+                prepareTeleopDrive();
+                drivetrain.setTargetHeading(drivetrain.follower.getPose().getHeading());
             }
+
 
         } else {
             if (alliance == Alliance.BLUE) {
@@ -368,6 +366,7 @@ public class MainTeleop {
         robot.initPositions();
         robot.start();
         endgameTimer.resetTimer();
+        prepareTeleopDrive();
     }
 
     public void stop() {

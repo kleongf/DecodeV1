@@ -25,6 +25,7 @@ public class IntakeCurrentSpeedTest extends OpMode {
 
     @Override
     public void loop() {
+        intake.update();
         if (gamepad1.x) {
             intake.state = Intake.IntakeState.INTAKE_FAST;
         }
