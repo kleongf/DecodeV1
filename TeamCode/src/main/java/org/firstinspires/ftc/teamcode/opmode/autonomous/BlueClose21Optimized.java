@@ -291,7 +291,7 @@ public class BlueClose21Optimized extends OpMode {
                             follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.001,0.6,0.0));
                             follower.setSecondaryTranslationalPIDF(new CustomPIDFCoefficients(0.1,0,0.0075,0.0));
                             robot.intakeCommand.start();
-                            follower.followPath(intakeGate3, false);
+                            follower.followPath(intakeGate3, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
