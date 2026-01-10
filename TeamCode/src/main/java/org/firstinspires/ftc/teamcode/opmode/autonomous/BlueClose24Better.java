@@ -84,7 +84,7 @@ public class BlueClose24Better extends OpMode {
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setZeroPowerAccelerationMultiplier(8)
                 .setPathEndTValueConstraint(0.99)
-                .addParametricCallback(0.5, () -> follower.setMaxPower(0.8))
+                // .addParametricCallback(0.5, () -> follower.setMaxPower(0.8))
                 .build();
 
         shootGate1 = follower.pathBuilder()
@@ -127,7 +127,7 @@ public class BlueClose24Better extends OpMode {
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setZeroPowerAccelerationMultiplier(8)
                 .setPathEndTValueConstraint(0.99)
-                .addParametricCallback(0.5, () -> follower.setMaxPower(0.8))
+                // .addParametricCallback(0.5, () -> follower.setMaxPower(0.8))
                 .build();
 
         shootGate2 = follower.pathBuilder()
@@ -153,7 +153,7 @@ public class BlueClose24Better extends OpMode {
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
                 .setZeroPowerAccelerationMultiplier(8)
-                .addParametricCallback(0.5, () -> follower.setMaxPower(0.8))
+               //  .addParametricCallback(0.5, () -> follower.setMaxPower(0.8))
                 .build();
 
         shootGate3 = follower.pathBuilder().addPath(
