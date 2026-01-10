@@ -485,7 +485,7 @@ public class PileCycleTestV4 extends OpMode {
     @Override
     public void start() {
         follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0005,0.6,0.0));
-        follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0.001,0.00,0.6,0.0));
+        follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0.00,0.001,0.6,0.0));
         double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(48, 9, Math.toRadians(180)), new Vector());
         robot.setAzimuthThetaVelocity(values);
 
