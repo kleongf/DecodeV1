@@ -41,12 +41,20 @@ public class Intake extends Subsystem {
 
     @Override
     public void update() {
+        System.out.println("ROlling currents: ");
+        System.out.println(rollingCurrents);
         // ensure that there are 7 currents. 7 is quite arbitrary but it's whatever
-        if (startTimer.seconds() > 1) { // this is here b/c intake draws high current on start
-            if (rollingCurrents.size() <= 7) {
-                rollingCurrents.add(intakeMotor.getCurrent(CurrentUnit.AMPS));
-                rollingCurrents.remove(0);
-            }
+//        if (startTimer.seconds() > 1) { // this is here b/c intake draws high current on start
+//            if (rollingCurrents.size() <= 7) {
+//                rollingCurrents.add(intakeMotor.getCurrent(CurrentUnit.AMPS));
+//                rollingCurrents.remove(0);
+//            }
+//        }
+        if (rollingCurrents.size() >= 7) {
+            rollingCurrents.add(intakeMotor.getCurrent(CurrentUnit.AMPS));
+            rollingCurrents.remove(0);
+        } else {
+            rollingCurrents.add(intakeMotor.getCurrent(CurrentUnit.AMPS));
         }
         switch (state) {
             case INTAKE_FAST:
@@ -67,13 +75,15 @@ public class Intake extends Subsystem {
     }
     // TODO: DO WHEN WE GET THE THE SENSOR
     public boolean intakeFull() {
+        return false;
         // return top.getState() && middle.getState() && bottom.getState();
         // ah yes don't you just love my naming conventions?
         // we are checking this first, because there has to be a certain number of currents first
-        if (rollingCurrents.size() >= 7) {
-            boolean rollingCurrentIsHigh = rollingCurrents.stream().allMatch(n -> n > CURRENT_LIMIT);
-            return rollingCurrentIsHigh;
-        }
-        return false;
+
+//        if (rollingCurrents.size() >= 7) {
+//            boolean rollingCurrentIsHigh = rollingCurrents.stream().allMatch(n -> n > CURRENT_LIMIT);
+//            return rollingCurrentIsHigh;
+//        }
+//        return false;
     }
 }

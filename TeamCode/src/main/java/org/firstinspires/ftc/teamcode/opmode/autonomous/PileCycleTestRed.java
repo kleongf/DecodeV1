@@ -372,7 +372,7 @@ public class PileCycleTestRed extends OpMode {
         robot.turret.setFeedforward(0);
         values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
         robot.setAzimuthThetaVelocity(values);
-        System.out.println(robot.vision.currentV);
+        // System.out.println(robot.vision.currentV);
 
         stateMachine.update();
         follower.update();

@@ -34,10 +34,15 @@ public class ArtifactVisionV2 extends Subsystem {
     private double bestX = -19;
     private Mat H;
     private Matrix K = new Matrix(new double[][] {
-            {400, 0, 320},
-            {0, 400, 240},
+            {214.1037056, 0, 313},
+            {0, 212.72822576, 254.488},
             {0, 0, 1}
     });
+    /*
+    [[214.1037056    0.         313.19451923]
+ [  0.         212.72822576 254.48870311]
+ [  0.           0.           1.        ]]
+     */
     private Matrix R = new Matrix(new double[][] {
         {1, 0, 0},
         {0, -1, 0},
@@ -45,7 +50,7 @@ public class ArtifactVisionV2 extends Subsystem {
     });
 
     private Matrix C = new Matrix(new double[][] {
-        {0, 6, 0}
+        {-4, 6, 0} // for blue it's to the left for red idk
     }).transpose();
 
     private double planeY = 1.0;
@@ -106,7 +111,7 @@ public class ArtifactVisionV2 extends Subsystem {
                 {0, t, 0},
                 {0, 0, t}
         });
-        Matrix X = C.add(dir.multiply(t_scaled));
+        Matrix X = C.add(t_scaled.multiply(dir));
         return new Point(X.get(0, 0), X.get(2, 0));
     }
 

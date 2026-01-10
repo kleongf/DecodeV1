@@ -24,9 +24,13 @@ import org.firstinspires.ftc.teamcode.util.fsm.StateMachine;
 import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
+import org.firstinspires.ftc.teamcode.util.purepursuit2.MathUtil;
 
-@Autonomous(name="pile cycle test blue 30", group="not a comp")
-public class PileCycleTest extends OpMode {
+@Autonomous(name="pile cycle test v4 HOPEFULLY FINAL", group="not a comp")
+public class PileCycleTestV4 extends OpMode {
+    // this isn't exactly the way i want to do it, but the way i want to do it is kinda crazy...
+    // this one will just shoot from (42.65, 8), and we'll just retune the matrix.
+    // however the next one will check every 5 inches and adjust its path, bc it doesnt rely on the matrix.
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
@@ -43,16 +47,16 @@ public class PileCycleTest extends OpMode {
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         shootCorner = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(9.000, 9.000), new Pose(56,20)))
+                .addPath(new BezierLine(new Pose(9.000, 9.000), new Pose(44,9)))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         intakeThird = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(56,20),
-                                new Pose(49.000, 36.000),
-                                new Pose(44.000, 36.000),
+                                new Pose(44,9),
+                                new Pose(40.000, 36.000),
+                                new Pose(38.000, 36.000),
                                 new Pose(13.000, 36.000)
                         )
                 )
@@ -62,10 +66,76 @@ public class PileCycleTest extends OpMode {
         shootThird = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(13.000, 36.000), new Pose(56, 20))
+                        new BezierLine(new Pose(13.000, 36.000), new Pose(44, 9))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
+
+        intakePile1 = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(44, 9),
+                                new Pose(9.000, 9)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+        robot.intakeCommand.start();
+
+        intakePile2 = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(44, 9),
+                                new Pose(9.000, 9)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+        robot.intakeCommand.start();
+
+        intakePile3 = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(44, 9),
+                                new Pose(9.000, 9)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+        robot.intakeCommand.start();
+
+        intakePile4 = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(44, 9),
+                                new Pose(9.000, 9)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+        robot.intakeCommand.start();
+
+        intakePile5 = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(44, 9),
+                                new Pose(9.000, 9)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+        robot.intakeCommand.start();
+
+        intakePile8 = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(44, 9),
+                                new Pose(9.000, 9)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+        robot.intakeCommand.start();
 
     }
 
@@ -93,7 +163,7 @@ public class PileCycleTest extends OpMode {
                         .onEnter(() -> {
                             robot.intakeCommand.start();
                             follower.followPath(intakeCorner, false);
-                            shootPose = new Pose(56, 20, Math.toRadians(180));
+                            shootPose = new Pose(44, 9, Math.toRadians(180));
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -118,30 +188,41 @@ public class PileCycleTest extends OpMode {
                 // pile 1
                 new State()
                         .onEnter(() -> {
+                            follower.followPath(intakePile1, false);
+                        })
+                        // iteration 1: updating ONCE! not multiple times, so we go to corner originally
+                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
+                new State()
+                        .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
+                            double currentY = follower.getPose().getY();
+                            double currentX = follower.getPose().getX();
                             intakePile1 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(56, 20),
-                                                    new Pose(49.000, 20+optimalX),
-                                                    new Pose(44.000, 20+optimalX),
-                                                    new Pose(9.000, 20+optimalX)
+                                                    new Pose(currentX, 9),
+                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile1 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 20+optimalX),
-                                                    new Pose(56, 20)
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(44, 9)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
                                     .build();
-                            robot.intakeCommand.start();
+                            follower.breakFollowing();
                             follower.followPath(intakePile1, false);
                         })
+                        // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile1, true))
@@ -152,30 +233,41 @@ public class PileCycleTest extends OpMode {
                 // pile 2
                 new State()
                         .onEnter(() -> {
+                            follower.followPath(intakePile2, false);
+                        })
+                        // iteration 1: updating ONCE! not multiple times, so we go to corner originally
+                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
+                new State()
+                        .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
+                            double currentY = follower.getPose().getY();
+                            double currentX = follower.getPose().getX();
                             intakePile2 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(56, 20),
-                                                    new Pose(49.000, 20+optimalX),
-                                                    new Pose(44.000, 20+optimalX),
-                                                    new Pose(9.000, 20+optimalX)
+                                                    new Pose(currentX, 9),
+                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile2 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 20+optimalX),
-                                                    new Pose(56, 20)
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(44, 9)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
                                     .build();
-                            robot.intakeCommand.start();
+                            follower.breakFollowing();
                             follower.followPath(intakePile2, false);
                         })
+                        // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile2, true))
@@ -186,30 +278,41 @@ public class PileCycleTest extends OpMode {
                 // pile 3
                 new State()
                         .onEnter(() -> {
+                            follower.followPath(intakePile3, false);
+                        })
+                        // iteration 1: updating ONCE! not multiple times, so we go to corner originally
+                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
+                new State()
+                        .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
+                            double currentY = follower.getPose().getY();
+                            double currentX = follower.getPose().getX();
                             intakePile3 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(56, 20),
-                                                    new Pose(49.000, 20+optimalX),
-                                                    new Pose(44.000, 20+optimalX),
-                                                    new Pose(9.000, 20+optimalX)
+                                                    new Pose(currentX, 9),
+                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile3 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 20+optimalX),
-                                                    new Pose(56, 20)
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(44, 9)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
                                     .build();
-                            robot.intakeCommand.start();
+                            follower.breakFollowing();
                             follower.followPath(intakePile3, false);
                         })
+                        // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile3, true))
@@ -220,30 +323,41 @@ public class PileCycleTest extends OpMode {
                 // pile 4
                 new State()
                         .onEnter(() -> {
+                            follower.followPath(intakePile4, false);
+                        })
+                        // iteration 1: updating ONCE! not multiple times, so we go to corner originally
+                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
+                new State()
+                        .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
+                            double currentY = follower.getPose().getY();
+                            double currentX = follower.getPose().getX();
                             intakePile4 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(56, 20),
-                                                    new Pose(49.000, 20+optimalX),
-                                                    new Pose(44.000, 20+optimalX),
-                                                    new Pose(9.000, 20+optimalX)
+                                                    new Pose(currentX, 9),
+                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile4 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 20+optimalX),
-                                                    new Pose(56, 20)
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(44, 9)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
                                     .build();
-                            robot.intakeCommand.start();
+                            follower.breakFollowing();
                             follower.followPath(intakePile4, false);
                         })
+                        // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile4, true))
@@ -254,30 +368,41 @@ public class PileCycleTest extends OpMode {
                 // pile 5
                 new State()
                         .onEnter(() -> {
+                            follower.followPath(intakePile5, false);
+                        })
+                        // iteration 1: updating ONCE! not multiple times, so we go to corner originally
+                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
+                new State()
+                        .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
+                            double currentY = follower.getPose().getY();
+                            double currentX = follower.getPose().getX();
                             intakePile5 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(56, 20),
-                                                    new Pose(49.000, 20+optimalX),
-                                                    new Pose(44.000, 20+optimalX),
-                                                    new Pose(9.000, 20+optimalX)
+                                                    new Pose(currentX, 9),
+                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile5 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 20+optimalX),
-                                                    new Pose(56, 20)
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(44, 9)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
                                     .build();
-                            robot.intakeCommand.start();
+                            follower.breakFollowing();
                             follower.followPath(intakePile5, false);
                         })
+                        // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile5, true))
@@ -285,67 +410,44 @@ public class PileCycleTest extends OpMode {
                 new State()
                         .onEnter(() -> robot.shootCommand.start())
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
-                // pile 6
-//                new State()
-//                        .onEnter(() -> {
-//                            double optimalX = robot.vision.getLargestClusterX();
-//                            intakePile6 = follower.pathBuilder()
-//                                    .addPath(
-//                                            new BezierCurve(
-//                                                    new Pose(56, 20),
-//                                                    new Pose(49.000, 20+optimalX),
-//                                                    new Pose(44.000, 20+optimalX),
-//                                                    new Pose(9.000, 20+optimalX)
-//                                            )
-//                                    )
-//                                    .setConstantHeadingInterpolation(Math.toRadians(180))
-//                                    .build();
-//                            shootPile6 = follower.pathBuilder()
-//                                    .addPath(
-//                                            new BezierCurve(
-//                                                    new Pose(9.000, 20+optimalX),
-//                                                    new Pose(56, 20)
-//                                            )
-//                                    )
-//                                    .setConstantHeadingInterpolation(Math.toRadians(180))
-//                                    .build();
-//                            robot.intakeCommand.start();
-//                            follower.followPath(intakePile6, false);
-//                        })
-//                        .transition(new Transition(() -> !follower.isBusy())),
-//                new State()
-//                        .onEnter(() -> follower.followPath(shootPile6, true))
-//                        .transition(new Transition(() -> !follower.isBusy())),
-//                new State()
-//                        .onEnter(() -> robot.shootCommand.start())
-//                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
-                // pile 8
+                // pile 6 (8)
+                new State()
+                        .onEnter(() -> {
+                            follower.followPath(intakePile8, false);
+                        })
+                        // iteration 1: updating ONCE! not multiple times, so we go to corner originally
+                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
+                            double currentY = follower.getPose().getY();
+                            double currentX = follower.getPose().getX();
                             intakePile8 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(56, 20),
-                                                    new Pose(49.000, 20+optimalX),
-                                                    new Pose(44.000, 20+optimalX),
-                                                    new Pose(9.000, 20+optimalX)
+                                                    new Pose(currentX, 9),
+                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile8 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9.000, 20+optimalX),
-                                                    new Pose(56, 20)
+                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(44, 9)
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
                                     .build();
-                            robot.intakeCommand.start();
+                            follower.breakFollowing();
                             follower.followPath(intakePile8, false);
                         })
+                        // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile8, true))

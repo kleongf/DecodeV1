@@ -12,12 +12,13 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.util.controllers.HeadingPIDFController;
 import org.firstinspires.ftc.teamcode.util.controllers.PIDFController;
+import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
 
 public class Drivetrain {
     public DcMotorEx fl, bl, fr, br;
     private HardwareMap hardwareMap;
-    public Follower follower;
+    public VoltageCompFollower follower;
     private HeadingPIDFController headingController;
     private double targetHeading = 0;
     private double prevHeading = 0;
@@ -47,7 +48,7 @@ public class Drivetrain {
         fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
         // TODO: change this
         follower.setStartingPose(new Pose(0, 0, Math.toRadians(0)));
         elapsedTime = new ElapsedTime();

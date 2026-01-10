@@ -303,6 +303,11 @@ public class MainTeleop {
             robot.shooter.setShooterPitch(values[1]);
             robot.shooter.setTargetVelocity(values[2]);
 
+            telemetry.addLine("ROBOT NOT IN SHOOTING POSE: " + !robot.inShootingZone(drivetrain.follower.getPose()));
+            telemetry.addLine("INTAKE FULL: " + robot.intake.intakeFull());
+            telemetry.addLine("NOT AutoDriving: " + !isAutoDriving);
+            telemetry.addLine("ROBOT is idle: " + (robotState == RobotState.IDLE));
+
             telemetry.addData("pitch", values[1]);
             telemetry.addData("velocity", values[2]);
             telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());

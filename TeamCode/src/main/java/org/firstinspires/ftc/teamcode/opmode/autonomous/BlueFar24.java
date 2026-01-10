@@ -25,23 +25,23 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="BLUE 24 testing", group="not a comp")
-public class BlueClose24 extends OpMode {
+@Autonomous(name="BLUE 24 testing FAR", group="not a comp")
+public class BlueFar24 extends OpMode {
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM sotm2;
-    private final Pose startPose = PoseConstants.BLUE_CLOSE_AUTO_POSE;
-    private Pose shootPose = new Pose(54, 90, Math.toRadians(-110));
+    private final Pose startPose = new Pose(52.5, 8.5, Math.toRadians(90));
+    private Pose shootPose = new Pose(54, 90, Math.toRadians(90));
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
     private PathChain shootPreload, intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeThird, shootThird, intakeFirst, shootFirst, intakeCorner, shootCorner;
     public void buildPaths() {
         shootPreload = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(31.500, 137.600), new Pose(54, 90))
+                        new BezierLine(new Pose(52.5, 8.5), new Pose(54, 90))
                 )
-                .setLinearHeadingInterpolation(PoseConstants.BLUE_CLOSE_AUTO_POSE.getHeading(), Math.toRadians(-110))
+                .setConstantHeadingInterpolation(Math.toRadians(90))
                 .build();
 
         intakeSecond = follower

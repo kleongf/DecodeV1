@@ -50,7 +50,7 @@ public class FConstants {
 
         FollowerConstants.maxPower = 1; // I changed this because tippy
 
-        FollowerConstants.useBrakeModeInTeleOp = true;
+        FollowerConstants.useBrakeModeInTeleOp = false;
 
         // i added this back
         FollowerConstants.useVoltageCompensationInAuto = true;
@@ -58,7 +58,7 @@ public class FConstants {
         FollowerConstants.nominalVoltage = 12.7;
         FollowerConstants.cacheInvalidateSeconds = 0.05;
         FollowerConstants.holdPointHeadingScaling = 1; // was 0.35
-        FollowerConstants.holdPointTranslationalScaling = 1; // was 0.35
-        FollowerConstants.holdPointHeadingScaling = 1;
+        FollowerConstants.holdPointTranslationalScaling = 0.35; // was 0.35
+        // FollowerConstants.holdPointHeadingScaling = ;
     }
 }
