@@ -42,7 +42,7 @@ public class Shooter extends Subsystem {
         latchServo = hardwareMap.get(Servo.class, "latchServo");
         pitchServo = hardwareMap.get(Servo.class, "pitchServo");
 
-        controller = new FeedForwardController((1.0/2000), 0, 0.003);
+        controller = new FeedForwardController((1.0/2180), 0, 0.003);
     }
     @Override
     public void update() {

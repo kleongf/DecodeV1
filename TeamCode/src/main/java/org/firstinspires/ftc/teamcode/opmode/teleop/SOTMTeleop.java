@@ -21,6 +21,8 @@ public class SOTMTeleop extends OpMode {
     public static double timeScaleFactor = 1;
     public static double constantTimeScaleFactor = 0.05;
     public static double offsetFactor = 0.105;
+    public static double radialScaleFactor = 1;
+
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -32,6 +34,7 @@ public class SOTMTeleop extends OpMode {
         teleop.sotm.timeScaleFactor = timeScaleFactor;
         teleop.sotm.constantTimeFactor = constantTimeScaleFactor;
         teleop.sotm.offsetFactor = offsetFactor;
+        teleop.sotm.radialVelocityScaleFactor = radialScaleFactor;
         teleop.loop();
         telemetry.update();
     }

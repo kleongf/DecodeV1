@@ -123,6 +123,7 @@ public class PileCycleTestV4 extends OpMode {
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setPathEndTValueConstraint(0.9)
                 .build();
         robot.intakeCommand.start();
 
@@ -188,10 +189,11 @@ public class PileCycleTestV4 extends OpMode {
                 // pile 1
                 new State()
                         .onEnter(() -> {
+                            robot.intakeCommand.start();
                             follower.followPath(intakePile1, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
+                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -207,7 +209,7 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile1 = follower.pathBuilder()
@@ -233,10 +235,11 @@ public class PileCycleTestV4 extends OpMode {
                 // pile 2
                 new State()
                         .onEnter(() -> {
+                            robot.intakeCommand.start();
                             follower.followPath(intakePile2, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
+                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -252,7 +255,7 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile2 = follower.pathBuilder()
@@ -278,10 +281,11 @@ public class PileCycleTestV4 extends OpMode {
                 // pile 3
                 new State()
                         .onEnter(() -> {
+                            robot.intakeCommand.start();
                             follower.followPath(intakePile3, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
+                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -297,7 +301,7 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile3 = follower.pathBuilder()
@@ -323,10 +327,11 @@ public class PileCycleTestV4 extends OpMode {
                 // pile 4
                 new State()
                         .onEnter(() -> {
+                            robot.intakeCommand.start();
                             follower.followPath(intakePile4, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
+                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -342,7 +347,7 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile4 = follower.pathBuilder()
@@ -368,10 +373,11 @@ public class PileCycleTestV4 extends OpMode {
                 // pile 5
                 new State()
                         .onEnter(() -> {
+                            robot.intakeCommand.start();
                             follower.followPath(intakePile5, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
+                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -387,7 +393,7 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile5 = follower.pathBuilder()
@@ -413,10 +419,11 @@ public class PileCycleTestV4 extends OpMode {
                 // pile 6 (8)
                 new State()
                         .onEnter(() -> {
+                            robot.intakeCommand.start();
                             follower.followPath(intakePile8, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 24)),
+                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -432,7 +439,7 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.95)
+                                    .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile8 = follower.pathBuilder()
@@ -486,7 +493,7 @@ public class PileCycleTestV4 extends OpMode {
     public void start() {
         follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0005,0.6,0.0));
         follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0.00,0.001,0.6,0.0));
-        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(48, 9, Math.toRadians(180)), new Vector());
+        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(42.65, 8, Math.toRadians(180)), new Vector());
         robot.setAzimuthThetaVelocity(values);
 
         robot.shooter.state = Shooter.ShooterState.SHOOTER_ON;

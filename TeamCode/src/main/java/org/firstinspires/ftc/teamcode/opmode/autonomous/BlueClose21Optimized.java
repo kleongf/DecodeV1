@@ -43,6 +43,7 @@ public class BlueClose21Optimized extends OpMode {
                         new BezierLine(new Pose(31.500, 137.600), new Pose(54, 90))
                 )
                 .setLinearHeadingInterpolation(PoseConstants.BLUE_CLOSE_AUTO_POSE.getHeading(), Math.toRadians(-110))
+                .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
         intakeSecond = follower
@@ -68,6 +69,7 @@ public class BlueClose21Optimized extends OpMode {
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
+                .setZeroPowerAccelerationMultiplier(6)
                 .build();
 
         intakeGate1 = follower.pathBuilder()
@@ -82,7 +84,7 @@ public class BlueClose21Optimized extends OpMode {
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
                 // TODO: is removing this good? lowkey it's limiting our breaking power
-                // .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
+                .addParametricCallback(0.5, () -> follower.setMaxPower(0.8))
                 .build();
 
         shootGate1 = follower.pathBuilder()
@@ -130,6 +132,7 @@ public class BlueClose21Optimized extends OpMode {
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
+                .addParametricCallback(0.5, () -> follower.setMaxPower(0.8))
                 // .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
                 .build();
 
@@ -163,7 +166,7 @@ public class BlueClose21Optimized extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 new Pose(60.000, 84.000),
-                                new Pose(55.000, 36.000),
+                                // new Pose(55.000, 36.000),
                                 new Pose(50.000, 36.000),
                                 new Pose(13.000, 36.000)
                         )
@@ -230,8 +233,8 @@ public class BlueClose21Optimized extends OpMode {
                 new State()
                         .onEnter(() -> {
                             // idea: strengthening translational and increasing drive d will result in higher accuracy + faster braking.
-                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.001,0.6,0.0));
-                            follower.setSecondaryTranslationalPIDF(new CustomPIDFCoefficients(0.1,0,0.0075,0.0));
+                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0006,0.6,0.0));
+                            follower.setSecondaryTranslationalPIDF(new CustomPIDFCoefficients(0.15,0,0.0075,0.0));
 
                             robot.intakeCommand.start();
                             follower.followPath(intakeGate1, true);
@@ -259,8 +262,8 @@ public class BlueClose21Optimized extends OpMode {
                 // gate cycle 2
                 new State()
                         .onEnter(() -> {
-                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.001,0.6,0.0));
-                            follower.setSecondaryTranslationalPIDF(new CustomPIDFCoefficients(0.1,0,0.0075,0.0));
+                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0006,0.6,0.0));
+                            follower.setSecondaryTranslationalPIDF(new CustomPIDFCoefficients(0.15,0,0.0075,0.0));
                             robot.intakeCommand.start();
                             follower.followPath(intakeGate2, true);
                         })
@@ -288,8 +291,8 @@ public class BlueClose21Optimized extends OpMode {
                 // gate cycle 3
                 new State()
                         .onEnter(() -> {
-                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.001,0.6,0.0));
-                            follower.setSecondaryTranslationalPIDF(new CustomPIDFCoefficients(0.1,0,0.0075,0.0));
+                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0006,0.6,0.0));
+                            follower.setSecondaryTranslationalPIDF(new CustomPIDFCoefficients(0.15,0,0.0075,0.0));
                             robot.intakeCommand.start();
                             follower.followPath(intakeGate3, true);
                         })

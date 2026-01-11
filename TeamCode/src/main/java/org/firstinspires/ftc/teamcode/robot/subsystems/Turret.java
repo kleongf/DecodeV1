@@ -26,11 +26,12 @@ public class Turret extends Subsystem {
 
 
         //turretController = new PIDFController(0.005, 0, 0.00005, 0);
-        turretController = new PIDFController(0.005, 0, 0.00005, 0);
+        turretController = new PIDFController(0.005, 0, 0.0001, 0);
     }
 
     @Override
     public void update() {
+
         double c = turretMotor.getCurrentPosition();
                 // - offset/ticksPerRadian;
         double t = weirdAngleWrap(target) * ticksPerRadian;
@@ -40,6 +41,11 @@ public class Turret extends Subsystem {
             double error = t-c;
             power += 0.01 * Math.signum(error);
         }
+
+        if (Math.abs(t-c) > 250 && Math.abs(power) > 0.67) {
+            power = Math.signum(power) * 0.67;
+        }
+
         power += feedforward;
         turretMotor.setPower(power);
     }

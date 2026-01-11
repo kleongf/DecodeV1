@@ -101,7 +101,8 @@ public class MainTeleop {
 
     public void loop() {
         // TODO: a temporary solution
-        isHoldingTurret = robotState == RobotState.IDLE;
+        // isHoldingTurret = robotState == RobotState.IDLE;
+        isHoldingTurret = false;
         // wait: TODO: why do we need intake method? we can just reset intake at the end, so we remove a state?
         // also, why do we even need these states?
         // also for now i will change it so that turret always updates, there's not really a reason for it not to

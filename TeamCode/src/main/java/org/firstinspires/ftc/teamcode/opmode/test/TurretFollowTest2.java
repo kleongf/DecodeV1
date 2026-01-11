@@ -24,7 +24,8 @@ public class TurretFollowTest2 extends OpMode {
     public static double shooterPitch;
     public static double kV = 0;
     public static double kP = 0.003;
-    public static double kD = 0.00003;
+    public static double kD = 0.00000;
+    // public static double target = 0;
     private double lastTimeStamp = 0;
     private double lastAngleToGoal;
     private Follower follower;
@@ -39,10 +40,11 @@ public class TurretFollowTest2 extends OpMode {
         turret.setPDCoefficients(kP, kD);
         shooter.setTargetVelocity(shooterSpeed);
         shooter.setShooterPitch(Math.toRadians(shooterPitch));
+        // turret.setTarget(target);
         double[] target = sotm2.calculateAzimuthThetaVelocity(follower.getPose(), new Vector());
         // set azimuth
         turret.setTarget(target[0]);
-        System.out.println(target[0]);
+        // System.out.println(target[0]);
 
         double currentTimeStamp = (double) System.nanoTime() / 1E9;
         if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;

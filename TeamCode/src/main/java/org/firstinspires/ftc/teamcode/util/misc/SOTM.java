@@ -14,48 +14,49 @@ public class SOTM {
     private double radius = 0.036; // 36 mm radius, 72mm wheel
     private double radiusBall = 0.06223; // 2.45 in
     public double timeScaleFactor = 2.4;
-    public double constantTimeFactor = 0.05;
-    public double offsetFactor = 0.125;
-    double radialVelocityScaleFactor = 2.4; // made to match the timeScale b/c if we're using bad physics we may as well use it for both right?
+    public double constantTimeFactor = 0.0;
+    public double offsetFactor = -0.02;
+    public double radialVelocityScaleFactor = 2.4; // made to match the timeScale b/c if we're using bad physics we may as well use it for both right?
 
     public SOTM(Pose goal) {
         this.goal = goal;
 
         thetaLUT = new LUT();
         // thetaLUT.addData(163, Math.toRadians(17));
-        thetaLUT.addData(158, Math.toRadians(17));
+        thetaLUT.addData(158, Math.toRadians(16));
         // thetaLUT.addData(153, Math.toRadians(17));
-        thetaLUT.addData(148, Math.toRadians(17));
+        thetaLUT.addData(148, Math.toRadians(15));
         // thetaLUT.addData(143, Math.toRadians(16));
-        thetaLUT.addData(138, Math.toRadians(17));
+        thetaLUT.addData(138, Math.toRadians(15));
         // thetaLUT.addData(133, Math.toRadians(16));
-        thetaLUT.addData(128, Math.toRadians(16));
-        thetaLUT.addData(118, Math.toRadians(16));
-        thetaLUT.addData(108, Math.toRadians(15));
-        thetaLUT.addData(98, Math.toRadians(14));
-        thetaLUT.addData(88, Math.toRadians(13));
-        thetaLUT.addData(78, Math.toRadians(11));
-        thetaLUT.addData(68, Math.toRadians(9));
-        thetaLUT.addData(58, Math.toRadians(5));
+        thetaLUT.addData(128, Math.toRadians(14));
+        thetaLUT.addData(118, Math.toRadians(13));
+        thetaLUT.addData(108, Math.toRadians(12));
+        thetaLUT.addData(98, Math.toRadians(11));
+        thetaLUT.addData(88, Math.toRadians(9));
+        thetaLUT.addData(78, Math.toRadians(7));
+        thetaLUT.addData(68, Math.toRadians(5));
+        thetaLUT.addData(58, Math.toRadians(1));
         thetaLUT.addData(53, Math.toRadians(0));
 
         velocityLUT = new LUT();
         // velocityLUT.addData(163, 1520+70);
-        velocityLUT.addData(158, 1700);
+        velocityLUT.addData(158, 1660);
         // velocityLUT.addData(153, 1680);
-        velocityLUT.addData(148, 1660);
+        velocityLUT.addData(148, 1600);
         // velocityLUT.addData(143, 1560);
-        velocityLUT.addData(138, 1620);
+        velocityLUT.addData(138, 1540);
         // velocityLUT.addData(133, 1420+70);
-        velocityLUT.addData(128, 1560);
-        velocityLUT.addData(118, 1420);
-        velocityLUT.addData(108, 1360);
-        velocityLUT.addData(98, 1340);
-        velocityLUT.addData(88, 1300);
-        velocityLUT.addData(78, 1260);
-        velocityLUT.addData(68, 1220);
-        velocityLUT.addData(58, 1200);
-        velocityLUT.addData(53, 1180);
+        velocityLUT.addData(128, 1460);
+        velocityLUT.addData(118, 1400);
+        velocityLUT.addData(108, 1340);
+
+        velocityLUT.addData(98, 1280);
+        velocityLUT.addData(88, 1220);
+        velocityLUT.addData(78, 1200);
+        velocityLUT.addData(68, 1140);
+        velocityLUT.addData(58, 1080);
+        velocityLUT.addData(53, 1060);
 
     }
     private double calculateLinearVelocityInches(double ticksPerSecond) {
@@ -92,7 +93,8 @@ public class SOTM {
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
         // 0.2s before shooting: always
 
-        double timestep = constantTimeFactor + timeScaleFactor * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(28))));
+        double timestep = constantTimeFactor + timeScaleFactor * simulateProjectileTOF(dist, thetaLUT.getValue(dist), velocityLUT.getValue(dist));
+        // constantTimeFactor + timeScaleFactor * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(28))));
                 // simulateProjectileTOF(dist, thetaLUT.getValue(dist), velocityLUT.getValue(dist));
 
         // blue perspective:
@@ -102,7 +104,9 @@ public class SOTM {
         System.out.println("timestep: " + timestep);
         System.out.println("Tangential X: " + vTangential.getXComponent());
         System.out.println("Tangential Y: " + vTangential.getYComponent());
-        double offset = isBlue ? (angleToGoal - Math.PI / 4) * offsetFactor : (angleToGoal + Math.PI / 4) * offsetFactor;
+        double offset = isBlue ? offsetFactor : -offsetFactor;
+
+        // double offset = isBlue ? (angleToGoal - Math.PI / 4) * offsetFactor : (angleToGoal + Math.PI / 4) * offsetFactor;
         // when angle is big, aim more left (which is positive direction), when it is small, aim more right (negative direction)
         // opposite for red, and all this helps i guess? backboard area is better when we higher so it makes sense idk
         // what do we count as 0? i think we count it as the 45 degree position, which i suppose is
@@ -110,6 +114,21 @@ public class SOTM {
 
         double azimuth = Math.atan2(-(dx-vTangential.getXComponent()*timestep), (dy-vTangential.getYComponent()*timestep)) - robotPose.getHeading() + Math.toRadians(90) + offset;
         double theta = thetaLUT.getValue(dist);
+
+//        double newX = robotPose.getX()-timestep*u.getXComponent();
+//        double newY = robotPose.getY()-timestep*u.getYComponent();
+//
+//        Pose nextPos = new Pose(newX, newY, robotPose.getHeading());
+//
+//        double dxN = goal.getX() - nextPos.getX();
+//        double dyN = goal.getY() - nextPos.getY();
+//        double distN = Math.hypot(dxN, dyN);
+//
+//        double azimuthN = Math.atan2(-dxN, dyN) - robotPose.getHeading() + Math.toRadians(90) + offset;
+//        double thetaN = thetaLUT.getValue(distN);
+//        double velocityN = velocityLUT.getValue(distN);
+
+        // return new double[] {azimuthN, thetaN, velocityN};
 
         return new double[] {azimuth, theta, velocity};
     }
