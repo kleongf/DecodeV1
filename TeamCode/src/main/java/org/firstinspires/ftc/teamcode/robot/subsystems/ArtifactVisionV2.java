@@ -77,6 +77,17 @@ public class ArtifactVisionV2 extends Subsystem {
                 { 3.79738251e-03,  2.79198165e-02, -1.59729952e+01},
                 { 9.16521855e-05, -4.75490455e-03,  1.00000000e+00}
         };
+        if (alliance == Alliance.BLUE) {
+             C = new Matrix(new double[][] {
+                    {-4, 6, 0} // for blue it's to the left for red idk
+            }).transpose();
+        }
+
+        if (alliance == Alliance.RED) {
+             C = new Matrix(new double[][] {
+                    {4, 6, 0} // for blue it's to the left for red idk
+            }).transpose();
+        }
 
         if (alliance == Alliance.BLUE) {
             this.H = new Mat(3, 3, CvType.CV_64F);
