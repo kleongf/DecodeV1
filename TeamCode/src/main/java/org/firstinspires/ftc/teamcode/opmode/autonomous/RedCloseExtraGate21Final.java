@@ -6,8 +6,6 @@ import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
-import com.pedropathing.util.CustomFilteredPIDFCoefficients;
-import com.pedropathing.util.CustomPIDFCoefficients;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -25,35 +23,48 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="BLUE CLOSE 21 FINAL", group="not a comp")
-public class BlueClose21Final extends OpMode {
-    // this auto can be optimized further by turning on sotm and shooting instantly. all optimizations should be done in this file.
+@Autonomous(name="RED CLOSE EXTRA GATE 21 FINAL", group="not a comp")
+public class RedCloseExtraGate21Final extends OpMode {
+
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM sotm2;
-    private final Pose startPose = PoseConstants.BLUE_CLOSE_AUTO_POSE;
-    private Pose shootPose = new Pose(54, 90, Math.toRadians(-110));
-    private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
-    private PathChain shootPreload, intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeThird, shootThird, intakeFirst, shootFirst;
+
+    private final Pose startPose = PoseConstants.RED_CLOSE_AUTO_POSE;
+
+    private Pose shootPose =
+            new Pose(144 - 54, 90, Math.toRadians(180) - Math.toRadians(-110));
+
+    private final Pose goalPose = PoseConstants.RED_GOAL_POSE;
+
+    private PathChain shootPreload, intakeSecond, shootSecond,
+            intakeGate1, shootGate1, intakeGate2, shootGate2,
+            intakeGate3, shootGate3, intakeGate4, shootGate4,
+            intakeFirst, shootFirst;
+
     public void buildPaths() {
-        shootPreload = follower
-                .pathBuilder()
+
+        shootPreload = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(startPose, new Pose(54, 90))
+                        new BezierLine(
+                                new Pose(144 - 31.500, 137.600),
+                                new Pose(144 - 54, 90)
+                        )
                 )
-                .setLinearHeadingInterpolation(PoseConstants.BLUE_CLOSE_AUTO_POSE.getHeading(), Math.toRadians(-110))
+                .setLinearHeadingInterpolation(
+                        PoseConstants.RED_CLOSE_AUTO_POSE.getHeading(),
+                        Math.toRadians(180) - Math.toRadians(-110)
+                )
                 .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
-        intakeSecond = follower
-                .pathBuilder()
+        intakeSecond = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(54, 90),
-                                // new Pose(50, 60),
-                                new Pose(45, 60),
-                                new Pose(12, 60)
+                                new Pose(144 - 54, 90),
+                                new Pose(144 - 45, 60),
+                                new Pose(144 - 12, 60)
                         )
                 )
                 .setTangentHeadingInterpolation()
@@ -61,27 +72,28 @@ public class BlueClose21Final extends OpMode {
 
         shootSecond = follower.pathBuilder()
                 .addPath(
-                        // Path 2
                         new BezierCurve(
-                                new Pose(12.000, 60.000),
-                                new Pose(30, 50),
-                                PoseConstants.BLUE_SHOOT_AUTO_POSE
+                                new Pose(144 - 12, 60),
+                                new Pose(144 - 30, 50),
+                                PoseConstants.RED_SHOOT_AUTO_POSE
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(180), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
-                // .setZeroPowerAccelerationMultiplier(6)
+                .setLinearHeadingInterpolation(
+                        Math.toRadians(180) - Math.toRadians(180),
+                        PoseConstants.RED_SHOOT_AUTO_POSE.getHeading()
+                )
                 .build();
 
         intakeGate1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                PoseConstants.BLUE_SHOOT_AUTO_POSE,
-                                new Pose(49.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                new Pose(55.340, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                PoseConstants.BLUE_GATE_AUTO_POSE
+                                PoseConstants.RED_SHOOT_AUTO_POSE,
+                                new Pose(144 - 49.404, PoseConstants.RED_GATE_AUTO_POSE.getY()),
+                                new Pose(144 - 55.340, PoseConstants.RED_GATE_AUTO_POSE.getY()),
+                                PoseConstants.RED_GATE_AUTO_POSE
                         )
                 )
-                .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
+                .setConstantHeadingInterpolation(PoseConstants.RED_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
                 .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
                 .build();
@@ -89,23 +101,23 @@ public class BlueClose21Final extends OpMode {
         shootGate1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                PoseConstants.BLUE_GATE_AUTO_POSE,
-                                PoseConstants.BLUE_SHOOT_AUTO_POSE
+                                PoseConstants.RED_GATE_AUTO_POSE,
+                                PoseConstants.RED_SHOOT_AUTO_POSE
                         )
                 )
-                .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
+                .setConstantHeadingInterpolation(PoseConstants.RED_SHOOT_AUTO_POSE.getHeading())
                 .build();
 
         intakeGate2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                PoseConstants.BLUE_SHOOT_AUTO_POSE,
-                                new Pose(49.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                new Pose(55.340, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                PoseConstants.BLUE_GATE_AUTO_POSE
+                                PoseConstants.RED_SHOOT_AUTO_POSE,
+                                new Pose(144 - 49.404, PoseConstants.RED_GATE_AUTO_POSE.getY()),
+                                new Pose(144 - 55.340, PoseConstants.RED_GATE_AUTO_POSE.getY()),
+                                PoseConstants.RED_GATE_AUTO_POSE
                         )
                 )
-                .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
+                .setConstantHeadingInterpolation(PoseConstants.RED_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
                 .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
                 .build();
@@ -113,23 +125,23 @@ public class BlueClose21Final extends OpMode {
         shootGate2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                PoseConstants.BLUE_GATE_AUTO_POSE,
-                                PoseConstants.BLUE_SHOOT_AUTO_POSE
+                                PoseConstants.RED_GATE_AUTO_POSE,
+                                PoseConstants.RED_SHOOT_AUTO_POSE
                         )
                 )
-                .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
+                .setConstantHeadingInterpolation(PoseConstants.RED_SHOOT_AUTO_POSE.getHeading())
                 .build();
 
         intakeGate3 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                PoseConstants.BLUE_SHOOT_AUTO_POSE,
-                                new Pose(49.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                new Pose(55.340, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                PoseConstants.BLUE_GATE_AUTO_POSE
+                                PoseConstants.RED_SHOOT_AUTO_POSE,
+                                new Pose(144 - 49.404, PoseConstants.RED_GATE_AUTO_POSE.getY()),
+                                new Pose(144 - 55.340, PoseConstants.RED_GATE_AUTO_POSE.getY()),
+                                PoseConstants.RED_GATE_AUTO_POSE
                         )
                 )
-                .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
+                .setConstantHeadingInterpolation(PoseConstants.RED_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
                 .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
                 .build();
@@ -137,58 +149,71 @@ public class BlueClose21Final extends OpMode {
         shootGate3 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                PoseConstants.BLUE_GATE_AUTO_POSE,
-                                new Pose(60,60),
-                                new Pose(60, 84)
+                                PoseConstants.RED_GATE_AUTO_POSE,
+                                PoseConstants.RED_SHOOT_AUTO_POSE
                         )
                 )
-                .setLinearHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading(), Math.toRadians(180))
+                .setConstantHeadingInterpolation(PoseConstants.RED_SHOOT_AUTO_POSE.getHeading())
+                .build();
+
+        intakeGate4 = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                PoseConstants.RED_SHOOT_AUTO_POSE,
+                                new Pose(144 - 49.404, PoseConstants.RED_GATE_AUTO_POSE.getY()),
+                                new Pose(144 - 55.340, PoseConstants.RED_GATE_AUTO_POSE.getY()),
+                                PoseConstants.RED_GATE_AUTO_POSE
+                        )
+                )
+                .setConstantHeadingInterpolation(PoseConstants.RED_SHOOT_AUTO_POSE.getHeading())
+                .setPathEndTValueConstraint(0.99)
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
+                .build();
+
+        shootGate4 = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                PoseConstants.RED_GATE_AUTO_POSE,
+                                new Pose(144 - 60, 60),
+                                new Pose(144 - 60, 84)
+                        )
+                )
+                .setLinearHeadingInterpolation(
+                        PoseConstants.RED_SHOOT_AUTO_POSE.getHeading(),
+                        Math.toRadians(180) - Math.toRadians(180)
+                )
                 .build();
 
         intakeFirst = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(17.000, 84.000))
+                        new BezierLine(
+                                new Pose(144 - 60, 84),
+                                new Pose(144 - 17, 84)
+                        )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .build();
-
 
         shootFirst = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(18.000, 84.000), new Pose(60.000, 84.000))
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-
-        intakeThird = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                new Pose(60.000, 84.000),
-                                // new Pose(55.000, 36.000),
-                                new Pose(50.000, 36.000),
-                                new Pose(12.000, 36.000)
-                        )
-                )
-                .setTangentHeadingInterpolation()
-                .build();
-
-        shootThird = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(12.000, 36.000),
-
-                                new Pose(54.000, 115.000)
+                                new Pose(144 - 18, 84),
+                                new Pose(144 - 54, 115)
                         )
-                ).setTangentHeadingInterpolation()
-                .setReversed(true)
+                )
+                .setLinearHeadingInterpolation(
+                        Math.toRadians(180) - Math.toRadians(180),
+                        Math.toRadians(180) - Math.toRadians(-118)
+                )
                 .build();
-
     }
 
     @Override
     public void init() {
         follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
-        robot = new AutonomousRobot(hardwareMap, Alliance.BLUE);
+
+        robot = new AutonomousRobot(hardwareMap, Alliance.RED);
         sotm2 = new SOTM(goalPose);
         buildPaths();
 
@@ -214,7 +239,7 @@ public class BlueClose21Final extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> {
-                            shootPose = PoseConstants.BLUE_SHOOT_AUTO_POSE;
+                            shootPose = PoseConstants.RED_SHOOT_AUTO_POSE;
                             follower.followPath(shootSecond, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
@@ -224,8 +249,6 @@ public class BlueClose21Final extends OpMode {
                 // gate cycle 1
                 new State()
                         .onEnter(() -> {
-                            // idea: strengthening translational and increasing drive d will result in higher accuracy + faster braking.
-
                             robot.intakeCommand.start();
                             follower.followPath(intakeGate1, true);
                         })
@@ -271,7 +294,6 @@ public class BlueClose21Final extends OpMode {
                 new State()
                         .onEnter(() -> robot.shootCommand.start())
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
-
                 // gate cycle 3
                 new State()
                         .onEnter(() -> {
@@ -280,12 +302,36 @@ public class BlueClose21Final extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
+                        .maxTime(1100),
+                new State()
+                        .onEnter(() -> {
+                            follower.setMaxPower(1);
+                            follower.followPath(shootGate3, true);
+                        })
+                        .maxTime(700),
+                new State()
+                        .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_SLOW)
+                        .maxTime(200),
+                new State()
+                        .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
+                        .onEnter(() -> robot.shootCommand.start())
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // gate cycle 4
+                new State()
+                        .onEnter(() -> {
+                            robot.intakeCommand.start();
+                            follower.followPath(intakeGate4, true);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy())),
+                new State()
                         .maxTime(1400),
                 new State()
                         .onEnter(() -> {
-                            follower.setMaxPower(1); // bruh i ran 0.8 power on that path
-                            follower.followPath(shootGate3, true);
-                            shootPose = new Pose(60, 84, Math.toRadians(180));
+                            follower.setMaxPower(1);
+                            follower.followPath(shootGate4, true);
+                            shootPose = new Pose(144-54, 115, Math.toRadians(180-(-118)));
                         })
                         .maxTime(700),
                 new State()
@@ -311,31 +357,6 @@ public class BlueClose21Final extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> robot.shootCommand.start())
-                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
-                // intake 3
-                new State()
-                        .onEnter(() -> {
-                            robot.intakeCommand.start();
-
-                            // just brute forced it, arctan doesn't work for some reason
-                            shootPose = new Pose(54, 115, Math.toRadians(-118)); // Math.toRadians(180)+Math.atan2(104-36, 58-12)
-                            follower.followPath(intakeThird, true);
-                        })
-                        .transition(new Transition(() -> !follower.isBusy())),
-                new State()
-                        .onEnter(() -> {
-                            follower.followPath(shootThird, true);
-                        })
-                        .maxTime(700),
-                new State()
-                        .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_SLOW)
-                        .maxTime(200),
-                new State()
-                        .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
-                        .transition(new Transition(() -> !follower.isBusy())),
-
-                new State()
                         .onEnter(() -> {
                             robot.shootCommand.start();
                             blackboard.put(RobotConstants.END_POSE_KEY, follower.getPose());
@@ -349,13 +370,13 @@ public class BlueClose21Final extends OpMode {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
         robot.initPositions();
     }
+
     @Override
     public void loop() {
-        double[] values;
-        values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
-
+        double[] values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
         robot.setAzimuthThetaVelocity(values);
 
         stateMachine.update();
@@ -368,8 +389,8 @@ public class BlueClose21Final extends OpMode {
     public void start() {
         double[] values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
         robot.setAzimuthThetaVelocity(values);
-        robot.shooter.state = Shooter.ShooterState.SHOOTER_ON;
 
+        robot.shooter.state = Shooter.ShooterState.SHOOTER_ON;
         stateMachine.start();
         robot.start();
     }

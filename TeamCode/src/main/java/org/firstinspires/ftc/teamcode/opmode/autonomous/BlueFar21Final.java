@@ -25,17 +25,17 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="BLUE CLOSE 21 FINAL", group="not a comp")
-public class BlueClose21Final extends OpMode {
+@Autonomous(name="BLUE FAR 21 FINAL", group="not a comp")
+public class BlueFar21Final extends OpMode {
     // this auto can be optimized further by turning on sotm and shooting instantly. all optimizations should be done in this file.
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM sotm2;
-    private final Pose startPose = PoseConstants.BLUE_CLOSE_AUTO_POSE;
+    private final Pose startPose = new Pose(52.5, 8.5, Math.toRadians(90));
     private Pose shootPose = new Pose(54, 90, Math.toRadians(-110));
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
-    private PathChain shootPreload, intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeThird, shootThird, intakeFirst, shootFirst;
+    private PathChain shootPreload, intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeThird, shootThird, intakeFirst, shootFirst, park;
     public void buildPaths() {
         shootPreload = follower
                 .pathBuilder()
@@ -175,13 +175,18 @@ public class BlueClose21Final extends OpMode {
         shootThird = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(12.000, 36.000),
-
-                                new Pose(54.000, 115.000)
+                                new Pose(50, 12)
                         )
-                ).setTangentHeadingInterpolation()
-                .setReversed(true)
+                ).setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
+        park = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(50, 12),
+                                new Pose(36, 12)
+                        )
+                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
     }
 
     @Override
@@ -317,9 +322,7 @@ public class BlueClose21Final extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.intakeCommand.start();
-
-                            // just brute forced it, arctan doesn't work for some reason
-                            shootPose = new Pose(54, 115, Math.toRadians(-118)); // Math.toRadians(180)+Math.atan2(104-36, 58-12)
+                            shootPose = new Pose(50, 12, Math.toRadians(180));
                             follower.followPath(intakeThird, true);
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
@@ -327,21 +330,28 @@ public class BlueClose21Final extends OpMode {
                         .onEnter(() -> {
                             follower.followPath(shootThird, true);
                         })
-                        .maxTime(700),
+                        .maxTime(500),
                 new State()
                         .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_SLOW)
                         .maxTime(200),
                 new State()
                         .onEnter(() -> robot.intake.state = Intake.IntakeState.INTAKE_OFF)
                         .transition(new Transition(() -> !follower.isBusy())),
-
                 new State()
                         .onEnter(() -> {
                             robot.shootCommand.start();
                             blackboard.put(RobotConstants.END_POSE_KEY, follower.getPose());
                         })
                         .onExit(() -> blackboard.put(RobotConstants.END_POSE_KEY, follower.getPose()))
-                        .transition(new Transition(() -> robot.shootCommand.isFinished()))
+                        .transition(new Transition(() -> robot.shootCommand.isFinished())),
+                // park
+                new State()
+                        .onEnter(() -> {
+                            follower.followPath(park, true);
+                        })
+                        .transition(new Transition(() -> !follower.isBusy()))
+                        .onExit(() -> blackboard.put(RobotConstants.END_POSE_KEY, follower.getPose()))
+
         );
 
         try {
