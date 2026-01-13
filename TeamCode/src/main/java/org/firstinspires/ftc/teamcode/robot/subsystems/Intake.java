@@ -80,7 +80,7 @@ public class Intake extends Subsystem {
     // TODO: DO WHEN WE GET THE THE SENSOR
     public boolean intakeFull() {
         return false;
-        // return top.getState() && middle.getState() && bottom.getState();
+        // return !top.getState() && !middle.getState() && !bottom.getState();
         // ah yes don't you just love my naming conventions?
         // we are checking this first, because there has to be a certain number of currents first
 
