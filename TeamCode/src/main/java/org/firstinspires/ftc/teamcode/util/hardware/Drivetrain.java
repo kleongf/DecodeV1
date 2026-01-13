@@ -92,6 +92,7 @@ public class Drivetrain {
         targetHeading = follower.getPose().getHeading();
     }
 
+
     public void setHeadingLockFieldCentricMovementVectors(double forward, double strafe, double heading) {
         double botHeading = follower.getPose().getHeading();
         double x = strafe * Math.cos(-botHeading) - forward * Math.sin(-botHeading);

@@ -17,6 +17,7 @@ public class Turret extends Subsystem {
     private double feedforward = 0;
 
     private double offset = 0;
+    private double maxPower = 0.7;
 
 
     public Turret(HardwareMap hardwareMap) {
@@ -26,7 +27,7 @@ public class Turret extends Subsystem {
 
 
         //turretController = new PIDFController(0.005, 0, 0.00005, 0);
-        turretController = new PIDFController(0.005, 0, 0.0001, 0);
+        turretController = new PIDFController(0.004, 0, 0.0001, 0);
     }
 
     @Override
@@ -37,16 +38,20 @@ public class Turret extends Subsystem {
         double t = weirdAngleWrap(target) * ticksPerRadian;
 
         double power = turretController.calculate(c, t);
-        if (Math.abs(c-t) > 10) {
-            double error = t-c;
-            power += 0.01 * Math.signum(error);
+        double error = t-c;
+        power += 0.05 * Math.signum(error); // kS so that it works better, lots of friction but this is
+        // currently a random number that must be tuned. should work better for now though
+
+//        if (Math.abs(c-t) > 10) {
+//            double error = t-c;
+//            power += 0.01 * Math.signum(error);
+//        }
+
+        if (Math.abs(power) > maxPower) {
+            power = maxPower * Math.signum(power);
         }
 
-        if (Math.abs(t-c) > 250 && Math.abs(power) > 0.67) {
-            power = Math.signum(power) * 0.67;
-        }
-
-        power += feedforward;
+        // power += feedforward;
         turretMotor.setPower(power);
     }
 
