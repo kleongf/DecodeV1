@@ -35,6 +35,10 @@ public class Intake extends Subsystem {
 //        top = hardwareMap.get(DigitalChannel.class, "topSensor");
 //        middle = hardwareMap.get(DigitalChannel.class, "middleSensor");
 //        bottom = hardwareMap.get(DigitalChannel.class, "bottomSensor");
+//        top.setMode(DigitalChannel.Mode.INPUT);
+//        middle.setMode(DigitalChannel.Mode.INPUT);
+//        bottom.setMode(DigitalChannel.Mode.INPUT);
+
         startTimer = new ElapsedTime();
         rollingCurrents = new ArrayList<>();
     }
