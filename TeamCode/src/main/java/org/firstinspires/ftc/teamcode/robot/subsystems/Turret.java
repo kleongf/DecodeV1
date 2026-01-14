@@ -18,6 +18,7 @@ public class Turret extends Subsystem {
 
     private double offset = 0;
     private double maxPower = 0.7;
+    private double kS = 0;
 
 
     public Turret(HardwareMap hardwareMap) {
@@ -39,7 +40,7 @@ public class Turret extends Subsystem {
 
         double power = turretController.calculate(c, t);
         double error = t-c;
-        power += 0.05 * Math.signum(error); // kS so that it works better, lots of friction but this is
+        power += kS * Math.signum(error); // kS so that it works better, lots of friction but this is
         // currently a random number that must be tuned. should work better for now though
 
 //        if (Math.abs(c-t) > 10) {
@@ -58,6 +59,7 @@ public class Turret extends Subsystem {
     public void setPDCoefficients(double p, double d) {
         turretController.setPIDF(p, 0, d, 0);
     }
+    public void setKs(double x) {kS = x;}
 
     @Override
     public void start() {
