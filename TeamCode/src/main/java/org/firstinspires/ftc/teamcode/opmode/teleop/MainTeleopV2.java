@@ -210,6 +210,8 @@ public class MainTeleopV2 {
         }
 
         telemetry.addData("pose", drivetrain.follower.getPose());
+        telemetry.addData("goal pose", drivetrain.getGoalPose());
+        telemetry.addData("current state", drivetrain.getState());
         telemetry.addLine("ROBOT NOT IN SHOOTING POSE: " + !robot.inShootingZone(drivetrain.follower.getPose()));
         telemetry.addLine("INTAKE FULL: " + robot.intake.intakeFull());
         telemetry.addLine("NOT AutoDriving: " + !isAutoDriving);

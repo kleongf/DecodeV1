@@ -259,6 +259,16 @@ public class SpecializedDrivetrain {
                 }
         }
     }
+
+    public Pose getGoalPose() {return goalPose;}
+    public String getState() {
+        if (state == DrivetrainState.FOLLOWING_PATH) {
+            return "FOLLOWING PATH";
+        } else if (state == DrivetrainState.PID_TO_POSE) {
+            return "PID TO POSE";
+        }
+        return "TELEOP DRIVE";
+    }
     public void start() {
         breakFollowing();
     }
