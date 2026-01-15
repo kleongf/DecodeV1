@@ -17,7 +17,7 @@ public class Turret extends Subsystem {
     private double feedforward = 0;
 
     private double offset = 0;
-    private double maxPower = 0.7;
+    private double maxPower = 1;
     private double kS = 0;
 
 
@@ -70,7 +70,7 @@ public class Turret extends Subsystem {
         feedforward = x;
     }
 
-    private double weirdAngleWrap(double radians) {
+    public double weirdAngleWrap(double radians) {
         while (radians > Math.PI) {
             radians -= 2 * Math.PI;
         }

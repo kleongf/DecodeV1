@@ -24,6 +24,8 @@ public class TurretTuner2 extends OpMode {
     public static double kD = 0.00000;
     public static double kS = 0;
     public static double target = 0;
+    private double ticksPerRevolution = 1931; // 383.6*5
+    private double ticksPerRadian = ticksPerRevolution / (2 * Math.PI);
     @Override
     public void loop() {
         turret.setPDCoefficients(kP, kD);
@@ -33,7 +35,7 @@ public class TurretTuner2 extends OpMode {
 
         turret.update();
         telemetry.addData("current pos", turret.turretMotor.getCurrentPosition());
-        telemetry.addData("target pos", target);
+        telemetry.addData("target pos", turret.weirdAngleWrap(Math.toRadians(target)) * ticksPerRadian);
         telemetry.update();
 
     }

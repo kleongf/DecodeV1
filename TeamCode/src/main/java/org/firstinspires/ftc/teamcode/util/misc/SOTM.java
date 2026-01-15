@@ -41,22 +41,22 @@ public class SOTM {
 
         velocityLUT = new LUT();
         // velocityLUT.addData(163, 1520+70);
-        velocityLUT.addData(158, 1660);
+        velocityLUT.addData(158, 1660-100);
         // velocityLUT.addData(153, 1680);
-        velocityLUT.addData(148, 1600);
+        velocityLUT.addData(148, 1600-100);
         // velocityLUT.addData(143, 1560);
-        velocityLUT.addData(138, 1540);
+        velocityLUT.addData(138, 1540-100);
         // velocityLUT.addData(133, 1420+70);
-        velocityLUT.addData(128, 1460);
-        velocityLUT.addData(118, 1400);
-        velocityLUT.addData(108, 1340);
+        velocityLUT.addData(128, 1460-100);
+        velocityLUT.addData(118, 1400-100);
+        velocityLUT.addData(108, 1340-100);
 
-        velocityLUT.addData(98, 1280);
-        velocityLUT.addData(88, 1220);
-        velocityLUT.addData(78, 1200);
-        velocityLUT.addData(68, 1140);
-        velocityLUT.addData(58, 1080);
-        velocityLUT.addData(53, 1060);
+        velocityLUT.addData(98, 1280-100);
+        velocityLUT.addData(88, 1220-100);
+        velocityLUT.addData(78, 1200-100);
+        velocityLUT.addData(68, 1140-100);
+        velocityLUT.addData(58, 1080-100);
+        velocityLUT.addData(53, 1060-100);
 
     }
     private double calculateLinearVelocityInches(double ticksPerSecond) {
