@@ -156,18 +156,23 @@ public class SpecializedDrivetrain {
         double dx = pose.getX()-currentPose.getX();
         double dTheta = MathFunctions.angleWrap(pose.getHeading()-currentPose.getHeading());
 
-        double kY = 1.0;
-        double kX = 2.0;
-        double kTheta = 8.0;
+        double kY = 0.1;
+        double kX = 0.2;
+        double kTheta = 0.8;
 
         double xPower = (Math.sin(currentPose.getHeading()) * dx - Math.cos(currentPose.getHeading()) * dy) * kX;
         double yPower = (Math.cos(currentPose.getHeading()) * dx + Math.sin(currentPose.getHeading()) * dy) * kY;
         double thetaPower = dTheta * kTheta;
 
         double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(thetaPower);
-        xPower /= total;
-        yPower /= total;
-        thetaPower /= total;
+        if (total > 1) {
+            xPower /= total;
+            yPower /= total;
+            thetaPower /= total;
+        }
+//        xPower /= total;
+//        yPower /= total;
+//        thetaPower /= total;
 
         setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, Math.abs(scaleFactor) * -thetaPower);
     }
