@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.util.hardware;
 
+import android.util.Log;
+
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -94,6 +96,11 @@ public class SpecializedDrivetrain {
         bl.setPower(backLeftPower);
         fr.setPower(frontRightPower);
         br.setPower(backRightPower);
+
+        Log.d("fl power", String.valueOf(frontLeftPower));
+        Log.d("bl power", String.valueOf(backLeftPower));
+        Log.d("fr power", String.valueOf(frontRightPower));
+        Log.d("br power", String.valueOf(backRightPower));
     }
 
     private double getDistance(Pose a, Pose b) {
@@ -156,23 +163,27 @@ public class SpecializedDrivetrain {
         double dx = pose.getX()-currentPose.getX();
         double dTheta = MathFunctions.angleWrap(pose.getHeading()-currentPose.getHeading());
 
-        double kY = 0.1;
-        double kX = 0.2;
-        double kTheta = 0.8;
+        double kY = 2;
+        double kX = 2;
+        double kTheta = 8;
 
-        double xPower = (Math.sin(currentPose.getHeading()) * dx - Math.cos(currentPose.getHeading()) * dy) * kX;
-        double yPower = (Math.cos(currentPose.getHeading()) * dx + Math.sin(currentPose.getHeading()) * dy) * kY;
-        double thetaPower = dTheta * kTheta;
+        double outX = kX * dx;
+        double outY = kY * dy;
+        double outHeading = kTheta * dTheta;
+
+        // 4) Convert GLOBAL outputs to ROBOT-LOCAL frame using current heading:
+        double cosH = Math.cos(currentPose.getHeading());
+        double sinH = Math.sin(currentPose.getHeading());
+
+        double xPower =  sinH * outX  -  cosH * outY;
+        double yPower =  cosH * outX  +  sinH * outY;
+        double thetaPower = outHeading; // rotation is already body-centric sign
+
 
         double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(thetaPower);
-        if (total > 1) {
-            xPower /= total;
-            yPower /= total;
-            thetaPower /= total;
-        }
-//        xPower /= total;
-//        yPower /= total;
-//        thetaPower /= total;
+        xPower /= total;
+        yPower /= total;
+        thetaPower /= total;
 
         setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, Math.abs(scaleFactor) * -thetaPower);
     }
