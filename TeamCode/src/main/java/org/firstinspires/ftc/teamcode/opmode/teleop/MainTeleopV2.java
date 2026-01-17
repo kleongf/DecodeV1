@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.util.hardware.SimplePathChain;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
 import org.firstinspires.ftc.teamcode.util.hardware.SpecializedDrivetrain;
 import org.firstinspires.ftc.teamcode.util.misc.ClosestPoint;
+import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM2;
 import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
 
@@ -35,7 +36,7 @@ public class MainTeleopV2 {
     private Pose parkPose;
     private SmartGamepad gp1;
     private Gamepad gamepad1;
-    public SOTM2 sotm;
+    public SOTM sotm;
     private boolean automateRobot = true;
     private Telemetry telemetry;
     private Alliance alliance;
@@ -52,7 +53,7 @@ public class MainTeleopV2 {
         this.alliance = alliance;
         gp1 = new SmartGamepad(gamepad1);
 
-        sotm = new SOTM2(goalPose);
+        sotm = new SOTM(goalPose);
         closestPoint = new ClosestPoint(ClosestPoint.ClosestPointType.CLOSE);
 
         this.parkPose = alliance == Alliance.BLUE ? PoseConstants.BLUE_PARK_POSE :  PoseConstants.RED_PARK_POSE;
@@ -194,9 +195,9 @@ public class MainTeleopV2 {
             robot.shooter.setTargetVelocity(values[2]);
             robot.turret.setFeedforward(0);
 
-            telemetry.addData("pitch", values[1]);
-            telemetry.addData("velocity", values[2]);
-            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+//            telemetry.addData("pitch", values[1]);
+//            telemetry.addData("velocity", values[2]);
+//            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
         } else {
             double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
             robot.turret.setTarget(values[0]+turretOffset);
@@ -204,9 +205,9 @@ public class MainTeleopV2 {
             robot.shooter.setTargetVelocity(values[2]);
             robot.turret.setFeedforward(0);
 
-            telemetry.addData("pitch", values[1]);
-            telemetry.addData("velocity", values[2]);
-            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
+//            telemetry.addData("pitch", values[1]);
+//            telemetry.addData("velocity", values[2]);
+//            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
         }
 
         telemetry.addData("pose", drivetrain.follower.getPose());
@@ -216,6 +217,8 @@ public class MainTeleopV2 {
         telemetry.addLine("INTAKE FULL: " + robot.intake.intakeFull());
         telemetry.addLine("NOT AutoDriving: " + !isAutoDriving);
         telemetry.addLine("ROBOT is idle: " + (robotState == RobotState.IDLE));
+        telemetry.addLine("Current turret pos: " + robot.turret.getCurrent());
+        telemetry.addLine("Target turret pos: " + robot.turret.getTarget());
 
         if (alliance == Alliance.BLUE) {
             drivetrain.update(normalizeInput(gp1.getLeftStickY()*longitudinalSpeed),

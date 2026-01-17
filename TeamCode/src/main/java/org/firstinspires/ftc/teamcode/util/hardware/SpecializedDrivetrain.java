@@ -132,7 +132,7 @@ public class SpecializedDrivetrain {
         double errorY = goalPose.getY()-currentPose.getY();
 
         double outX = kp_x * errorX + kd_x * (errorX - lastXError);
-        double outY = kp_y * errorX + kd_y * (errorY - lastYError);
+        double outY = kp_y * errorY + kd_y * (errorY - lastYError);
         double outHeading = kp_heading * errorHeading + kd_heading * (errorHeading-lastHeadingError);
 
         // 4) Convert GLOBAL outputs to ROBOT-LOCAL frame using current heading:
@@ -179,6 +179,13 @@ public class SpecializedDrivetrain {
         double yPower =  cosH * outX  +  sinH * outY;
         double thetaPower = outHeading; // rotation is already body-centric sign
 
+//        double translationMag = Math.hypot(xPower, yPower);
+//        if (translationMag > 1) {
+//            xPower /= translationMag;
+//            yPower /= translationMag;
+//        }
+//
+//        thetaPower = MathFunctions.clamp(thetaPower, -1, 1);
 
         double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(thetaPower);
         xPower /= total;
@@ -245,6 +252,7 @@ public class SpecializedDrivetrain {
                 } else {
                     setHeadingLockFieldCentricMovementVectors(gpx, gpy, gprx);
                 }
+                break;
             case FOLLOWING_PATH:
                 double distanceToEnd = Math.pow(follower.getVelocity().getMagnitude(), 2) / (2 * MAX_ACCELERATION);
                 if (currentPath == null) {return;}
@@ -253,7 +261,11 @@ public class SpecializedDrivetrain {
                     breakFollowing();
                     return;
                 }
-                if (getDistance(currentPose, goalPose) < MIN_DISTANCE_TO_END || getDistance(currentPose, goalPose) < distanceToEnd) {
+
+                boolean isLastPath = currentPathIndex == currentPath.getSize()-1;
+                // tougher distance constraints on paths with multiple waypoints
+
+                if (getDistance(currentPose, goalPose) < MIN_DISTANCE_TO_END/3 || getDistance(currentPose, goalPose) < distanceToEnd/3 && !isLastPath) {
                     if (currentPathIndex < currentPath.getSize()-1) {
                         currentPathIndex++;
                         goalPose = currentPath.getPath(currentPathIndex).getEndPose();
@@ -261,7 +273,18 @@ public class SpecializedDrivetrain {
                         state = DrivetrainState.PID_TO_POSE;
                     }
                 }
+
+                if (getDistance(currentPose, goalPose) < MIN_DISTANCE_TO_END || getDistance(currentPose, goalPose) < distanceToEnd && isLastPath) {
+                    if (currentPathIndex < currentPath.getSize()-1) {
+                        currentPathIndex++;
+                        goalPose = currentPath.getPath(currentPathIndex).getEndPose();
+                    } else {
+                        state = DrivetrainState.PID_TO_POSE;
+                    }
+                }
+                // pidToPose();
                 moveToPose(goalPose, 1);
+                break;
             case PID_TO_POSE:
                 if (goalPose == null) {return;}
                 if (IS_KICKING && kickTimer.seconds() > KICK_TIME) {
@@ -273,6 +296,7 @@ public class SpecializedDrivetrain {
                 } else {
                     pidToPose();
                 }
+                break;
         }
     }
 

@@ -24,7 +24,7 @@ public class TurretTuner2 extends OpMode {
     public static double kD = 0.00000;
     public static double kS = 0;
     public static double target = 0;
-    private double ticksPerRevolution = 1931; // 383.6*5
+    private double ticksPerRevolution = 1381; // 383.6*5
     private double ticksPerRadian = ticksPerRevolution / (2 * Math.PI);
     @Override
     public void loop() {

@@ -12,13 +12,13 @@ public class Turret extends Subsystem {
     public DcMotorEx turretMotor;
     public PIDFController turretController;
     public double target = 0;
-    private double ticksPerRevolution = 1931; // 383.6*5
+    private double ticksPerRevolution = 1381; // 383.6*5, (5 to 1) now 383.6 * (90/25) (90 to 25) = 1381
     private double ticksPerRadian = ticksPerRevolution / (2 * Math.PI);
     private double feedforward = 0;
 
     private double offset = 0;
-    private double maxPower = 1;
-    private double kS = 0;
+    private double maxPower = 0.7;
+    private double kS = 0.06;
 
 
     public Turret(HardwareMap hardwareMap) {
@@ -28,7 +28,7 @@ public class Turret extends Subsystem {
 
 
         //turretController = new PIDFController(0.005, 0, 0.00005, 0);
-        turretController = new PIDFController(0.004, 0, 0.0001, 0);
+        turretController = new PIDFController(0.008, 0, 0.00035, 0);
     }
 
     @Override
@@ -42,15 +42,18 @@ public class Turret extends Subsystem {
         double error = t-c;
         power += kS * Math.signum(error); // kS so that it works better, lots of friction but this is
         // currently a random number that must be tuned. should work better for now though
+//        if (Math.abs(t-c) > 300 && Math.abs(power) > 0.7) {
+//            power = Math.signum(power) * 0.7;
+//        }
 
 //        if (Math.abs(c-t) > 10) {
 //            double error = t-c;
 //            power += 0.01 * Math.signum(error);
 //        }
 
-        if (Math.abs(power) > maxPower) {
-            power = maxPower * Math.signum(power);
-        }
+//        if (Math.abs(power) > maxPower) {
+//            power = maxPower * Math.signum(power);
+//        }
 
         // power += feedforward;
         turretMotor.setPower(power);
@@ -68,6 +71,12 @@ public class Turret extends Subsystem {
 
     public void setFeedforward(double x) {
         feedforward = x;
+    }
+    public double getTarget() {
+        return weirdAngleWrap(target) * ticksPerRadian;
+    }
+    public double getCurrent() {
+        return turretMotor.getCurrentPosition();
     }
 
     public double weirdAngleWrap(double radians) {
