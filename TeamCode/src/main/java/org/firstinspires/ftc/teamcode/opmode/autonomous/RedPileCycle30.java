@@ -26,142 +26,84 @@ import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 import org.firstinspires.ftc.teamcode.util.purepursuit2.MathUtil;
 
-@Autonomous(name="pile cycle test v4 HOPEFULLY FINAL", group="not a comp")
-public class PileCycleTestV4 extends OpMode {
-    // this isn't exactly the way i want to do it, but the way i want to do it is kinda crazy...
-    // this one will just shoot from (42.65, 8), and we'll just retune the matrix.
-    // however the next one will check every 5 inches and adjust its path, bc it doesnt rely on the matrix.
+@Autonomous(name="Red pile cycle 30", group="not a comp")
+public class RedPileCycle30 extends OpMode {
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM sotm2;
-    private boolean isSOTMing = true;
-    private final Pose startPose = new Pose(42.65,8,Math.toRadians(180));
-    private Pose shootPose = new Pose(42.65,8,Math.toRadians(180));
-    private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
-    private PathChain intakeCorner, shootCorner, intakeThird, shootThird, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3, intakePile4, shootPile4, intakePile5, shootPile5, intakePile6, shootPile6, intakePile7, shootPile7, park;
+
+    private final Pose startPose =
+            new Pose(144 - 42.65, 8, Math.toRadians(180) - Math.toRadians(180));
+
+    private Pose shootPose =
+            new Pose(144 - 42.65, 8, Math.toRadians(180) - Math.toRadians(180));
+
+    private final Pose goalPose = PoseConstants.RED_GOAL_POSE;
+
+    private PathChain intakeCorner, shootCorner, intakeThird, shootThird,
+            intakePile1, shootPile1,
+            intakePile2, shootPile2,
+            intakePile3, shootPile3,
+            intakePile4, shootPile4,
+            intakePile5, shootPile5,
+            intakePile6, shootPile6,
+            intakePile7, shootPile7,
+            park;
+
     public void buildPaths() {
 
         intakeCorner = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(42.65000, 8.000), new Pose(9.000, 9.000)))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addPath(new BezierLine(
+                        new Pose(144 - 42.65, 8),
+                        new Pose(144 - 9.0, 9.0)))
+                .setConstantHeadingInterpolation(0)
                 .setZeroPowerAccelerationMultiplier(3)
                 .build();
+
         shootCorner = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(9.000, 9.000), new Pose(44,9)))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addPath(new BezierLine(
+                        new Pose(144 - 9.0, 9.0),
+                        new Pose(144 - 44.0, 9.0)))
+                .setConstantHeadingInterpolation(0)
                 .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
         intakeThird = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                new Pose(44,9),
-                                new Pose(40.000, 36.000),
-                                new Pose(38.000, 36.000),
-                                new Pose(13.000, 36.000)
-                        )
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addPath(new BezierCurve(
+                        new Pose(144 - 44, 9),
+                        new Pose(144 - 40, 36),
+                        new Pose(144 - 38, 36),
+                        new Pose(144 - 13, 36)))
+                .setConstantHeadingInterpolation(0)
                 .build();
 
-        shootThird = follower
-                .pathBuilder()
-                .addPath(
-                        new BezierLine(new Pose(13.000, 36.000), new Pose(44, 9))
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+        shootThird = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Pose(144 - 13, 36),
+                        new Pose(144 - 44, 9)))
+                .setConstantHeadingInterpolation(0)
                 .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
         intakePile1 = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                new Pose(44, 9),
-                                new Pose(9.000, 9)
-                        )
-                )
+                .addPath(new BezierCurve(
+                        new Pose(144 - 44, 9),
+                        new Pose(144 - 9, 9)))
                 .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(0)
                 .build();
 
-        intakePile2 = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                new Pose(44, 9),
-                                new Pose(9.000, 9)
-                        )
-                )
-                .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-
-        intakePile3 = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                new Pose(44, 9),
-                                new Pose(9.000, 9)
-                        )
-                )
-                .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-
-        intakePile4 = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                new Pose(44, 9),
-                                new Pose(9.000, 9)
-                        )
-                )
-                .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-
-        intakePile5 = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                new Pose(44, 9),
-                                new Pose(9.000, 9)
-                        )
-                )
-                .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .setPathEndTValueConstraint(0.9)
-                .build();
-
-        intakePile6 = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                new Pose(44, 9),
-                                new Pose(9.000, 9)
-                        )
-                )
-                .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .setPathEndTValueConstraint(0.9)
-                .build();
-
-        intakePile7 = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                new Pose(44, 9),
-                                new Pose(9.000, 9)
-                        )
-                )
-                .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
+        // intakePile2–7 are identical mirrors
+        intakePile2 = intakePile3 = intakePile4 =
+                intakePile5 = intakePile6 = intakePile7 = intakePile1;
 
         park = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                new Pose(44, 9),
-                                new Pose(36, 12)
-                        )
-                )
+                .addPath(new BezierCurve(
+                        new Pose(144 - 44, 9),
+                        new Pose(144 - 36, 12)))
                 .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(0)
                 .build();
     }
 
@@ -189,7 +131,7 @@ public class PileCycleTestV4 extends OpMode {
                         .onEnter(() -> {
                             robot.intakeCommand.start();
                             follower.followPath(intakeCorner, false);
-                            shootPose = new Pose(44, 9, Math.toRadians(180));
+                            shootPose = new Pose(144-44, 9, Math.toRadians(180-180));
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -218,7 +160,7 @@ public class PileCycleTestV4 extends OpMode {
                             follower.followPath(intakePile1, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -228,12 +170,12 @@ public class PileCycleTestV4 extends OpMode {
                                     .addPath(
                                             new BezierCurve(
                                                     new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(currentX+4, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(currentX+6, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .setZeroPowerAccelerationMultiplier(3)
@@ -241,11 +183,11 @@ public class PileCycleTestV4 extends OpMode {
                             shootPile1 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(44, 9)
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-44, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
@@ -266,7 +208,7 @@ public class PileCycleTestV4 extends OpMode {
                             follower.followPath(intakePile2, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -276,12 +218,12 @@ public class PileCycleTestV4 extends OpMode {
                                     .addPath(
                                             new BezierCurve(
                                                     new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(currentX+4, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(currentX+6, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .setZeroPowerAccelerationMultiplier(3)
@@ -289,11 +231,11 @@ public class PileCycleTestV4 extends OpMode {
                             shootPile2 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(44, 9)
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-44, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
@@ -314,7 +256,7 @@ public class PileCycleTestV4 extends OpMode {
                             follower.followPath(intakePile3, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -324,12 +266,12 @@ public class PileCycleTestV4 extends OpMode {
                                     .addPath(
                                             new BezierCurve(
                                                     new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(currentX+4, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(currentX+6, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .setZeroPowerAccelerationMultiplier(3)
@@ -337,11 +279,11 @@ public class PileCycleTestV4 extends OpMode {
                             shootPile3 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(44, 9)
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-44, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
@@ -362,7 +304,7 @@ public class PileCycleTestV4 extends OpMode {
                             follower.followPath(intakePile4, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -372,12 +314,12 @@ public class PileCycleTestV4 extends OpMode {
                                     .addPath(
                                             new BezierCurve(
                                                     new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(currentX+4, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(currentX+6, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .setZeroPowerAccelerationMultiplier(3)
@@ -385,11 +327,11 @@ public class PileCycleTestV4 extends OpMode {
                             shootPile4 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(44, 9)
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-44, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
@@ -410,7 +352,7 @@ public class PileCycleTestV4 extends OpMode {
                             follower.followPath(intakePile5, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -420,24 +362,24 @@ public class PileCycleTestV4 extends OpMode {
                                     .addPath(
                                             new BezierCurve(
                                                     new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(currentX+4, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(currentX+6, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setPathEndTValueConstraint(0.9)
-                                    .setZeroPowerAccelerationMultiplier(3)
                                     .setPathEndVelocityConstraint(10)
+                                    .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             shootPile5 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(44, 9)
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-44, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
@@ -458,7 +400,7 @@ public class PileCycleTestV4 extends OpMode {
                             follower.followPath(intakePile6, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -468,12 +410,12 @@ public class PileCycleTestV4 extends OpMode {
                                     .addPath(
                                             new BezierCurve(
                                                     new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(currentX+4, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(currentX+6, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .setZeroPowerAccelerationMultiplier(3)
@@ -481,11 +423,11 @@ public class PileCycleTestV4 extends OpMode {
                             shootPile6 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(44, 9)
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-44, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
@@ -506,7 +448,7 @@ public class PileCycleTestV4 extends OpMode {
                             follower.followPath(intakePile7, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -516,12 +458,12 @@ public class PileCycleTestV4 extends OpMode {
                                     .addPath(
                                             new BezierCurve(
                                                     new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(currentX+4, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(currentX+6, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndVelocityConstraint(10)
                                     .setZeroPowerAccelerationMultiplier(3)
@@ -529,11 +471,11 @@ public class PileCycleTestV4 extends OpMode {
                             shootPile7 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(9, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(44, 9)
+                                                    new Pose(144-9, MathUtil.clamp(currentY-optimalX, 9, 40)),
+                                                    new Pose(144-44, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180-180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
@@ -545,9 +487,7 @@ public class PileCycleTestV4 extends OpMode {
                         .onEnter(() -> follower.followPath(shootPile7, true))
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .onEnter(() -> {
-                            robot.shootCommand.start();
-                        })
+                        .onEnter(() -> robot.shootCommand.start())
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
                 new State()
                         .onEnter(() -> {
@@ -590,7 +530,7 @@ public class PileCycleTestV4 extends OpMode {
         // prob not the play just decreae zpam. the d is really high imo.
         // follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0005,0.6,0.0));
         // follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0.00,0.001,0.6,0.0));
-        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(42.65, 8, Math.toRadians(180)), new Vector());
+        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-42.65, 8, Math.toRadians(180-180)), new Vector());
         robot.setAzimuthThetaVelocity(values);
 
         robot.shooter.state = Shooter.ShooterState.SHOOTER_ON;

@@ -15,8 +15,8 @@ public class SOTM {
     private double radiusBall = 0.06223; // 2.45 in
     public double timeScaleFactor = 2.4;
     public double constantTimeFactor = 0.05;
-    public double offsetFactor = -0.1;
-    public double radialVelocityScaleFactor = 2.4; // made to match the timeScale b/c if we're using bad physics we may as well use it for both right?
+    public double offsetFactor = 0.12; // think i found it! after doing some algebra
+    public double radialVelocityScaleFactor = 1.2; // made to match the timeScale b/c if we're using bad physics we may as well use it for both right?
 
     public SOTM(Pose goal) {
         this.goal = goal;
@@ -104,7 +104,7 @@ public class SOTM {
         System.out.println("timestep: " + timestep);
         System.out.println("Tangential X: " + vTangential.getXComponent());
         System.out.println("Tangential Y: " + vTangential.getYComponent());
-        double offset = isBlue ? offsetFactor : -offsetFactor;
+        double offset = isBlue ? (angleToGoal - Math.PI / 4) * offsetFactor : (angleToGoal + Math.PI / 4) * offsetFactor;
 
         // double offset = isBlue ? (angleToGoal - Math.PI / 4) * offsetFactor : (angleToGoal + Math.PI / 4) * offsetFactor;
         // when angle is big, aim more left (which is positive direction), when it is small, aim more right (negative direction)

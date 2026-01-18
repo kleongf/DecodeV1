@@ -18,7 +18,7 @@ public class Turret extends Subsystem {
 
     private double offset = 0;
     private double maxPower = 0.7;
-    private double kS = 0.06;
+    private double kS = 0.035;
 
 
     public Turret(HardwareMap hardwareMap) {
@@ -28,7 +28,7 @@ public class Turret extends Subsystem {
 
 
         //turretController = new PIDFController(0.005, 0, 0.00005, 0);
-        turretController = new PIDFController(0.008, 0, 0.00035, 0);
+        turretController = new PIDFController(0.01, 0, 0.0004, 0);
     }
 
     @Override
