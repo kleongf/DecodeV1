@@ -80,10 +80,10 @@ public class Turret extends Subsystem {
     }
 
     public double weirdAngleWrap(double radians) {
-        while (radians > Math.PI) {
+        while (radians > 0) {
             radians -= 2 * Math.PI;
         }
-        while (radians < -Math.PI) {
+        while (radians < -2 * Math.PI) {
             radians += 2 * Math.PI;
         }
         return radians;
