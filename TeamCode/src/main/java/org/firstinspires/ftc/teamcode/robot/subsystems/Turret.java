@@ -42,9 +42,9 @@ public class Turret extends Subsystem {
         double error = t-c;
         power += kS * Math.signum(error); // kS so that it works better, lots of friction but this is
         // currently a random number that must be tuned. should work better for now though
-//        if (Math.abs(t-c) > 300 && Math.abs(power) > 0.7) {
-//            power = Math.signum(power) * 0.7;
-//        }
+        if (Math.abs(t-c) > 300 && Math.abs(power) > maxPower) {
+            power = Math.signum(power) * maxPower;
+        }
 
 //        if (Math.abs(c-t) > 10) {
 //            double error = t-c;

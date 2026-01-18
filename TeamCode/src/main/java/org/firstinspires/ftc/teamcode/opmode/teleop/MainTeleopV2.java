@@ -24,6 +24,7 @@ public class MainTeleopV2 {
         IDLE,
         SHOOTING
     }
+    private double minDistanceTurretHold = 15; // if in shooting zone or 10 inches from closest point
     private boolean isHoldingTurret = false;
     private RobotState robotState;
     private ClosestPoint closestPoint;
@@ -63,10 +64,14 @@ public class MainTeleopV2 {
         return 1.2 * Math.signum(input) * Math.sqrt(Math.abs(input));
     }
 
+    private double getDistance(Pose a, Pose b) {
+        return Math.hypot(a.getX()-b.getX(), a.getY()-b.getY());
+    }
+
     public void loop() {
         // TODO: a temporary solution
         // isHoldingTurret = robotState == RobotState.IDLE;
-        isHoldingTurret = false;
+        // isHoldingTurret = false;
 
         if (robot.shootCommand.isFinished()) {
             robotState = RobotState.IDLE;
@@ -188,27 +193,20 @@ public class MainTeleopV2 {
             robot.pivot.setPower(0);
         }
 
-        if (isHoldingTurret) {
-            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-            robot.turret.setTarget(turretOffset);
-            robot.shooter.setShooterPitch(values[1]);
-            robot.shooter.setTargetVelocity(values[2]);
-            robot.turret.setFeedforward(0);
+        Pose currPose = drivetrain.follower.getPose();
+        double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+        robot.shooter.setShooterPitch(values[1]);
+        robot.shooter.setTargetVelocity(values[2]);
+        robot.turret.setFeedforward(0);
+        robot.turret.setTarget(values[0]+turretOffset);
 
-//            telemetry.addData("pitch", values[1]);
-//            telemetry.addData("velocity", values[2]);
-//            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
-        } else {
-            double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
-            robot.turret.setTarget(values[0]+turretOffset);
-            robot.shooter.setShooterPitch(values[1]);
-            robot.shooter.setTargetVelocity(values[2]);
-            robot.turret.setFeedforward(0);
-
-//            telemetry.addData("pitch", values[1]);
-//            telemetry.addData("velocity", values[2]);
-//            telemetry.addData("current velocity", robot.shooter.getCurrentVelocity());
-        }
+        // if we are in the shooting zone or near the shooting zone, we should probably turn the turret accordingly.
+        // however this does not account for the far shooting zone yet. i could easily turn this off though, like it is now
+//        if (robot.inShootingZone(currPose) || getDistance(closestPoint.closestPose(currPose), currPose) < minDistanceTurretHold) {
+//            robot.turret.setTarget(values[0]+turretOffset);
+//        } else {
+//            robot.turret.setTarget(turretOffset);
+//        }
 
         telemetry.addData("pose", drivetrain.follower.getPose());
         telemetry.addData("goal pose", drivetrain.getGoalPose());

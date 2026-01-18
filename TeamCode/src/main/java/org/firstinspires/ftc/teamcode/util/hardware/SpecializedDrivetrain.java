@@ -163,9 +163,15 @@ public class SpecializedDrivetrain {
         double dx = pose.getX()-currentPose.getX();
         double dTheta = MathFunctions.angleWrap(pose.getHeading()-currentPose.getHeading());
 
-        double kY = 2;
-        double kX = 2;
-        double kTheta = 8;
+        // concern: kX and kY are not being prioritized
+        // solution: ensure that they make up at least 50% of the power.
+        // kinda problem now is that power decreases with distance, but heading doesn't
+        // afterwards u should still normalize so that u get 1 and proportionally more x and y movement
+        // the max kTheta occurs when you are 180 degrees off, so pi * kTheta = 0.5, kTheta = 0.5/pi
+
+        double kY = 1; // doesnt matter but this is a better number ig
+        double kX = 1;
+        double kTheta = 0.5/Math.PI;
 
         double outX = kX * dx;
         double outY = kY * dy;
@@ -179,14 +185,16 @@ public class SpecializedDrivetrain {
         double yPower =  cosH * outX  +  sinH * outY;
         double thetaPower = outHeading; // rotation is already body-centric sign
 
-//        double translationMag = Math.hypot(xPower, yPower);
-//        if (translationMag > 1) {
-//            xPower /= translationMag;
-//            yPower /= translationMag;
-//        }
-//
-//        thetaPower = MathFunctions.clamp(thetaPower, -1, 1);
+        // now make sure that x and y add up to 1
+        double totalXY = Math.abs(xPower) + Math.abs(yPower);
+        xPower /= totalXY;
+        yPower /= totalXY;
 
+        // now make it so they add up to 1/2. could have done this earlier but whatever
+        xPower /= 2;
+        yPower /= 2;
+
+        // require 1 power at all times
         double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(thetaPower);
         xPower /= total;
         yPower /= total;
@@ -262,27 +270,9 @@ public class SpecializedDrivetrain {
                     return;
                 }
 
-                boolean isLastPath = currentPathIndex == currentPath.getSize()-1;
-                // tougher distance constraints on paths with multiple waypoints
-
-                if (getDistance(currentPose, goalPose) < MIN_DISTANCE_TO_END/3 || getDistance(currentPose, goalPose) < distanceToEnd/3 && !isLastPath) {
-                    if (currentPathIndex < currentPath.getSize()-1) {
-                        currentPathIndex++;
-                        goalPose = currentPath.getPath(currentPathIndex).getEndPose();
-                    } else {
-                        state = DrivetrainState.PID_TO_POSE;
-                    }
+                if (getDistance(currentPose, goalPose) < MIN_DISTANCE_TO_END || getDistance(currentPose, goalPose) < distanceToEnd) {
+                    state = DrivetrainState.PID_TO_POSE;
                 }
-
-                if (getDistance(currentPose, goalPose) < MIN_DISTANCE_TO_END || getDistance(currentPose, goalPose) < distanceToEnd && isLastPath) {
-                    if (currentPathIndex < currentPath.getSize()-1) {
-                        currentPathIndex++;
-                        goalPose = currentPath.getPath(currentPathIndex).getEndPose();
-                    } else {
-                        state = DrivetrainState.PID_TO_POSE;
-                    }
-                }
-                // pidToPose();
                 moveToPose(goalPose, 1);
                 break;
             case PID_TO_POSE:
@@ -291,8 +281,15 @@ public class SpecializedDrivetrain {
                     breakFollowing();
                     return;
                 }
-                if (getDistance(currentPose, goalPose) < END_DISTANCE_CONSTRAINT && follower.getVelocity().getMagnitude() < END_VELOCITY_CONSTRAINT && Math.abs(MathFunctions.angleWrap(currentPose.getHeading()-goalPose.getHeading())) < END_HEADING_CONSTRAINT) {
+                boolean isLastPath = currentPathIndex == currentPath.getSize()-1;
+
+                if (getDistance(currentPose, goalPose) < END_DISTANCE_CONSTRAINT && follower.getVelocity().getMagnitude() < END_VELOCITY_CONSTRAINT && Math.abs(MathFunctions.angleWrap(currentPose.getHeading()-goalPose.getHeading())) < END_HEADING_CONSTRAINT && isLastPath) {
                     breakFollowing();
+                } else if (getDistance(currentPose, goalPose) < END_DISTANCE_CONSTRAINT * 2 && follower.getVelocity().getMagnitude() < END_VELOCITY_CONSTRAINT * 4 && Math.abs(MathFunctions.angleWrap(currentPose.getHeading()-goalPose.getHeading())) < END_HEADING_CONSTRAINT * 4 && !isLastPath) {
+                    // more generous constraints with waypoints
+                    currentPathIndex++;
+                    goalPose = currentPath.getPath(currentPathIndex).getEndPose();
+                    state = DrivetrainState.FOLLOWING_PATH;
                 } else {
                     pidToPose();
                 }
