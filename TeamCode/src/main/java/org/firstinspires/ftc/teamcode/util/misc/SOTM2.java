@@ -107,7 +107,7 @@ public class SOTM2 {
 
         for (int i = 0; i < MAX_ITERATIONS; i++) {
             double ax = (-c * Math.hypot(vx, vy) * vx) / m;
-            double ay = (m * g -c * Math.hypot(vx, vy) * vy) / m;
+            double ay = (m * -g -c * Math.hypot(vx, vy) * vy) / m;
             vx = vx + ax * dt;
             vy = vy + ay * dt;
 

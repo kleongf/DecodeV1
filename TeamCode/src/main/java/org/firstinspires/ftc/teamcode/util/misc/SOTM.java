@@ -13,7 +13,7 @@ public class SOTM {
     private LUT velocityLUT;
     private double radius = 0.036; // 36 mm radius, 72mm wheel
     private double radiusBall = 0.06223; // 2.45 in
-    public double timeScaleFactor = 3;
+    public double timeScaleFactor = 2.4;
     public double constantTimeFactor = 0.05;
     public double offsetFactor = -0.1;
     public double radialVelocityScaleFactor = 2.4; // made to match the timeScale b/c if we're using bad physics we may as well use it for both right?
@@ -93,7 +93,7 @@ public class SOTM {
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
         // 0.2s before shooting: always
 
-        double timestep = constantTimeFactor + timeScaleFactor * simulateProjectileTOF(dist, thetaLUT.getValue(dist), velocityLUT.getValue(dist));
+        double timestep = constantTimeFactor + timeScaleFactor * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(34))));
         // constantTimeFactor + timeScaleFactor * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(28))));
                 // simulateProjectileTOF(dist, thetaLUT.getValue(dist), velocityLUT.getValue(dist));
 
@@ -271,7 +271,7 @@ public class SOTM {
 
         for (int i = 0; i < MAX_ITERATIONS; i++) {
             double ax = (-c * Math.hypot(vx, vy) * vx) / m;
-            double ay = (m * g -c * Math.hypot(vx, vy) * vy) / m;
+            double ay = (m * -g -c * Math.hypot(vx, vy) * vy) / m;
             vx = vx + ax * dt;
             vy = vy + ay * dt;
 
