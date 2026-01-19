@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode.util.hardware;
 
+import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.KQ_X;
+import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.KQ_Y;
+import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.X_ZPA;
+import static org.firstinspires.ftc.teamcode.util.purepursuit2.constants.PPFollowerConstants.Y_ZPA;
+
 import android.util.Log;
 
 import com.pedropathing.localization.Pose;
@@ -13,6 +18,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 import org.firstinspires.ftc.teamcode.util.purepursuit.MathFunctions;
+import org.firstinspires.ftc.teamcode.util.purepursuit2.MathUtil;
+import org.firstinspires.ftc.teamcode.util.purepursuit2.Matrix;
 
 public class SpecializedDrivetrain {
     private enum DrivetrainState {
@@ -39,8 +46,8 @@ public class SpecializedDrivetrain {
     private double kd = 0.015;
     private double lastError = 0;
     private double lastTimeStamp = 0;
-    private double kp_x = 0.1;
-    private double kd_x = 0.005;
+    private double kp_x = 0.06;
+    private double kd_x = 0.003;
     private double kp_y = 0.03;
     private double kd_y = 0.0015;
     private double kp_heading = 1.5;
@@ -127,21 +134,55 @@ public class SpecializedDrivetrain {
     }
 
     private void pidToPose() {
+        double cosH = Math.cos(currentPose.getHeading());
+        double sinH = Math.sin(currentPose.getHeading());
+
         double errorHeading = MathFunctions.angleWrap(goalPose.getHeading()-follower.getPose().getHeading());
         double errorX = goalPose.getX()-currentPose.getX();
         double errorY = goalPose.getY()-currentPose.getY();
 
-        double outX = kp_x * errorX + kd_x * (errorX - lastXError);
-        double outY = kp_y * errorY + kd_y * (errorY - lastYError);
-        double outHeading = kp_heading * errorHeading + kd_heading * (errorHeading-lastHeadingError);
+        Matrix C = new Matrix(new double[][]{
+                {sinH, -cosH, 0},
+                {cosH,  sinH, 0},
+                {0,     0,    1},
+        });
 
-        // 4) Convert GLOBAL outputs to ROBOT-LOCAL frame using current heading:
-        double cosH = Math.cos(currentPose.getHeading());
-        double sinH = Math.sin(currentPose.getHeading());
+        Matrix X = new Matrix(new double[][]{
+                {errorX, errorY, errorHeading}
+        }).transpose();
 
-        double xPower =  sinH * outX  -  cosH * outY;
-        double yPower =  cosH * outX  +  sinH * outY;
-        double headingPower = outHeading; // rotation is already body-centric sign
+        Matrix B = C.multiply(X);
+
+        double robotErrX = B.get(0, 0);
+        double robotErrY = B.get(1, 0);
+        double robotErrHeading = B.get(2, 0);
+
+        double xPower =  kp_x * robotErrX + kd_x * (robotErrX - lastXError) / period;
+        double yPower =  kp_y * robotErrX + kd_y * (robotErrY - lastYError) / period;
+        double headingPower = kp_heading * robotErrHeading + kd_heading * (robotErrHeading-lastHeadingError) / period;
+
+        Matrix V = new Matrix(new double[][]{
+                {follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent(), 0}
+        }).transpose();
+
+        Matrix V2 = C.multiply(V);
+
+        double xVel = V2.get(0, 0);
+        double yVel = V2.get(1, 0);
+
+        // calculate dist to end as speed^2 / 2 * zpam (oh wait it's negative)
+        // if this dist is less than dist to end then no ff is needed, we can basically coast to the end.
+        double xDistZPA = (xVel * xVel) / (-2 * X_ZPA);
+        double yDistZPA = (yVel * yVel) / (-2 * Y_ZPA);
+
+        // if distance is too large for zpa, then continue applying quadratic braking
+        if (X.get(0, 0) > xDistZPA) {
+            xPower += KQ_X * -Math.abs(xVel) * xVel; // brake, so that we go in opposite direction
+        }
+
+        if (X.get(1, 0) > yDistZPA) {
+            yPower += KQ_Y * -Math.abs(yVel) * yVel; // brake, so that we go in opposite direction
+        }
 
         double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(headingPower);
 
@@ -151,9 +192,9 @@ public class SpecializedDrivetrain {
             headingPower /= total;
         }
 
-        lastXError = errorX;
-        lastYError = errorY;
-        lastHeadingError = errorHeading;
+        lastXError = robotErrX;
+        lastYError = robotErrY;
+        lastHeadingError = robotErrHeading;
 
         setMotorPowers(xPower, yPower, -headingPower);
     }

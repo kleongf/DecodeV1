@@ -8,9 +8,9 @@ public class PoseConstants {
     public static Pose RED_GOAL_POSE = new Pose(144, 144, Math.toRadians(45));
     public static Pose BLUE_FAR_POSE =  new Pose(54, 12, Math.toRadians(180));
     public static Pose RED_FAR_POSE =  new Pose(144-54, 12, Math.toRadians(0));
-    public static Pose BLUE_GATE_POSE = new Pose(14, 66, Math.toRadians(270));
+    public static Pose BLUE_GATE_POSE = new Pose(14, 70, Math.toRadians(270));
 
-    public static Pose RED_GATE_POSE = new Pose(144-14, 66, Math.toRadians(270));
+    public static Pose RED_GATE_POSE = new Pose(144-14, 70, Math.toRadians(270));
 
     public static Pose RED_PARK_POSE = new Pose(39, 35, Math.toRadians(90));
     public static Pose BLUE_PARK_POSE = new Pose(144-39, 35, Math.toRadians(90));
@@ -20,11 +20,15 @@ public class PoseConstants {
     public static Pose BLUE_CLOSE_AUTO_POSE = new Pose(31.5, 137.6, Math.toRadians(270));
     public static Pose RED_CLOSE_AUTO_POSE = new Pose(144-31.5, 137.6, Math.toRadians(270));
     // TODO: rename to blue far auto start pose
+    // TODO: these poses are a bit off. change them to what they should be based on limelight pose test.
+    // TODO: also find these poses for far auto, maybe tomorrow if have time
     public static Pose BLUE_FAR_AUTO_POSE = new Pose(55.5, 6, Math.toRadians(90));
     public static Pose RED_FAR_AUTO_POSE = new Pose(144-55.5, 6, Math.toRadians(90));
 
-    public static Pose BLUE_END_AUTO_POSE = new Pose(58, 104, Math.toRadians(180+56.5));
-    public static Pose RED_END_AUTO_POSE = new Pose(144-58, 104, Math.toRadians(180-(180+56.5)));
+    public static Pose BLUE_END_AUTO_POSE = new Pose(54, 115, Math.toRadians(-118));
+    public static Pose RED_END_AUTO_POSE = new Pose(144-54, 115, Math.toRadians(180-(-118)));
+    public static Pose BLUE_END_FAR_AUTO_POSE = new Pose(36, 12, Math.toRadians(180));
+    public static Pose RED_END_FAR_AUTO_POSE = new Pose(144 - 36, 12, Math.toRadians(180-180));
 
     // TODO: FIND NEW GATE POSITIONS
     // 14.2 60.4, 147
