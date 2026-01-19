@@ -150,18 +150,20 @@ public class ArtifactVisionV2 extends Subsystem {
             RotatedRect boxFit = b.getBoxFit();
             // filtering out any blobs that are too high, as they might be a person's clothes. this works with opencv coord system.
             // idk if this is good anymore tho now that we detect from other spots
-            if (boxFit.center.y > 200) {
-                // just x dist
-                // for the ray algorithm, we want the BOTTOM of the ball. therefore we add height/2.
-                distances.add(imageToWorld(boxFit.center.x, boxFit.center.y + boxFit.size.height / 2).x);
-                // TODO: THIS IS IMPORTANT: IF THE Y COORDINATE IS TOO SMALL, THEN CAP THE MAX AREA (or just ignore)
-                // Importantly, object size is roughly inversely proportional from distance from camera
-                // however, because this is size and i measure area, it's about d^2
-                Point pt = imageToWorld(boxFit.center.x, boxFit.center.y);
-                // dealing with very close distances
-                double distance = Math.hypot(pt.x, pt.y) < 8 ? 8 : Math.hypot(pt.x, pt.y);
-                double proportionalArea = b.getContourArea() * Math.pow(distance, 2);
-                areas.add(proportionalArea);
+            if (boxFit != null) {
+                if (boxFit.center.y > 200) {
+                    // just x dist
+                    // for the ray algorithm, we want the BOTTOM of the ball. therefore we add height/2.
+                    distances.add(imageToWorld(boxFit.center.x, boxFit.center.y + boxFit.size.height / 2).x);
+                    // TODO: THIS IS IMPORTANT: IF THE Y COORDINATE IS TOO SMALL, THEN CAP THE MAX AREA (or just ignore)
+                    // Importantly, object size is roughly inversely proportional from distance from camera
+                    // however, because this is size and i measure area, it's about d^2
+                    Point pt = imageToWorld(boxFit.center.x, boxFit.center.y);
+                    // dealing with very close distances
+                    double distance = Math.hypot(pt.x, pt.y) < 8 ? 8 : Math.hypot(pt.x, pt.y);
+                    double proportionalArea = b.getContourArea() * Math.pow(distance, 2);
+                    areas.add(proportionalArea);
+                }
             }
         }
 

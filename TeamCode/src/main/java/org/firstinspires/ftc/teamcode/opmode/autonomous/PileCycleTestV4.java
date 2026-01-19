@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 import org.firstinspires.ftc.teamcode.util.purepursuit2.MathUtil;
 
-@Autonomous(name="pile cycle test v4 HOPEFULLY FINAL", group="not a comp")
+@Autonomous(name="Blue pile cycle 30", group="not a comp")
 public class PileCycleTestV4 extends OpMode {
     // this isn't exactly the way i want to do it, but the way i want to do it is kinda crazy...
     // this one will just shoot from (42.65, 8), and we'll just retune the matrix.
@@ -127,7 +127,7 @@ public class PileCycleTestV4 extends OpMode {
                 )
                 .setZeroPowerAccelerationMultiplier(3)
                 .setConstantHeadingInterpolation(Math.toRadians(180))
-                .setPathEndTValueConstraint(0.9)
+                .setPathEndTValueConstraint(0.87)
                 .build();
 
         intakePile6 = follower.pathBuilder()
@@ -139,7 +139,7 @@ public class PileCycleTestV4 extends OpMode {
                 )
                 .setZeroPowerAccelerationMultiplier(3)
                 .setConstantHeadingInterpolation(Math.toRadians(180))
-                .setPathEndTValueConstraint(0.9)
+                .setPathEndTValueConstraint(0.87)
                 .build();
 
         intakePile7 = follower.pathBuilder()
@@ -234,8 +234,9 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.9)
-                                    .setPathEndVelocityConstraint(10)
+                                    .setPathEndVelocityConstraint(20)
+                                    .setPathEndTValueConstraint(0.87)
+                                    .setPathEndHeadingConstraint(Math.toRadians(5))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             shootPile1 = follower.pathBuilder()
@@ -282,8 +283,9 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.9)
-                                    .setPathEndVelocityConstraint(10)
+                                    .setPathEndVelocityConstraint(20)
+                                    .setPathEndTValueConstraint(0.87)
+                                    .setPathEndHeadingConstraint(Math.toRadians(5))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             shootPile2 = follower.pathBuilder()
@@ -330,8 +332,9 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.9)
-                                    .setPathEndVelocityConstraint(10)
+                                    .setPathEndVelocityConstraint(20)
+                                    .setPathEndTValueConstraint(0.87)
+                                    .setPathEndHeadingConstraint(Math.toRadians(5))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             shootPile3 = follower.pathBuilder()
@@ -378,8 +381,9 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.9)
-                                    .setPathEndVelocityConstraint(10)
+                                    .setPathEndVelocityConstraint(20)
+                                    .setPathEndTValueConstraint(0.87)
+                                    .setPathEndHeadingConstraint(Math.toRadians(5))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             shootPile4 = follower.pathBuilder()
@@ -426,9 +430,10 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.9)
+                                    .setPathEndVelocityConstraint(20)
+                                    .setPathEndTValueConstraint(0.87)
+                                    .setPathEndHeadingConstraint(Math.toRadians(5))
                                     .setZeroPowerAccelerationMultiplier(3)
-                                    .setPathEndVelocityConstraint(10)
                                     .build();
                             shootPile5 = follower.pathBuilder()
                                     .addPath(
@@ -474,8 +479,9 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.9)
-                                    .setPathEndVelocityConstraint(10)
+                                    .setPathEndVelocityConstraint(20)
+                                    .setPathEndTValueConstraint(0.87)
+                                    .setPathEndHeadingConstraint(Math.toRadians(5))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             shootPile6 = follower.pathBuilder()
@@ -522,8 +528,9 @@ public class PileCycleTestV4 extends OpMode {
                                             )
                                     )
                                     .setConstantHeadingInterpolation(Math.toRadians(180))
-                                    .setPathEndTValueConstraint(0.9)
-                                    .setPathEndVelocityConstraint(10)
+                                    .setPathEndVelocityConstraint(20)
+                                    .setPathEndTValueConstraint(0.87)
+                                    .setPathEndHeadingConstraint(Math.toRadians(5))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             shootPile7 = follower.pathBuilder()

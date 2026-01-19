@@ -41,7 +41,6 @@ public class BlueOpenGateExtraGate21 extends OpMode {
                         new BezierLine(new Pose(31.500, 137.600), new Pose(54, 90))
                 )
                 .setLinearHeadingInterpolation(PoseConstants.BLUE_CLOSE_AUTO_POSE.getHeading(), Math.toRadians(-110))
-                .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
         intakeSecond = follower
@@ -56,29 +55,30 @@ public class BlueOpenGateExtraGate21 extends OpMode {
                 )
                 .setTangentHeadingInterpolation()
                 // go slow
-                .addParametricCallback(0.5, () -> follower.setMaxPower(0.6))
+                // .addParametricCallback(0.5, () -> follower.setMaxPower(0.6))
                 .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
         openGate = follower.pathBuilder().addPath(
                         new BezierCurve(
                                 new Pose(20.000, 60.000),
-                                new Pose(28.000, 66.000),
-                                new Pose(14.000, 66.000)
+                                new Pose(25.223, 73.383),
+                                new Pose(15.000, 74.000)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
                 .setZeroPowerAccelerationMultiplier(3)
+
                 .build();
 
         shootSecond = follower.pathBuilder()
                 .addPath(
                         // Path 2
                         new BezierCurve(
-                                new Pose(14, 66.000),
+                                new Pose(15, 74),
                                 PoseConstants.BLUE_SHOOT_AUTO_POSE
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(180), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
+                .setLinearHeadingInterpolation(Math.toRadians(270), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 // .setZeroPowerAccelerationMultiplier(6)
                 .build();
 
@@ -93,7 +93,7 @@ public class BlueOpenGateExtraGate21 extends OpMode {
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
-                .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.7))
                 .build();
 
         shootGate1 = follower.pathBuilder()
@@ -117,7 +117,7 @@ public class BlueOpenGateExtraGate21 extends OpMode {
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
-                .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.7))
                 .build();
 
         shootGate2 = follower.pathBuilder()
@@ -141,7 +141,7 @@ public class BlueOpenGateExtraGate21 extends OpMode {
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
-                .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.7))
                 .build();
 
         shootGate3 = follower.pathBuilder()
@@ -165,7 +165,7 @@ public class BlueOpenGateExtraGate21 extends OpMode {
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
-                .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
+                .addParametricCallback(0.6, () -> follower.setMaxPower(0.7))
                 .build();
 
         shootGate4 = follower.pathBuilder()
@@ -173,7 +173,7 @@ public class BlueOpenGateExtraGate21 extends OpMode {
                         new BezierCurve(
                                 PoseConstants.BLUE_GATE_AUTO_POSE,
                                 new Pose(60,60),
-                                new Pose(60, 84)
+                                new Pose(54, 84)
                         )
                 )
                 .setLinearHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading(), Math.toRadians(180))
@@ -181,7 +181,7 @@ public class BlueOpenGateExtraGate21 extends OpMode {
 
         intakeFirst = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(60.000, 84.000), new Pose(17.000, 84.000))
+                        new BezierLine(new Pose(54.000, 84.000), new Pose(17.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
@@ -248,7 +248,7 @@ public class BlueOpenGateExtraGate21 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1000),
+                        .maxTime(500),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -320,12 +320,12 @@ public class BlueOpenGateExtraGate21 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
-                        .maxTime(1400),
+                        .maxTime(1100),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
                             follower.followPath(shootGate4, true);
-                            shootPose = new Pose(54, 115, Math.toRadians(-118));
+                            shootPose = new Pose(54, 84, Math.toRadians(180));
                         })
                         .maxTime(700),
                 new State()
@@ -342,6 +342,7 @@ public class BlueOpenGateExtraGate21 extends OpMode {
                         .onEnter(() -> {
                             robot.intakeCommand.start();
                             follower.followPath(intakeFirst, false);
+                            shootPose = new Pose(54, 115, Math.toRadians(-118));
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
