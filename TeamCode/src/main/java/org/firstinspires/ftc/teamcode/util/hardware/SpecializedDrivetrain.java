@@ -161,29 +161,6 @@ public class SpecializedDrivetrain {
         double yPower =  kp_y * robotErrX + kd_y * (robotErrY - lastYError) / period;
         double headingPower = kp_heading * robotErrHeading + kd_heading * (robotErrHeading-lastHeadingError) / period;
 
-//        Matrix V = new Matrix(new double[][]{
-//                {follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent(), 0}
-//        }).transpose();
-//
-//        Matrix V2 = C.multiply(V);
-//
-//        double xVel = V2.get(0, 0);
-//        double yVel = V2.get(1, 0);
-//
-//        // calculate dist to end as speed^2 / 2 * zpam (oh wait it's negative)
-//        // if this dist is less than dist to end then no ff is needed, we can basically coast to the end.
-//        double xDistZPA = (xVel * xVel) / (-2 * X_ZPA);
-//        double yDistZPA = (yVel * yVel) / (-2 * Y_ZPA);
-//
-//        // if distance is too large for zpa, then continue applying quadratic braking
-//        if (X.get(0, 0) > xDistZPA) {
-//            xPower += KQ_X * -Math.abs(xVel) * xVel; // brake, so that we go in opposite direction
-//        }
-//
-//        if (X.get(1, 0) > yDistZPA) {
-//            yPower += KQ_Y * -Math.abs(yVel) * yVel; // brake, so that we go in opposite direction
-//        }
-//
         double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(headingPower);
 
         if (total > 1) {

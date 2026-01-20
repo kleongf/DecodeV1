@@ -42,7 +42,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.teamcode.util.controllers.PIDFController;
 
 public class PPFollower {
     private enum PPState {
@@ -55,9 +54,6 @@ public class PPFollower {
     private PPLocalizer localizer;
     public Pose currentPose;
     private Pose goalPose;
-    public PIDFController longitudinalController;
-    public PIDFController lateralController;
-    public PIDFController headingController;
     private PPPath currentPath;
     private int currentPathIndex;
     private int lastFoundIndex;
@@ -74,13 +70,21 @@ public class PPFollower {
     private double pathEndHeadingConstraint;
     private double pathEndSpeedConstraint;
     private boolean holdPoint;
+    private double lastTimeStamp = 0;
+    private double kp_x = 0.06;
+    private double kd_x = 0.003;
+    private double kp_y = 0.03;
+    private double kd_y = 0.0015;
+    private double kp_heading = 1.5;
+    private double kd_heading = 0.03;
+    private double lastHeadingError = 0;
+    private double lastXError = 0;
+    private double lastYError = 0;
+    private double period = 0.03;
 
     public PPFollower(HardwareMap hardwareMap) {
         this.localizer = new PPLocalizer(hardwareMap);
         this.currentPose = new Pose(0, 0, 0);
-        this.longitudinalController = new PIDFController(LONGITUDINAL_COEFFICIENTS.kp, LONGITUDINAL_COEFFICIENTS.ki, LONGITUDINAL_COEFFICIENTS.kd, LONGITUDINAL_COEFFICIENTS.kf);
-        this.lateralController = new PIDFController(LATERAL_COEFFICIENTS.kp, LATERAL_COEFFICIENTS.ki, LATERAL_COEFFICIENTS.kd, LATERAL_COEFFICIENTS.kf);
-        this.headingController = new PIDFController(HEADING_COEFFICIENTS.kp, HEADING_COEFFICIENTS.ki, HEADING_COEFFICIENTS.kd, HEADING_COEFFICIENTS.kf);
         this.currentPathIndex = 0;
 
         this.frontLeft = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);
@@ -202,54 +206,39 @@ public class PPFollower {
     // kA: target acceleration
 
     // moves in the general direction of the goal pose.
-    public void moveToPose(Pose pose) {
+    private void moveToPose(Pose pose) {
         double dy = pose.getY()-currentPose.getY();
         double dx = pose.getX()-currentPose.getX();
         double dTheta = MathUtil.normalizeAngle(pose.getHeading()-currentPose.getHeading());
 
-        // TODO: New Formulas for this: Ks*signum() + KV * desiredV + Ka * desired A nvm
-        // if the desired velocity has been reached, remove kA
+        double kY = 0.5; // doesnt matter but this is a better number ig.
+        double kX = 1; // takes more power to move x, about double i think
+        double kTheta = 0.5/Math.PI;
+
+        // 4) Convert GLOBAL outputs to ROBOT-LOCAL frame using current heading:
         double cosH = Math.cos(currentPose.getHeading());
         double sinH = Math.sin(currentPose.getHeading());
 
-        // coordinate transform matrix
-        Matrix C = new Matrix(new double[][]{
-                {sinH, -cosH, 0},
-                {cosH,  sinH, 0},
-                {0,     0,    1},
-        });
+        double xPower =  (sinH * dx  -  cosH * dy) * kX;
+        double yPower =  (cosH * dx  +  sinH * dy) * kY;
+        double thetaPower = kTheta * dTheta; // rotation is already body-centric sign
 
-        Matrix X = new Matrix(new double[][]{
-                {dx, dy, dTheta}
-        }).transpose(); // needed to transpose this first and need to normalize
+        // now make sure that x and y add up to 1
+        double totalXY = Math.abs(xPower) + Math.abs(yPower);
+        xPower /= totalXY;
+        yPower /= totalXY;
 
-        Matrix B = C.multiply(X);
+        // now make it so they add up to 1/2. could have done this earlier but whatever
+        xPower /= 2;
+        yPower /= 2;
 
-        // kV matrix transformation
-        double kY = 1.0;
-        double kX = 2.0;
-        double kTheta = 8.0;
-
-        Matrix V = new Matrix(new double[][]{
-                {kX, 0, 0},
-                {0,  kY, 0},
-                {0,  0,  kTheta},
-        });
-
-
-        Matrix T = V.multiply(B);
-
-        double xPower = T.get(0, 0);
-        double yPower = T.get(1, 0);
-        double thetaPower = T.get(2, 0);
-
+        // require 1 power at all times
         double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(thetaPower);
         xPower /= total;
         yPower /= total;
         thetaPower /= total;
 
-        // thetaPower is negative because our coordinate system. also no negative scalefactor here, it dont make sense, it would reverse error
-        setMotorPowers(maxPower * xPower,  maxPower * yPower, maxPower * -thetaPower);
+        setMotorPowers(xPower, yPower, -thetaPower);
     }
 
     private void setMotorPowers(double x, double y, double rx) {
@@ -277,18 +266,9 @@ public class PPFollower {
         double cosH = Math.cos(currentPose.getHeading());
         double sinH = Math.sin(currentPose.getHeading());
 
-        double outX = lateralController.calculate(currentPose.getX(), goalPose.getX());
-        double outY = longitudinalController.calculate(currentPose.getY(), goalPose.getY());
-        // double outHeading = -headingController.calculate(MathUtil.normalizeAngle(currentPose.getHeading()), MathUtil.normalizeAngle(goalPose.getHeading()));
-
-        double headingError = MathUtil.normalizeAngle(goalPose.getHeading() - currentPose.getHeading());
-        double outHeading = -1.5 * headingError; // simplified
-        // double outHeading = -headingController.calculate(0, headingError);
-
-        // double outHeading = 1.5 * MathUtil.normalizeAngle(goalPose.getHeading()-currentPose.getHeading());
-        System.out.println("OUT HEADING: " + outHeading);
-        System.out.println("GOAL POSE HEADING: " + goalPose.getHeading());
-        System.out.println("CURRENT POSE HEADING: " + currentPose.getHeading());
+        double errorHeading = MathUtil.normalizeAngle(goalPose.getHeading()-currentPose.getHeading());
+        double errorX = goalPose.getX()-currentPose.getX();
+        double errorY = goalPose.getY()-currentPose.getY();
 
         Matrix C = new Matrix(new double[][]{
                 {sinH, -cosH, 0},
@@ -297,15 +277,46 @@ public class PPFollower {
         });
 
         Matrix X = new Matrix(new double[][]{
-                {outX, outY, outHeading}
+                {errorX, errorY, errorHeading}
         }).transpose();
 
         Matrix B = C.multiply(X);
 
-        double xPower =  B.get(0, 0);
-        double yPower =  B.get(1, 0);
-        double headingPower = B.get(2, 0);
+        double robotErrX = B.get(0, 0);
+        double robotErrY = B.get(1, 0);
+        double robotErrHeading = B.get(2, 0);
 
+        double xPower =  kp_x * robotErrX + kd_x * (robotErrX - lastXError) / period;
+        double yPower =  kp_y * robotErrX + kd_y * (robotErrY - lastYError) / period;
+        double headingPower = kp_heading * robotErrHeading + kd_heading * (robotErrHeading-lastHeadingError) / period;
+
+        // a small thing: calculate robot velocity, add on extra scaling power to brake if necessary
+//        Matrix V = new Matrix(new double[][]{
+//                {localizer.getVelocity().getX(), localizer.getVelocity().getY(), 0}
+//        }).transpose();
+//
+//        Matrix V2 = C.multiply(V);
+//
+//        double xVel = V2.get(0, 0);
+//        double yVel = V2.get(1, 0);
+//
+//        // calculate dist to end as speed^2 / 2 * zpam
+//        // if this dist is less than dist to end then no ff is needed, we can basically coast to the end.
+//        double xDistZPA = (xVel * xVel) / (-2 * X_ZPA);
+//        double yDistZPA = (yVel * yVel) / (-2 * Y_ZPA);
+//
+//        double kBrakeX = 0.001; // it is harder for x to brake
+//        double kBrakeY = 0.0005; // easier for y to brake
+//
+//        // if distance is too large for zpa, then continue applying quadratic braking
+//        if (robotErrX > xDistZPA) {
+//            xPower += kBrakeX * -Math.abs(xVel); // brake, so that we go in opposite direction
+//        }
+//
+//        if (robotErrY > yDistZPA) {
+//            yPower += kBrakeY * -Math.abs(yVel); // brake, so that we go in opposite direction
+//        }
+        // for now i will just add the braking coefficient if the velocity is too high
         Matrix V = new Matrix(new double[][]{
                 {localizer.getVelocity().getX(), localizer.getVelocity().getY(), 0}
         }).transpose();
@@ -315,27 +326,19 @@ public class PPFollower {
         double xVel = V2.get(0, 0);
         double yVel = V2.get(1, 0);
 
-        // calculate dist to end as speed^2 / 2 * zpam
-        // if this dist is less than dist to end then no ff is needed, we can basically coast to the end.
-        double xDistZPA = (xVel * xVel) / (2 * X_ZPA);
-        double yDistZPA = (yVel * yVel) / (2 * Y_ZPA);
 
-        double dy = goalPose.getY()-currentPose.getY();
-        double dx = goalPose.getX()-currentPose.getX();
-
-        Matrix E = new Matrix(new double[][]{
-                {dx, dy, 0}
-        }).transpose();
-
-        Matrix E2 = C.multiply(E);
+        double kBrakeX = 0.0001; // it is harder for x to brake
+        double kBrakeY = 0.00005; // easier for y to brake
+        double maxVX = 10;
+        double maxVY = 20;
 
         // if distance is too large for zpa, then continue applying quadratic braking
-        if (E2.get(0, 0) > xDistZPA) {
-            xPower += KQ_X * -Math.abs(xVel) * xVel; // brake, so that we go in opposite direction
+        if (Math.abs(xVel) > maxVX) {
+            xPower += kBrakeX * -Math.abs(xVel) * xVel; // brake, so that we go in opposite direction
         }
 
-        if (E2.get(1, 0) > yDistZPA) {
-            yPower += KQ_Y * -Math.abs(yVel) * yVel; // brake, so that we go in opposite direction
+        if (Math.abs(yVel) > maxVY) {
+            yPower += kBrakeY * -Math.abs(yVel) * yVel; // brake, so that we go in opposite direction
         }
 
         double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(headingPower);
@@ -345,12 +348,12 @@ public class PPFollower {
             yPower /= total;
             headingPower /= total;
         }
-        System.out.println("XPOWER: " + xPower);
-        System.out.println("YPOWER: " + yPower);
-        System.out.println("HEADING POWER: " + headingPower);
-        // scaleFactor * headingPower
 
-        setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, scaleFactor * headingPower);
+        lastXError = robotErrX;
+        lastYError = robotErrY;
+        lastHeadingError = robotErrHeading;
+
+        setMotorPowers(scaleFactor * xPower, scaleFactor * yPower, scaleFactor * -headingPower);
     }
 
     public void followPath(PPPath path) {
@@ -376,23 +379,27 @@ public class PPFollower {
         // is the same direction as the path it needs to follow
         // we could project the velocity vector onto the vector of the path, take its magnitude.
         // double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
+        double currentTimeStamp = (double) System.nanoTime() / 1E9;
+        if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
+        period = currentTimeStamp - lastTimeStamp;
+        lastTimeStamp = currentTimeStamp;
 
         switch (state) {
             case IDLE:
                 break;
             case FOLLOWING_PATH:
-                System.out.println("FOLLOWING PATH");
+                // System.out.println("FOLLOWING PATH");
                 calculateGoalPose();
                 // the second condition is a better catch, so that we don't go backwards from pure pursuit
-                Vector v = com.pedropathing.pathgen.MathFunctions.subtractVectors(goalPose.getVector(), currentPose.getVector());
-                Vector u = localizer.getVelocityVector();
+                //Vector v = com.pedropathing.pathgen.MathFunctions.subtractVectors(goalPose.getVector(), currentPose.getVector());
+                //Vector u = localizer.getVelocityVector();
 
                 // (u ⋅ v / |v|²) * v
-                Vector projuv = com.pedropathing.pathgen.MathFunctions.scalarMultiplyVector(v, com.pedropathing.pathgen.MathFunctions.dotProduct(u, v) / com.pedropathing.pathgen.MathFunctions.dotProduct(v, v));
+                // Vector projuv = com.pedropathing.pathgen.MathFunctions.scalarMultiplyVector(v, com.pedropathing.pathgen.MathFunctions.dotProduct(u, v) / com.pedropathing.pathgen.MathFunctions.dotProduct(v, v));
 
-                double velToGoal = projuv.getMagnitude();
-
-                double distanceToEnd = (velToGoal * velToGoal) / (2 * MAX_ACCELERATION);
+                // double velToGoal = projuv.getMagnitude();
+                //double distanceToEnd = (velToGoal * velToGoal) / (2 * MAX_ACCELERATION);
+                double distanceToEnd = (speed * speed) / (2 * MAX_ACCELERATION);
 
                 if ((MathUtil.distance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < distanceToEnd) || MathUtil.distance(currentPose, currentPath.getPose(currentPath.getSize()-1)) < lookAheadDistance) {
                     goalPose = currentPath.getPose(currentPath.getSize() - 1);
@@ -406,8 +413,8 @@ public class PPFollower {
                 }
                 break;
             case PID_TO_POINT:
-                System.out.println("PID TO POSE");
-                System.out.println("DISTANCE TO END: " + MathUtil.distance(currentPose, goalPose));
+//                System.out.println("PID TO POSE");
+//                System.out.println("DISTANCE TO END: " + MathUtil.distance(currentPose, goalPose));
                 if (MathUtil.distance(currentPose, goalPose) < pathEndDistanceConstraint && speed < pathEndSpeedConstraint && Math.abs(MathUtil.normalizeAngle(currentPose.getHeading()-goalPose.getHeading())) < pathEndHeadingConstraint) {
                     if (holdPoint) {
                         state = PPState.HOLDING_POINT;
