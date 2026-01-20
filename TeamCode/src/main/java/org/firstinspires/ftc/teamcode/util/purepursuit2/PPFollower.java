@@ -205,11 +205,10 @@ public class PPFollower {
         double rx = currentPose.getX();
         double ry = currentPose.getY();
 
-        Pose goal = currentPath.getPose(currentPath.getSize() - 1);
+        Pose goal = currentPath.getPose(currentPath.getSize() - 1); // fallback
         int bestSeg = lastFoundIndex;
-        double bestT = -1;
+        Pose bestPoint = null;
 
-        // 🔒 Only search forward segments
         for (int i = lastFoundIndex; i < currentPath.getSize() - 1; i++) {
             Pose p1 = currentPath.getPose(i);
             Pose p2 = currentPath.getPose(i + 1);
@@ -221,9 +220,8 @@ public class PPFollower {
 
             double dx = x2 - x1;
             double dy = y2 - y1;
-
             double a = dx * dx + dy * dy;
-            if (a < 1e-6) continue; // skip degenerate segments
+            if (a < 1e-6) continue;
 
             double b = 2 * (x1 * dx + y1 * dy);
             double c = x1 * x1 + y1 * y1 - lookAheadDistance * lookAheadDistance;
@@ -231,52 +229,57 @@ public class PPFollower {
             double disc = b * b - 4 * a * c;
             if (disc < 0) continue;
 
-            disc = Math.max(disc, 0);
-            double sqrtDisc = Math.sqrt(disc);
-
+            double sqrtDisc = Math.sqrt(Math.max(0, disc));
             double t1 = (-b - sqrtDisc) / (2 * a);
             double t2 = (-b + sqrtDisc) / (2 * a);
 
-            // Evaluate both intersections
-            bestT = chooseBestIntersection(p1, p2, t1, i, bestT);
-            bestT = chooseBestIntersection(p1, p2, t2, i, bestT);
-            if (bestT >= 0) bestSeg = i;
+            // Create candidate points immediately (Python-style)
+            Pose sol1 = null;
+            Pose sol2 = null;
+            if (t1 >= 0 && t1 <= 1) {
+                double gx = p1.getX() + t1 * (p2.getX() - p1.getX());
+                double gy = p1.getY() + t1 * (p2.getY() - p1.getY());
+                sol1 = new Pose(gx, gy, 0);
+            }
+            if (t2 >= 0 && t2 <= 1) {
+                double gx = p1.getX() + t2 * (p2.getX() - p1.getX());
+                double gy = p1.getY() + t2 * (p2.getY() - p1.getY());
+                sol2 = new Pose(gx, gy, 0);
+            }
+
+            // Pick the candidate that is further along the path
+            Pose chosen = null;
+            if (sol1 != null && sol2 != null) {
+                // Compare distance along segment (larger t)
+                chosen = (t1 > t2) ? sol1 : sol2;
+            } else if (sol1 != null) {
+                chosen = sol1;
+            } else if (sol2 != null) {
+                chosen = sol2;
+            }
+
+            if (chosen != null) {
+                bestPoint = chosen;
+                bestSeg = i;
+            }
         }
 
-        // 🛟 Fallback if no intersection found
-        if (bestT < 0) {
-            goalPose = currentPath.getPose(currentPath.getSize() - 1);
-            return;
+        if (bestPoint != null) {
+            double heading;
+            if (!currentPath.isTangent()) {
+                heading = currentPath.getPose(bestSeg).getHeading();
+            } else {
+                Pose next = currentPath.getPose(bestSeg + 1);
+                heading = Math.atan2(next.getY() - bestPoint.getY(), next.getX() - bestPoint.getX());
+            }
+            bestPoint.setHeading(heading);
+            goal = bestPoint;
+            lastFoundIndex = bestSeg;
         }
 
-        Pose p1 = currentPath.getPose(bestSeg);
-        Pose p2 = currentPath.getPose(bestSeg + 1);
-
-        double gx = MathUtil.lerp(p1.getX(), p2.getX(), bestT);
-        double gy = MathUtil.lerp(p1.getY(), p2.getY(), bestT);
-
-        double heading;
-        if (!currentPath.isTangent()) {
-            heading = p1.getHeading(); // your requested behavior
-        } else {
-            double dx = p2.getX() - p1.getX();
-            double dy = p2.getY() - p1.getY();
-            heading = Math.atan2(dy, dx);
-        }
-
-        goalPose = new Pose(gx, gy, heading);
-        lastFoundIndex = bestSeg;
+        goalPose = goal;
     }
 
-    private double chooseBestIntersection(Pose p1, Pose p2, double t, int segIndex, double bestT) {
-        if (t < 0 || t > 1) return bestT;
-
-        // Favor forward progress
-        if (segIndex > lastFoundIndex || t > bestT) {
-            return t;
-        }
-        return bestT;
-    }
 
 
 
