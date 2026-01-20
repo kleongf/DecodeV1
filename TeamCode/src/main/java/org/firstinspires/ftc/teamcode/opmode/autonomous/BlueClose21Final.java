@@ -4,6 +4,7 @@ import static java.lang.Thread.sleep;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.BezierPoint;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
 import com.pedropathing.util.CustomFilteredPIDFCoefficients;
@@ -25,7 +26,7 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="BLUE CLOSE 21 FINAL", group="not a comp")
+@Autonomous(name="BLUE CLOSE 21 FINAL", group="!")
 public class BlueClose21Final extends OpMode {
     // this auto can be optimized further by turning on sotm and shooting instantly. all optimizations should be done in this file.
     private VoltageCompFollower follower;
@@ -231,6 +232,9 @@ public class BlueClose21Final extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
+                        .onEnter(() -> {
+                            follower.holdPoint(new BezierPoint(PoseConstants.BLUE_SHOOT_AUTO_POSE), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading());
+                        })
                         .maxTime(1000),
                 new State()
                         .onEnter(() -> {
@@ -255,6 +259,9 @@ public class BlueClose21Final extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
+                        .onEnter(() -> {
+                            follower.holdPoint(new BezierPoint(PoseConstants.BLUE_SHOOT_AUTO_POSE), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading());
+                        })
                         .maxTime(1100),
                 new State()
                         .onEnter(() -> {
@@ -280,6 +287,9 @@ public class BlueClose21Final extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
+                        .onEnter(() -> {
+                            follower.holdPoint(new BezierPoint(PoseConstants.BLUE_SHOOT_AUTO_POSE), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading());
+                        })
                         .maxTime(1400),
                 new State()
                         .onEnter(() -> {

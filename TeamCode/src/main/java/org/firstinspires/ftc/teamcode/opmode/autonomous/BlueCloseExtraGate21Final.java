@@ -4,6 +4,7 @@ import static java.lang.Thread.sleep;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.BezierPoint;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -33,7 +34,7 @@ public class BlueCloseExtraGate21Final extends OpMode {
     private final Pose startPose = PoseConstants.BLUE_CLOSE_AUTO_POSE;
     private Pose shootPose = new Pose(54, 90, Math.toRadians(-110));
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
-    private PathChain shootPreload, intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeGate4, shootGate4, intakeFirst, shootFirst;
+    private PathChain shootPreload, intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeGate4, shootGate4, intakeFirst, shootFirst, holdGate1;
     public void buildPaths() {
         shootPreload = follower
                 .pathBuilder()
@@ -82,6 +83,13 @@ public class BlueCloseExtraGate21Final extends OpMode {
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
                 .setPathEndTValueConstraint(0.99)
                 .addParametricCallback(0.6, () -> follower.setMaxPower(0.8))
+                .build();
+
+        holdGate1 = follower.pathBuilder()
+                .addPath(
+                        new BezierPoint(PoseConstants.BLUE_GATE_AUTO_POSE)
+                )
+                .setConstantHeadingInterpolation(PoseConstants.BLUE_GATE_AUTO_POSE.getHeading())
                 .build();
 
         shootGate1 = follower.pathBuilder()

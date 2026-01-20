@@ -4,7 +4,7 @@ import com.pedropathing.localization.Pose;
 
 public class PoseConstants {
     // Teleop Poses
-    public static double DISTANCE_IN = 5.0;
+    public static double DISTANCE_IN = 0;
     public static Pose BLUE_GOAL_POSE = new Pose(0, 144, Math.toRadians(135));
     public static Pose RED_GOAL_POSE = new Pose(144, 144, Math.toRadians(45));
     public static Pose BLUE_FAR_POSE =  new Pose(54, 12, Math.toRadians(180));
