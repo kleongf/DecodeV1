@@ -37,4 +37,9 @@ public class MathUtil {
             return num > upper ? upper : num;
         }
     }
+
+    public static double lerp(double a, double b, double t) {
+        return a + (b - a) * t;
+    }
+
 }

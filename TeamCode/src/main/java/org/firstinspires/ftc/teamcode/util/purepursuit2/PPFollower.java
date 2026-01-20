@@ -135,72 +135,150 @@ public class PPFollower {
         return (NOMINAL_VOLTAGE - (NOMINAL_VOLTAGE * FRICTION_CONSTANT)) / (voltageSensor.getVoltage() - ((Math.pow(NOMINAL_VOLTAGE, 2) / voltageSensor.getVoltage()) * FRICTION_CONSTANT));
     }
     // this is a big hot mess and it WORKS so i'm not gonna touch it
+//    private void calculateGoalPose() {
+//        double posX = currentPose.getX();
+//        double posY = currentPose.getY();
+//        Pose goal = (lastFoundIndex == currentPath.getSize()-1) ? currentPath.getPose(lastFoundIndex) : currentPath.getPose(lastFoundIndex+1);
+//
+//        for (int i = currentPathIndex; i < currentPath.getSize() - 1; i++) {
+//            double x1 = currentPath.getPose(i).getX() - posX;
+//            double y1 = currentPath.getPose(i).getY() - posY;
+//            double x2 = currentPath.getPose(i + 1).getX() - posX;
+//            double y2 = currentPath.getPose(i + 1).getY() - posY;
+//            double dx = x2 - x1;
+//            double dy = y2 - y1;
+//            double dr = Math.sqrt(dx * dx + dy * dy);
+//            double det = x1 * y2 - x2 * y1;
+//            double discriminant = (lookAheadDistance * lookAheadDistance) * (dr * dr) - (det * det);
+//
+//            if (discriminant >= 0) {
+//                double sol_x1 = (det * dy + Math.signum(dy) * dx * Math.sqrt(discriminant)) / (dr * dr);
+//                double sol_x2 = (det * dy - Math.signum(dy) * dx * Math.sqrt(discriminant)) / (dr * dr);
+//                double sol_y1 = (-det * dx + Math.abs(dy) * Math.sqrt(discriminant)) / (dr * dr);
+//                double sol_y2 = (-det * dx - Math.abs(dy) * Math.sqrt(discriminant)) / (dr * dr);
+//
+//                Pose sol1 = new Pose(sol_x1 + posX, sol_y1 + posY, 0);
+//                Pose sol2 = new Pose(sol_x2 + posX, sol_y2 + posY, 0);
+//                // if it's not tangent we try to go to its normal heading
+//                if (!currentPath.isTangent()) {
+//                    sol1.setHeading(currentPath.getPose(i).getHeading());
+//                    sol2.setHeading(currentPath.getPose(i).getHeading());
+//                } else {
+//                    sol1.setHeading(Math.atan2(sol1.getY()-currentPose.getY(), sol1.getX()-currentPose.getX()));
+//                    sol2.setHeading(Math.atan2(sol2.getY()-currentPose.getY(), sol2.getX()-currentPose.getX()));
+//                }
+//
+//                double minX = Math.min(currentPath.getPose(i).getX(), currentPath.getPose(i + 1).getX());
+//                double maxX = Math.max(currentPath.getPose(i).getX(), currentPath.getPose(i + 1).getX());
+//                double minY = Math.min(currentPath.getPose(i).getY(), currentPath.getPose(i + 1).getY());
+//                double maxY = Math.max(currentPath.getPose(i).getY(), currentPath.getPose(i + 1).getY());
+//
+//                if (((sol1.getX() >= minX && sol1.getX() <= maxX) && (sol1.getY() >= minY && sol1.getY() <= maxY)) || ((sol2.getX() >= minX && sol2.getX() <= maxX) && (sol2.getY() >= minY && sol2.getY() <= maxY))) {
+//                    if (((sol1.getX() >= minX && sol1.getX() <= maxX) && (sol1.getY() >= minY && sol1.getY() <= maxY)) && ((sol2.getX() >= minX && sol2.getX() <= maxX) && (sol2.getY() >= minY && sol2.getY() <= maxY))) {
+//                        if (MathUtil.distance(currentPath.getPose(i + 1), sol1) < MathUtil.distance(currentPath.getPose(i + 1), sol2)) {
+//                            goal = sol1;
+//                        } else {
+//                            goal = sol2;
+//                        }
+//                    } else {
+//                        if ((sol1.getX() >= minX && sol1.getX() <= maxX) && (sol1.getY() >= minY && sol1.getY() <= maxY)) {
+//                            goal = sol1;
+//                        } else {
+//                            goal = sol2;
+//                        }
+//                    }
+//
+//                    if (MathUtil.distance(goal, currentPath.getPose(i + 1)) < MathUtil.distance(currentPose, currentPath.getPose(i+1))) {
+//                        lastFoundIndex = i;
+//                        break;
+//                    } else {
+//                        lastFoundIndex = i + 1;
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//        goalPose = goal;
+//        currentPathIndex = lastFoundIndex;
+//    }
     private void calculateGoalPose() {
-        double posX = currentPose.getX();
-        double posY = currentPose.getY();
-        Pose goal = (lastFoundIndex == currentPath.getSize()-1) ? currentPath.getPose(lastFoundIndex) : currentPath.getPose(lastFoundIndex+1);
+        double rx = currentPose.getX();
+        double ry = currentPose.getY();
 
-        for (int i = currentPathIndex; i < currentPath.getSize() - 1; i++) {
-            double x1 = currentPath.getPose(i).getX() - posX;
-            double y1 = currentPath.getPose(i).getY() - posY;
-            double x2 = currentPath.getPose(i + 1).getX() - posX;
-            double y2 = currentPath.getPose(i + 1).getY() - posY;
+        Pose goal = currentPath.getPose(currentPath.getSize() - 1);
+        int bestSeg = lastFoundIndex;
+        double bestT = -1;
+
+        // 🔒 Only search forward segments
+        for (int i = lastFoundIndex; i < currentPath.getSize() - 1; i++) {
+            Pose p1 = currentPath.getPose(i);
+            Pose p2 = currentPath.getPose(i + 1);
+
+            double x1 = p1.getX() - rx;
+            double y1 = p1.getY() - ry;
+            double x2 = p2.getX() - rx;
+            double y2 = p2.getY() - ry;
+
             double dx = x2 - x1;
             double dy = y2 - y1;
-            double dr = Math.sqrt(dx * dx + dy * dy);
-            double det = x1 * y2 - x2 * y1;
-            double discriminant = (lookAheadDistance * lookAheadDistance) * (dr * dr) - (det * det);
 
-            if (discriminant >= 0) {
-                double sol_x1 = (det * dy + Math.signum(dy) * dx * Math.sqrt(discriminant)) / (dr * dr);
-                double sol_x2 = (det * dy - Math.signum(dy) * dx * Math.sqrt(discriminant)) / (dr * dr);
-                double sol_y1 = (-det * dx + Math.abs(dy) * Math.sqrt(discriminant)) / (dr * dr);
-                double sol_y2 = (-det * dx - Math.abs(dy) * Math.sqrt(discriminant)) / (dr * dr);
+            double a = dx * dx + dy * dy;
+            if (a < 1e-6) continue; // skip degenerate segments
 
-                Pose sol1 = new Pose(sol_x1 + posX, sol_y1 + posY, 0);
-                Pose sol2 = new Pose(sol_x2 + posX, sol_y2 + posY, 0);
-                // if it's not tangent we try to go to its normal heading
-                if (!currentPath.isTangent()) {
-                    sol1.setHeading(currentPath.getPose(i).getHeading());
-                    sol2.setHeading(currentPath.getPose(i).getHeading());
-                } else {
-                    sol1.setHeading(Math.atan2(sol1.getY()-currentPose.getY(), sol1.getX()-currentPose.getX()));
-                    sol2.setHeading(Math.atan2(sol2.getY()-currentPose.getY(), sol2.getX()-currentPose.getX()));
-                }
+            double b = 2 * (x1 * dx + y1 * dy);
+            double c = x1 * x1 + y1 * y1 - lookAheadDistance * lookAheadDistance;
 
-                double minX = Math.min(currentPath.getPose(i).getX(), currentPath.getPose(i + 1).getX());
-                double maxX = Math.max(currentPath.getPose(i).getX(), currentPath.getPose(i + 1).getX());
-                double minY = Math.min(currentPath.getPose(i).getY(), currentPath.getPose(i + 1).getY());
-                double maxY = Math.max(currentPath.getPose(i).getY(), currentPath.getPose(i + 1).getY());
+            double disc = b * b - 4 * a * c;
+            if (disc < 0) continue;
 
-                if (((sol1.getX() >= minX && sol1.getX() <= maxX) && (sol1.getY() >= minY && sol1.getY() <= maxY)) || ((sol2.getX() >= minX && sol2.getX() <= maxX) && (sol2.getY() >= minY && sol2.getY() <= maxY))) {
-                    if (((sol1.getX() >= minX && sol1.getX() <= maxX) && (sol1.getY() >= minY && sol1.getY() <= maxY)) && ((sol2.getX() >= minX && sol2.getX() <= maxX) && (sol2.getY() >= minY && sol2.getY() <= maxY))) {
-                        if (MathUtil.distance(currentPath.getPose(i + 1), sol1) < MathUtil.distance(currentPath.getPose(i + 1), sol2)) {
-                            goal = sol1;
-                        } else {
-                            goal = sol2;
-                        }
-                    } else {
-                        if ((sol1.getX() >= minX && sol1.getX() <= maxX) && (sol1.getY() >= minY && sol1.getY() <= maxY)) {
-                            goal = sol1;
-                        } else {
-                            goal = sol2;
-                        }
-                    }
+            disc = Math.max(disc, 0);
+            double sqrtDisc = Math.sqrt(disc);
 
-                    if (MathUtil.distance(goal, currentPath.getPose(i + 1)) < MathUtil.distance(currentPose, currentPath.getPose(i+1))) {
-                        lastFoundIndex = i;
-                        break;
-                    } else {
-                        lastFoundIndex = i + 1;
-                        break;
-                    }
-                }
-            }
+            double t1 = (-b - sqrtDisc) / (2 * a);
+            double t2 = (-b + sqrtDisc) / (2 * a);
+
+            // Evaluate both intersections
+            bestT = chooseBestIntersection(p1, p2, t1, i, bestT);
+            bestT = chooseBestIntersection(p1, p2, t2, i, bestT);
+            if (bestT >= 0) bestSeg = i;
         }
-        goalPose = goal;
-        currentPathIndex = lastFoundIndex;
+
+        // 🛟 Fallback if no intersection found
+        if (bestT < 0) {
+            goalPose = currentPath.getPose(currentPath.getSize() - 1);
+            return;
+        }
+
+        Pose p1 = currentPath.getPose(bestSeg);
+        Pose p2 = currentPath.getPose(bestSeg + 1);
+
+        double gx = MathUtil.lerp(p1.getX(), p2.getX(), bestT);
+        double gy = MathUtil.lerp(p1.getY(), p2.getY(), bestT);
+
+        double heading;
+        if (!currentPath.isTangent()) {
+            heading = p1.getHeading(); // your requested behavior
+        } else {
+            double dx = p2.getX() - p1.getX();
+            double dy = p2.getY() - p1.getY();
+            heading = Math.atan2(dy, dx);
+        }
+
+        goalPose = new Pose(gx, gy, heading);
+        lastFoundIndex = bestSeg;
     }
+
+    private double chooseBestIntersection(Pose p1, Pose p2, double t, int segIndex, double bestT) {
+        if (t < 0 || t > 1) return bestT;
+
+        // Favor forward progress
+        if (segIndex > lastFoundIndex || t > bestT) {
+            return t;
+        }
+        return bestT;
+    }
+
+
 
     // From WPILib (and some paper): For a DC Motor, V = kS * sgn(x) + kV * x' + kA * x''
     // kS: oppose friction
