@@ -73,9 +73,9 @@ public class PPFollower {
     private double holdPointScaleFactor;
     private double lastTimeStamp = 0;
     private double kp_x = 0.06;
-    private double kd_x = 0.003;
+    private double kd_x = 0.002;
     private double kp_y = 0.03;
-    private double kd_y = 0.0015;
+    private double kd_y = 0.001;
     private double kp_heading = 1.5;
     private double kd_heading = 0.03;
     private double lastHeadingError = 0;
