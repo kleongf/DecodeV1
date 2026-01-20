@@ -206,7 +206,9 @@ public class PPFollower {
         double ry = currentPose.getY();
 
         Pose goal = currentPath.getPose(currentPath.getSize() - 1); // fallback
+
         int bestSeg = lastFoundIndex;
+        double bestT = -1.0;
         Pose bestPoint = null;
 
         for (int i = lastFoundIndex; i < currentPath.getSize() - 1; i++) {
@@ -233,34 +235,25 @@ public class PPFollower {
             double t1 = (-b - sqrtDisc) / (2 * a);
             double t2 = (-b + sqrtDisc) / (2 * a);
 
-            // Create candidate points immediately (Python-style)
-            Pose sol1 = null;
-            Pose sol2 = null;
+            // Check both roots
             if (t1 >= 0 && t1 <= 1) {
-                double gx = p1.getX() + t1 * (p2.getX() - p1.getX());
-                double gy = p1.getY() + t1 * (p2.getY() - p1.getY());
-                sol1 = new Pose(gx, gy, 0);
+                if (i > bestSeg || (i == bestSeg && t1 > bestT)) {
+                    double gx = p1.getX() + t1 * (p2.getX() - p1.getX());
+                    double gy = p1.getY() + t1 * (p2.getY() - p1.getY());
+                    bestPoint = new Pose(gx, gy, 0);
+                    bestSeg = i;
+                    bestT = t1;
+                }
             }
+
             if (t2 >= 0 && t2 <= 1) {
-                double gx = p1.getX() + t2 * (p2.getX() - p1.getX());
-                double gy = p1.getY() + t2 * (p2.getY() - p1.getY());
-                sol2 = new Pose(gx, gy, 0);
-            }
-
-            // Pick the candidate that is further along the path
-            Pose chosen = null;
-            if (sol1 != null && sol2 != null) {
-                // Compare distance along segment (larger t)
-                chosen = (t1 > t2) ? sol1 : sol2;
-            } else if (sol1 != null) {
-                chosen = sol1;
-            } else if (sol2 != null) {
-                chosen = sol2;
-            }
-
-            if (chosen != null) {
-                bestPoint = chosen;
-                bestSeg = i;
+                if (i > bestSeg || (i == bestSeg && t2 > bestT)) {
+                    double gx = p1.getX() + t2 * (p2.getX() - p1.getX());
+                    double gy = p1.getY() + t2 * (p2.getY() - p1.getY());
+                    bestPoint = new Pose(gx, gy, 0);
+                    bestSeg = i;
+                    bestT = t2;
+                }
             }
         }
 
@@ -270,8 +263,10 @@ public class PPFollower {
                 heading = currentPath.getPose(bestSeg).getHeading();
             } else {
                 Pose next = currentPath.getPose(bestSeg + 1);
-                heading = Math.atan2(next.getY() - bestPoint.getY(), next.getX() - bestPoint.getX());
+                heading = Math.atan2(next.getY() - bestPoint.getY(),
+                        next.getX() - bestPoint.getX());
             }
+
             bestPoint.setHeading(heading);
             goal = bestPoint;
             lastFoundIndex = bestSeg;
@@ -279,6 +274,7 @@ public class PPFollower {
 
         goalPose = goal;
     }
+
 
 
 
