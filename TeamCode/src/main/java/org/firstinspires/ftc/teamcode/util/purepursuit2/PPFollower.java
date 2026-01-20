@@ -335,13 +335,15 @@ public class PPFollower {
         double maxVY = 20;
 
         // if distance is too large for zpa, then continue applying quadratic braking
-        if (Math.abs(xVel) > maxVX) {
-            xPower += kBrakeX * -Math.abs(xVel) * xVel; // brake, so that we go in opposite direction
-        }
+//        if (Math.abs(xVel) > maxVX) {
+//            xPower += kBrakeX * -Math.abs(xVel) * xVel; // brake, so that we go in opposite direction
+//        }
+        xPower += kBrakeX * -Math.abs(xVel) * xVel; // brake, so that we go in opposite direction
+        yPower += kBrakeY * -Math.abs(yVel) * yVel; // brake, so that we go in opposite direction
 
-        if (Math.abs(yVel) > maxVY) {
-            yPower += kBrakeY * -Math.abs(yVel) * yVel; // brake, so that we go in opposite direction
-        }
+//        if (Math.abs(yVel) > maxVY) {
+//            yPower += kBrakeY * -Math.abs(yVel) * yVel; // brake, so that we go in opposite direction
+//        }
 
         double total = Math.abs(xPower) + Math.abs(yPower) + Math.abs(headingPower);
 
