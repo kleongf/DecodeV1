@@ -18,6 +18,7 @@ public class PPPath {
     private double pathEndSpeedConstraint = PPFollowerConstants.PATH_END_SPEED_CONSTRAINT;
     private boolean holdPoint = true;
     private double maxPower = 1.0;
+    private double holdPointScaleFactor = PPFollowerConstants.HOLD_POINT_SCALE_FACTOR;
 
     public PPPath(Pose...waypoints) {
         this.waypoints = new ArrayList<>(Arrays.asList(waypoints));
@@ -77,6 +78,11 @@ public class PPPath {
         return this;
     }
 
+    public PPPath setHoldPointScaleFactor(double a) {
+        this.holdPointScaleFactor = a;
+        return this;
+    }
+
     public boolean isTangent() {return tangent;}
 
     public int getSize() {
@@ -99,4 +105,5 @@ public class PPPath {
 
     public boolean getHoldPoint() {return holdPoint;}
     public double getMaxPower() {return maxPower;}
+    public double getHoldPointScaleFactor() {return holdPointScaleFactor;}
 }

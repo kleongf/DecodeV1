@@ -70,6 +70,7 @@ public class PPFollower {
     private double pathEndHeadingConstraint;
     private double pathEndSpeedConstraint;
     private boolean holdPoint;
+    private double holdPointScaleFactor;
     private double lastTimeStamp = 0;
     private double kp_x = 0.06;
     private double kd_x = 0.003;
@@ -118,6 +119,7 @@ public class PPFollower {
         this.pathEndDistanceConstraint = PATH_END_DISTANCE_CONSTRAINT;
         this.pathEndSpeedConstraint = PATH_END_SPEED_CONSTRAINT;
         this.pathEndHeadingConstraint = PATH_END_HEADING_CONSTRAINT;
+        this.holdPointScaleFactor = HOLD_POINT_SCALE_FACTOR;
         this.holdPoint = true;
         this.maxPower = 1.0;
 
@@ -364,6 +366,7 @@ public class PPFollower {
         pathEndSpeedConstraint = path.getPathEndSpeedConstraint();
         pathEndHeadingConstraint = path.getPathEndHeadingConstraint();
         pathEndDistanceConstraint = path.getPathEndDistanceConstraint();
+        holdPointScaleFactor = path.getHoldPointScaleFactor();
         maxPower = path.getMaxPower();
         holdPoint = path.getHoldPoint();
         currentPath = path;
@@ -418,6 +421,7 @@ public class PPFollower {
                 if (MathUtil.distance(currentPose, goalPose) < pathEndDistanceConstraint && speed < pathEndSpeedConstraint && Math.abs(MathUtil.normalizeAngle(currentPose.getHeading()-goalPose.getHeading())) < pathEndHeadingConstraint) {
                     if (holdPoint) {
                         state = PPState.HOLDING_POINT;
+                        holdPointScaleFactor = currentPath.getHoldPointScaleFactor();
                     } else {
                         breakFollowing();
                     }
@@ -438,7 +442,7 @@ public class PPFollower {
                 currentPath = null;
                 currentPathIndex = 0;
                 lastFoundIndex = 0;
-                PIDToPose(HOLD_POINT_SCALE_FACTOR);
+                PIDToPose(holdPointScaleFactor);
                 break;
         }
     }
@@ -451,6 +455,7 @@ public class PPFollower {
         pathEndSpeedConstraint = PATH_END_SPEED_CONSTRAINT;
         pathEndHeadingConstraint = PATH_END_HEADING_CONSTRAINT;
         pathEndDistanceConstraint = PATH_END_DISTANCE_CONSTRAINT;
+        holdPointScaleFactor = HOLD_POINT_SCALE_FACTOR;
         maxPower = 1.0;
         holdPoint = true;
         currentPath = null;

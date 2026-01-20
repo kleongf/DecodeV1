@@ -45,18 +45,6 @@ public class BlueClose21PPNew extends OpMode {
                 new Pose(54, 90, Math.toRadians(-110))
         ).setTangent(false);
 
-        intakeGate1 = new PPPath(
-                PoseConstants.BLUE_SHOOT_AUTO_POSE,
-                new Pose(49.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY(), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading()),
-                PoseConstants.BLUE_GATE_AUTO_POSE
-        ).setTangent(false);
-
-
-        shootGate1 = new PPPath(
-                PoseConstants.BLUE_GATE_AUTO_POSE,
-                PoseConstants.BLUE_SHOOT_AUTO_POSE
-        ).setTangent(false);
-
         intakeSecond = new PPPath(
                 new Pose(54, 90, Math.toRadians(-110)),
                 new Pose(45, 60),
@@ -73,7 +61,7 @@ public class BlueClose21PPNew extends OpMode {
                 PoseConstants.BLUE_SHOOT_AUTO_POSE,
                 new Pose(49.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY(), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading()),
                 PoseConstants.BLUE_GATE_AUTO_POSE
-        ).setTangent(false);
+        ).setTangent(false).setHoldPointScaleFactor(2);
 
 
         shootGate1 = new PPPath(
@@ -85,7 +73,7 @@ public class BlueClose21PPNew extends OpMode {
                 PoseConstants.BLUE_SHOOT_AUTO_POSE,
                 new Pose(49.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY(), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading()),
                 PoseConstants.BLUE_GATE_AUTO_POSE
-        ).setTangent(false);
+        ).setTangent(false).setHoldPointScaleFactor(2);
 
 
         shootGate2 = new PPPath(
@@ -97,7 +85,7 @@ public class BlueClose21PPNew extends OpMode {
                 PoseConstants.BLUE_SHOOT_AUTO_POSE,
                 new Pose(49.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY(), PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading()),
                 PoseConstants.BLUE_GATE_AUTO_POSE
-        ).setTangent(false);
+        ).setTangent(false).setHoldPointScaleFactor(2);
 
 
         shootGate3 = new PPPath(
