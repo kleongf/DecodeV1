@@ -13,7 +13,7 @@ public class CustomLocalizer {
     public static double forwardY = -4.35;
     public static double strafeX = -2.5197;
     public CustomLocalizer(HardwareMap hardwareMap, boolean resetPos) {
-        odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
+        odo = hardwareMap.get(GoBildaPinpointDriver.class,"pinpoint");
         odo.setOffsets(strafeX, forwardY, DistanceUnit.INCH); // replace with vals
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);

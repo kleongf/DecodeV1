@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 import org.firstinspires.ftc.teamcode.util.purepursuit2.PPFollower;
 import org.firstinspires.ftc.teamcode.util.purepursuit2.PPPath;
 
-@Autonomous(name="BLUE CLOSE 21 PP (NEW VERSION!)", group="!")
+@Autonomous(name="BLUE CLOSE 21 PP (NEW VERSION!)", group="tests")
 public class BlueClose21PPNew extends OpMode {
     // this auto can be optimized further by turning on sotm and shooting instantly. all optimizations should be done in this file.
     private PPFollower follower;
