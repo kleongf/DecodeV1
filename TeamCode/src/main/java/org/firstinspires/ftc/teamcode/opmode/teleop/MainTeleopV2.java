@@ -38,7 +38,7 @@ public class MainTeleopV2 {
     private SmartGamepad gp1;
     private Gamepad gamepad1;
     public SOTM sotm;
-    private boolean automateRobot = true;
+    private boolean automateRobot = false;
     private Telemetry telemetry;
     private Alliance alliance;
 

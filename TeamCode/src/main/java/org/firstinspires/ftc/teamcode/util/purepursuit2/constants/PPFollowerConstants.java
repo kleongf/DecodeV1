@@ -8,9 +8,9 @@ public class PPFollowerConstants {
     public static double FRICTION_CONSTANT = 0.15;
     public static double NOMINAL_VOLTAGE = 12.7;
     public static double HOLD_POINT_SCALE_FACTOR = 0.3;
-    public static double PATH_END_SPEED_CONSTRAINT = 2;
-    public static double PATH_END_HEADING_CONSTRAINT = Math.toRadians(2);
-    public static double PATH_END_DISTANCE_CONSTRAINT = 2;
+    public static double PATH_END_SPEED_CONSTRAINT = 4;
+    public static double PATH_END_HEADING_CONSTRAINT = Math.toRadians(4);
+    public static double PATH_END_DISTANCE_CONSTRAINT = 4;
     public static double LOOK_AHEAD_DISTANCE = 10;
     public static double MAX_VELOCITY = 60; // 60 in/s
     public static double MAX_ACCELERATION = 150; // in/s^2, same as deceleration

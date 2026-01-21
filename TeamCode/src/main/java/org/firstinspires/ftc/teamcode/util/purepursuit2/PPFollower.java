@@ -73,15 +73,16 @@ public class PPFollower {
     private double holdPointScaleFactor;
     private double lastTimeStamp = 0;
     private double kp_x = 0.06;
-    private double kd_x = 0.002;
+    private double kd_x = 0.003;
     private double kp_y = 0.03;
-    private double kd_y = 0.001;
+    private double kd_y = 0.0015;
     private double kp_heading = 1.5;
     private double kd_heading = 0.03;
     private double lastHeadingError = 0;
     private double lastXError = 0;
     private double lastYError = 0;
     private double period = 0.03;
+    private double kS = 0.1;
 
     public PPFollower(HardwareMap hardwareMap) {
         this.localizer = new PPLocalizer(hardwareMap);
@@ -415,6 +416,7 @@ public class PPFollower {
 //        if (Math.abs(xVel) > maxVX) {
 //            xPower += kBrakeX * -Math.abs(xVel) * xVel; // brake, so that we go in opposite direction
 //        }
+        // turned this off for now
         xPower += kBrakeX * -Math.abs(xVel) * xVel; // brake, so that we go in opposite direction
         yPower += kBrakeY * -Math.abs(yVel) * yVel; // brake, so that we go in opposite direction
 
@@ -429,6 +431,8 @@ public class PPFollower {
             yPower /= total;
             headingPower /= total;
         }
+        xPower += kS * Math.signum(xPower);
+        yPower += kS * Math.signum(yPower);
 
         lastXError = robotErrX;
         lastYError = robotErrY;

@@ -22,7 +22,7 @@ public class Intake extends Subsystem {
         INTAKE_SLOW,
         INTAKE_OFF
     }
-    public double CURRENT_LIMIT = 3.0; // 3 amps
+    public double CURRENT_LIMIT = 6.0; // 6 amps
 
     public IntakeState state = IntakeState.INTAKE_OFF;
     public DcMotorEx intakeMotor;
@@ -79,15 +79,15 @@ public class Intake extends Subsystem {
     }
     // TODO: DO WHEN WE GET THE THE SENSOR
     public boolean intakeFull() {
-        return false;
+        // return false;
         // return !top.getState() && !middle.getState() && !bottom.getState();
         // ah yes don't you just love my naming conventions?
         // we are checking this first, because there has to be a certain number of currents first
 
-//        if (rollingCurrents.size() >= 7) {
-//            boolean rollingCurrentIsHigh = rollingCurrents.stream().allMatch(n -> n > CURRENT_LIMIT);
-//            return rollingCurrentIsHigh;
-//        }
-//        return false;
+        if (rollingCurrents.size() >= 6) {
+            boolean rollingCurrentIsHigh = rollingCurrents.stream().allMatch(n -> n > CURRENT_LIMIT);
+            return rollingCurrentIsHigh;
+        }
+        return false;
     }
 }
