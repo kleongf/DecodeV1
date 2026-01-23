@@ -30,9 +30,9 @@ public class SpecializedDrivetrain {
     private ElapsedTime kickTimer;
     private double MAX_ACCELERATION = 150;
     private double MIN_DISTANCE_TO_END = 10;
-    private double END_DISTANCE_CONSTRAINT = 2;
-    private double END_VELOCITY_CONSTRAINT = 2;
-    private double END_HEADING_CONSTRAINT = Math.toRadians(2);
+    private double END_DISTANCE_CONSTRAINT = 4;
+    private double END_VELOCITY_CONSTRAINT = 4;
+    private double END_HEADING_CONSTRAINT = Math.toRadians(4);
     private Pose goalPose;
     private SimplePathChain currentPath;
     private int currentPathIndex;
@@ -40,7 +40,8 @@ public class SpecializedDrivetrain {
     private DrivetrainState state = DrivetrainState.TELEOP_DRIVE;
     private DcMotorEx fl, bl, fr, br;
     private HardwareMap hardwareMap;
-    public VoltageCompFollower follower;
+    // public VoltageCompFollower follower;
+    public CustomLocalizer follower;
     private double targetHeading = 0;
     private double kp = 0.4;
     private double kd = 0.015;
@@ -76,8 +77,8 @@ public class SpecializedDrivetrain {
         fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
-        follower.setStartingPose(new Pose(0, 0, Math.toRadians(0)));
+        follower = new CustomLocalizer(hardwareMap, false);
+        // follower.setStartingPose(new Pose(0, 0, Math.toRadians(0)));
         kickTimer = new ElapsedTime();
     }
 
@@ -128,7 +129,7 @@ public class SpecializedDrivetrain {
     }
 
     public void setStartingPose(Pose p) {
-        follower.setStartingPose(p);
+        follower.setStartPose(p);
         targetHeading = p.getHeading();
         currentPose = p;
     }

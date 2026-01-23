@@ -65,13 +65,15 @@ public class Intake extends Subsystem {
                 intakeMotor.setPower(1);
                 break;
             case INTAKE_SLOW:
-                intakeMotor.setPower(0.85);
+                intakeMotor.setPower(0.75);
                 break;
             case INTAKE_OFF:
                 intakeMotor.setPower(0);
                 break;
         }
     }
+
+    public boolean stalling() {return intakeMotor.getCurrent(CurrentUnit.AMPS) > CURRENT_LIMIT;}
 
     @Override
     public void start() {

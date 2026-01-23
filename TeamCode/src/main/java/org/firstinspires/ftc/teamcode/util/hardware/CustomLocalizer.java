@@ -41,4 +41,8 @@ public class CustomLocalizer {
     public void update() {
         odo.update();
     }
+
+    public void setPose(Pose pose) {
+        odo.setPosition(new Pose2D(DistanceUnit.INCH, pose.getX(), pose.getY(), AngleUnit.RADIANS, pose.getHeading()));
+    }
 }

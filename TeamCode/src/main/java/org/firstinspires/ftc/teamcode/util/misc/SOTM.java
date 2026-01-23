@@ -5,6 +5,7 @@ import com.pedropathing.pathgen.MathFunctions;
 import com.pedropathing.pathgen.Vector;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class SOTM {
@@ -150,6 +151,15 @@ public class SOTM {
         // 3. multiply by R/r because it is the ball's velocity, not the wheel
         return (x * (2 * Math.PI) / 28) * (radius) * (radius / radiusBall);
     }
+    // new idea:
+    // we know that velocity cannot change much. have it be a very high number or something.
+    // find an min angle, theta, where the ball can reach the target AND the y-value is high enough to be above the classifier
+    // we start with a less than ideal velocity, and find a better one i guess
+
+    // we will call simulateProjectileTOF() with the same velocity. except dt will be 0.01 for better computation.
+    // loop through the nearest 15 degrees of angle
+    // find the lowest that works.
+
     private double calculateAngle(double v, double x, double y) {
         // only concern is square root discriminant. if negative, no solution
         double numerator = Math.pow(v, 2) - Math.sqrt(Math.pow(v, 4) - (Math.pow(9.81, 2) * Math.pow(x, 2)) - 2 * y * Math.pow(v, 2));

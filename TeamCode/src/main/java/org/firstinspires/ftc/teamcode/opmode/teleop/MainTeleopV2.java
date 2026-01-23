@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
 import org.firstinspires.ftc.teamcode.robot.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.robot.robots.TeleopRobot;
+import org.firstinspires.ftc.teamcode.robot.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.hardware.SimplePath;
 import org.firstinspires.ftc.teamcode.util.hardware.SimplePathChain;
 import org.firstinspires.ftc.teamcode.util.hardware.SmartGamepad;
@@ -42,12 +43,14 @@ public class MainTeleopV2 {
     private Telemetry telemetry;
     private Alliance alliance;
 
-    public MainTeleopV2(Pose startPose, Pose goalPose, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, boolean resetEncoder) {
+    public MainTeleopV2(Pose startPose, Pose goalPose, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, boolean resetEncoders) {
         drivetrain = new SpecializedDrivetrain(hardwareMap);
-        drivetrain.setStartingPose(startPose);
 
         robot = new TeleopRobot(hardwareMap);
-        if (resetEncoder) {robot.turret.resetEncoder();}
+        if (resetEncoders) {
+            robot.turret.resetEncoder();
+            drivetrain.setStartingPose(startPose);
+        }
 
         this.gamepad1 = gamepad1;
         this.telemetry = telemetry;
@@ -55,6 +58,7 @@ public class MainTeleopV2 {
         gp1 = new SmartGamepad(gamepad1);
 
         sotm = new SOTM(goalPose);
+        // this can be changed
         closestPoint = new ClosestPoint(ClosestPoint.ClosestPointType.CLOSE);
 
         this.parkPose = alliance == Alliance.BLUE ? PoseConstants.BLUE_PARK_POSE :  PoseConstants.RED_PARK_POSE;
@@ -77,6 +81,12 @@ public class MainTeleopV2 {
             robotState = RobotState.IDLE;
         } else {
             robotState = RobotState.SHOOTING;
+        }
+
+        if (robotState == RobotState.IDLE && robot.intake.stalling()) {
+            robot.intake.state = Intake.IntakeState.INTAKE_SLOW;
+        } else if (robotState == RobotState.IDLE && !robot.intake.stalling()) {
+            robot.intake.state = Intake.IntakeState.INTAKE_FAST;
         }
 
         if (automateRobot) {
@@ -164,9 +174,9 @@ public class MainTeleopV2 {
         // relocalization
         if (gp1.dpadUpPressed()) {
             if (alliance == Alliance.BLUE) {
-                drivetrain.follower.setCurrentPoseWithOffset(new Pose(136.5, 6, Math.toRadians(90)));
+                drivetrain.follower.setPose(new Pose(136.5, 6, Math.toRadians(90)));
             } else {
-                drivetrain.follower.setCurrentPoseWithOffset(new Pose(7.5, 6, Math.toRadians(90)));
+                drivetrain.follower.setPose(new Pose(7.5, 6, Math.toRadians(90)));
             }
         }
 
@@ -174,7 +184,7 @@ public class MainTeleopV2 {
             Pose llPose = robot.limelightLocalizer.getCurrentPose(drivetrain.follower.getPose());
             if (llPose.getX() != drivetrain.follower.getPose().getX() && llPose.getY() != drivetrain.follower.getPose().getY()) {
                 gamepad1.rumble(300);
-                drivetrain.follower.setCurrentPoseWithOffset(llPose);
+                drivetrain.follower.setPose(llPose);
             }
         }
 

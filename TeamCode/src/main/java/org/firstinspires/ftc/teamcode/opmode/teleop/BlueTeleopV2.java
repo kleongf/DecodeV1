@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robot.constants.PoseConstants;
 
-@TeleOp(name="Blue Teleop V2 (no blackboard)", group="!")
+@TeleOp(name="Blue Teleop V2 (reset encoders)", group="!")
 public class BlueTeleopV2 extends OpMode {
     private MainTeleopV2 teleop;
     private Pose startPose = PoseConstants.BLUE_FAR_AUTO_POSE;

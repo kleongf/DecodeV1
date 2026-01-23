@@ -234,7 +234,7 @@ public class BlueCompClose21 extends OpMode {
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1000),
+                        .maxTime(1200),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -257,7 +257,7 @@ public class BlueCompClose21 extends OpMode {
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1200),
+                        .maxTime(1500),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -281,7 +281,7 @@ public class BlueCompClose21 extends OpMode {
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1400),
+                        .maxTime(1700),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1); // bruh i ran 0.8 power on that path
