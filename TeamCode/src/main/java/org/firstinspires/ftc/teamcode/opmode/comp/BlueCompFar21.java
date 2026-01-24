@@ -168,14 +168,14 @@ public class BlueCompFar21 extends OpMode {
         intakeCorner = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(50, 9),
-                                new Pose(9, 9)
+                                new Pose(10, 9)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         shootCorner = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(9, 9),
+                                new Pose(10, 9),
                                 new Pose(50, 9)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))

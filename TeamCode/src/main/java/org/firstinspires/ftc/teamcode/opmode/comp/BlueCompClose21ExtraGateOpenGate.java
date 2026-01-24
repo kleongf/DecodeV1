@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.util.fsm.Transition;
 import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 
-@Autonomous(name="BLUE COMP CLOSE 21 EXTRA GATE OPEN GATE", group="!")
+@Autonomous(name="BLUE COMP CLOSE 21 EXTRA GATE OPEN GATE", group="?")
 public class BlueCompClose21ExtraGateOpenGate extends OpMode {
     private VoltageCompFollower follower;
     private StateMachine stateMachine;

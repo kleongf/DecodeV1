@@ -17,6 +17,7 @@ public class SOTM {
     public double timeScaleFactor = 2.4;
     public double constantTimeFactor = 0.05;
     public double offsetFactor = 0.12; // think i found it! after doing some algebra
+    private double MAX_ITERATIONS = 67;
     public double radialVelocityScaleFactor = 1.2; // made to match the timeScale b/c if we're using bad physics we may as well use it for both right?
 
     public SOTM(Pose goal) {
@@ -64,9 +65,21 @@ public class SOTM {
         return (ticksPerSecond * 2 * Math.PI / 28.0) * radius * (39.3701);
     }
 
+    private double calculateTicksPerSecond(double linearVelocityInches) {
+        return linearVelocityInches / ((2 * Math.PI / 28.0) * radius * 39.3701);
+    }
+
+
     private double calculateLinearVelocityMeters(double ticksPerSecond) {
         return (ticksPerSecond * 2 * Math.PI / 28.0) * radius;
     }
+    // how to make a SOTM tha accounts for the velocity with the hood instead of the speed, since speed can't update that quickly?
+    // find the angle that increases the x velocity by the desired amount?
+    // ex: velocity of wheel x = cos(angle) * wheel vel
+    // x' = cos(theta') * wheel vel = x + extra v
+    // so we have: x cos (thata') = x cos (theta) + extra v
+    // theta' = cos^-1 (cos(theta)+extra v / x)
+
     public double[] calculateAzimuthThetaVelocity(Pose robotPose, Vector robotVelocity) {
         double dx = goal.getX() - robotPose.getX();
         double dy = goal.getY() - robotPose.getY();
@@ -88,10 +101,13 @@ public class SOTM {
 
         // now subtract it from the velocity
         // v = r * omega, omega = v (inches to meters) / r (meters) -> divide by 2pi and the multiply by 28. also account for angle
+        double theta = thetaLUT.getValue(dist);
+        // double newTheta = Math.acos(Math.cos(theta) + (radialVelocityScaleFactor * velToGoal/dist)) - Math.toRadians(34); // all in inches so its fine
 
         double inchesToTicks = radialVelocityScaleFactor * (velToGoal * (1/39.3701) / radius) / (2 * Math.PI) * 28 * (1/Math.cos(Math.toRadians(28)+thetaLUT.getValue(dist))); // (1/Math.cos(Math.toRadians(20)+thetaLUT.getValue(dist)))
 
         double velocity = velocityLUT.getValue(dist) - inchesToTicks;
+        // double velocity = velocityLUT.getValue(dist);
         // 0.2s before shooting: always
 
         double timestep = constantTimeFactor + timeScaleFactor * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(34))));
@@ -105,6 +121,8 @@ public class SOTM {
         System.out.println("timestep: " + timestep);
         System.out.println("Tangential X: " + vTangential.getXComponent());
         System.out.println("Tangential Y: " + vTangential.getYComponent());
+        // TODO: idea: offset is a bigger problem at far distances (more emphasized), what if we divide offset by distance at the end?
+        // this would make more sense... given that it is based on arc length
         double offset = isBlue ? (angleToGoal - Math.PI / 4) * offsetFactor : (angleToGoal + Math.PI / 4) * offsetFactor;
 
         // double offset = isBlue ? (angleToGoal - Math.PI / 4) * offsetFactor : (angleToGoal + Math.PI / 4) * offsetFactor;
@@ -114,7 +132,6 @@ public class SOTM {
         // for red it is from the negative 45 i think, and let's offset everything my like 6-7% as a test
 
         double azimuth = Math.atan2(-(dx-vTangential.getXComponent()*timestep), (dy-vTangential.getYComponent()*timestep)) - robotPose.getHeading() + Math.toRadians(90) + offset;
-        double theta = thetaLUT.getValue(dist);
 
 //        double newX = robotPose.getX()-timestep*u.getXComponent();
 //        double newY = robotPose.getY()-timestep*u.getYComponent();
@@ -132,6 +149,104 @@ public class SOTM {
         // return new double[] {azimuthN, thetaN, velocityN};
 
         return new double[] {azimuth, theta, velocity};
+    }
+
+    public double[] calculateAzimuthThetaVelocity(Pose robotPose, Vector robotVelocity, double currentShooterVelocity) {
+        double dx = goal.getX() - robotPose.getX();
+        double dy = goal.getY() - robotPose.getY();
+        double dist = Math.hypot(dx, dy);
+
+        boolean isBlue = goal.getX() == 0;
+        Vector v = com.pedropathing.pathgen.MathFunctions.subtractVectors(goal.getVector(), robotPose.getVector());
+        Vector u = robotVelocity;
+
+        // (u ⋅ v / |v|²) * v
+        Vector projuv = com.pedropathing.pathgen.MathFunctions.scalarMultiplyVector(v, com.pedropathing.pathgen.MathFunctions.dotProduct(u, v) / com.pedropathing.pathgen.MathFunctions.dotProduct(v, v));
+
+        // get the tangential component
+        Vector vTangential = MathFunctions.subtractVectors(u, projuv);
+
+        // if the vectors are in the same direction, then we should subtract the radial velocity
+        // vectors are in the same direction if their dot product is positive, so dot it with the goal vector.
+        double velToGoal = MathFunctions.dotProduct(projuv, v) > 0 ? projuv.getMagnitude() : -projuv.getMagnitude();
+
+        // now subtract it from the velocity
+        // v = r * omega, omega = v (inches to meters) / r (meters) -> divide by 2pi and the multiply by 28. also account for angle
+        double thetaOut;
+        double velocity = velocityLUT.getValue(dist);
+        double theta = thetaLUT.getValue(dist) + Math.toRadians(34);
+        double wheelVelocityInches = calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(theta);
+
+        // check if in the domain of arccos so we don't error.
+        // update the angle based on velocity to goal. hopefully it works.
+
+        // on some intervals of velocity, adjusting the angle is not enough
+        // TODO: NEED TO UPDATE NEW HOOD ANGLES. THE RANGE IS DIFFERENT NOW
+        // the min angle is 34, the max angle is 49 -> 0 to 15
+        // logic: if thetaOut < 0: solve for thetaOut = 0 (34 deg), and find a target wheelVelocityInches, convert to ticks
+
+        // if its less than 0 then that means that velocity is too high
+        // if it greater than 49 then velocity is too low.
+
+        // it is a function of multiple variables: theta and wheel velocity. don't think this is really easily solvable
+        // lowkey just use for loop, plug in, keep constraints. loop every like 10 ticks or something
+
+
+        if (Math.abs(Math.cos(theta) + radialVelocityScaleFactor * velToGoal/wheelVelocityInches) < 1) {
+            thetaOut = Math.acos(Math.cos(theta) + (radialVelocityScaleFactor * velToGoal/wheelVelocityInches)) - Math.toRadians(34);
+            // if its less than 0 then that means that velocity is too high
+            if (thetaOut < 0) {
+                for (int i = 0; i < MAX_ITERATIONS; i++) {
+                    double wvIn = calculateLinearVelocityInches(velocityLUT.getValue(dist) - 10 * i) * Math.cos(theta);
+                    thetaOut = Math.acos(Math.cos(theta) + (radialVelocityScaleFactor * velToGoal/wvIn)) - Math.toRadians(34);
+                    if (thetaOut > 0) {
+                        velocity = calculateTicksPerSecond(wvIn) / Math.cos(theta);
+                        break;
+                    }
+                    if (i > 65) {
+                        // fallback
+                        thetaOut = thetaLUT.getValue(dist);
+                    }
+                }
+            } else if (thetaOut > 15) { // if it greater than 49 then velocity is too low.
+                for (int i = 0; i < MAX_ITERATIONS; i++) {
+                    double wvIn = calculateLinearVelocityInches(velocityLUT.getValue(dist) + 10 * i) * Math.cos(theta);
+                    thetaOut = Math.acos(Math.cos(theta) + (radialVelocityScaleFactor * velToGoal/wvIn)) - Math.toRadians(34);
+                    if (thetaOut < 15) {
+                        velocity = calculateTicksPerSecond(wvIn) / Math.cos(theta);
+                        break;
+                    }
+                    if (i > 65) {
+                        // fallback
+                        thetaOut = thetaLUT.getValue(dist);
+                    }
+                }
+            }
+
+        } else {
+            thetaOut = thetaLUT.getValue(dist);
+        }
+
+        double timestep = constantTimeFactor + timeScaleFactor * (dist / (calculateLinearVelocityInches(velocityLUT.getValue(dist)) * Math.cos(thetaLUT.getValue(dist)+Math.toRadians(34))));
+
+        // blue perspective:
+        // pure angle to goal. from small angles, it overshoots to the left (from blue perspective this is positive turret),
+        double angleToGoal = Math.atan2(-(dx-vTangential.getXComponent()*timestep), (dy-vTangential.getYComponent()*timestep));
+
+        // TODO: idea: offset is a bigger problem at far distances (more emphasized), what if we divide offset by distance at the end?
+        // this would make more sense... given that it is based on arc length
+        double offset;
+        if (dist > 0) {
+            offset = isBlue ? ((angleToGoal - Math.PI / 4) / dist) * offsetFactor : ((angleToGoal + Math.PI / 4) / dist) * offsetFactor;
+        } else {
+            // in case pinpoint gives a weird coord in div 0 err
+            offset = isBlue ? ((angleToGoal - Math.PI / 4)) * offsetFactor : ((angleToGoal + Math.PI / 4)) * offsetFactor;
+        }
+
+
+        double azimuth = Math.atan2(-(dx-vTangential.getXComponent()*timestep), (dy-vTangential.getYComponent()*timestep)) - robotPose.getHeading() + Math.toRadians(90) + offset;
+
+        return new double[] {azimuth, thetaOut, velocity};
     }
 
     private List<Integer> findALlOccurences(List<String> motif, String target) {

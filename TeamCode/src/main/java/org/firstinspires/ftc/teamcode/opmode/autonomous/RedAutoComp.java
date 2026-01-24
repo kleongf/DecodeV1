@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmode.comp;
+package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
 import static java.lang.Thread.sleep;
 import com.pedropathing.localization.Pose;
