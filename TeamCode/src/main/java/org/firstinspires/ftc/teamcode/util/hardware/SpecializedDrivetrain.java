@@ -41,7 +41,7 @@ public class SpecializedDrivetrain {
     private DcMotorEx fl, bl, fr, br;
     private HardwareMap hardwareMap;
     // public VoltageCompFollower follower;
-    public CustomLocalizer follower;
+    public VoltageCompFollower follower;
     private double targetHeading = 0;
     private double kp = 0.4;
     private double kd = 0.015;
@@ -77,8 +77,8 @@ public class SpecializedDrivetrain {
         fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        follower = new CustomLocalizer(hardwareMap, false);
-        // follower.setStartingPose(new Pose(0, 0, Math.toRadians(0)));
+        follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
+        follower.setStartingPose(new Pose(0, 0, Math.toRadians(0)));
         kickTimer = new ElapsedTime();
     }
 
@@ -129,7 +129,7 @@ public class SpecializedDrivetrain {
     }
 
     public void setStartingPose(Pose p) {
-        follower.setStartPose(p);
+        follower.setStartingPose(p);
         targetHeading = p.getHeading();
         currentPose = p;
     }

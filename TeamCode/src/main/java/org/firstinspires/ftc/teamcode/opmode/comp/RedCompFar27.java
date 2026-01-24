@@ -24,138 +24,138 @@ import org.firstinspires.ftc.teamcode.util.misc.SOTM;
 import org.firstinspires.ftc.teamcode.util.misc.VoltageCompFollower;
 import org.firstinspires.ftc.teamcode.util.purepursuit2.MathUtil;
 
-@Autonomous(name="BLUE COMP FAR 27", group="!")
-public class BlueCompFar27 extends OpMode {
+@Autonomous(name="RED COMP FAR 27", group="!")
+public class RedCompFar27 extends OpMode {
     private VoltageCompFollower follower;
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM sotm2;
-    private final Pose startPose = new Pose(42.65,9,Math.toRadians(180));
-    private Pose shootPose = new Pose(42.65,9,Math.toRadians(180));
-    private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
+    private final Pose startPose = new Pose(144-42.65,9,Math.toRadians(180) - Math.toRadians(180));
+    private Pose shootPose = new Pose(144-42.65,9,Math.toRadians(180) - Math.toRadians(180));
+    private final Pose goalPose = PoseConstants.RED_GOAL_POSE;
     private PathChain intakeCorner, shootCorner, intakeThird, shootThird, intakePile1, shootPile1, intakePile2, shootPile2, intakePile3, shootPile3, intakePile4, shootPile4, intakePile5, shootPile5, intakePile6, shootPile6, intakePile7, shootPile7, park;
     public void buildPaths() {
 
         intakeCorner = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(42.65000, 9.000), new Pose(12.000, 9.000)))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addPath(new BezierLine(new Pose(144-42.65000, 9.000), new Pose(144-12.000, 9.000)))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .setZeroPowerAccelerationMultiplier(3)
                 .build();
         shootCorner = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(12.000, 9.000), new Pose(46,9)))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addPath(new BezierLine(new Pose(144-12.000, 9.000), new Pose(144-46,9)))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
         intakeThird = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(46,9),
-                                new Pose(40.000, 36.000),
-                                new Pose(38.000, 36.000),
-                                new Pose(13.000, 36.000)
+                                new Pose(144-46,9),
+                                new Pose(144-40.000, 36.000),
+                                new Pose(144-38.000, 36.000),
+                                new Pose(144-13.000, 36.000)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .build();
 
         shootThird = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(13.000, 36.000), new Pose(46, 9))
+                        new BezierLine(new Pose(144-13.000, 36.000), new Pose(144-46, 9))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .setZeroPowerAccelerationMultiplier(3)
                 .build();
 
         intakePile1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(46, 9),
-                                new Pose(9.000, 9)
+                                new Pose(144-46, 9),
+                                new Pose(144-12.000, 9)
                         )
                 )
                 .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .build();
 
         intakePile2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(46, 9),
-                                new Pose(9.000, 9)
+                                new Pose(144-46, 9),
+                                new Pose(144-12.000, 9)
                         )
                 )
                 .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .build();
 
         intakePile3 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(46, 9),
-                                new Pose(9.000, 9)
+                                new Pose(144-46, 9),
+                                new Pose(144-12.000, 9)
                         )
                 )
                 .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .build();
 
         intakePile4 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(46, 9),
-                                new Pose(9.000, 9)
+                                new Pose(144-46, 9),
+                                new Pose(144-12.000, 9)
                         )
                 )
                 .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .build();
 
         intakePile5 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(46, 9),
-                                new Pose(9.000, 9)
+                                new Pose(144-46, 9),
+                                new Pose(144-12.000, 9)
                         )
                 )
                 .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .setPathEndTValueConstraint(0.9)
                 .build();
 
         intakePile6 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(46, 9),
-                                new Pose(9.000, 9)
+                                new Pose(144-46, 9),
+                                new Pose(144-12.000, 9)
                         )
                 )
                 .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .setPathEndTValueConstraint(0.9)
                 .build();
 
         intakePile7 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(46, 9),
-                                new Pose(9.000, 9)
+                                new Pose(144-46, 9),
+                                new Pose(144-12.000, 9)
                         )
                 )
                 .setZeroPowerAccelerationMultiplier(3)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .build();
 
         park = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(46, 9),
-                                new Pose(36, 12)
+                                new Pose(144-46, 9),
+                                new Pose(144-36, 12)
                         )
                 )
                 .setZeroPowerAccelerationMultiplier(1)
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                 .build();
     }
 
@@ -163,7 +163,7 @@ public class BlueCompFar27 extends OpMode {
     public void init() {
         follower = new VoltageCompFollower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
-        robot = new AutonomousRobot(hardwareMap, Alliance.BLUE);
+        robot = new AutonomousRobot(hardwareMap, Alliance.RED);
         sotm2 = new SOTM(goalPose);
         buildPaths();
 
@@ -183,7 +183,7 @@ public class BlueCompFar27 extends OpMode {
                         .onEnter(() -> {
                             robot.intakeCommand.start();
                             follower.followPath(intakeCorner, false);
-                            shootPose = new Pose(46, 9, Math.toRadians(180));
+                            shootPose = new Pose(144-46, 9, Math.toRadians(180) - Math.toRadians(180));
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -212,7 +212,7 @@ public class BlueCompFar27 extends OpMode {
                             follower.followPath(intakePile1, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -221,13 +221,13 @@ public class BlueCompFar27 extends OpMode {
                             intakePile1 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(144-currentX, 9),
+                                                    new Pose(144-(currentX-4), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144- (currentX-6), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144 - 12, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setPathEndVelocityConstraint(20)
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndHeadingConstraint(Math.toRadians(5))
@@ -236,18 +236,17 @@ public class BlueCompFar27 extends OpMode {
                             shootPile1 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(46, 9)
+                                                    new Pose(144-12, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144-46, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
                             follower.followPath(intakePile1, false);
                         })
                         // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
-                        .maxTime(2000)
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile1, true))
@@ -262,7 +261,7 @@ public class BlueCompFar27 extends OpMode {
                             follower.followPath(intakePile2, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -271,13 +270,13 @@ public class BlueCompFar27 extends OpMode {
                             intakePile2 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(144-currentX, 9),
+                                                    new Pose(144-(currentX-4), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144- (currentX-6), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144 - 12, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setPathEndVelocityConstraint(20)
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndHeadingConstraint(Math.toRadians(5))
@@ -286,18 +285,18 @@ public class BlueCompFar27 extends OpMode {
                             shootPile2 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(46, 9)
+                                                    new Pose(144-12, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144-46, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
+
                             follower.breakFollowing();
                             follower.followPath(intakePile2, false);
                         })
                         // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
-                        .maxTime(2000)
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile2, true))
@@ -312,7 +311,7 @@ public class BlueCompFar27 extends OpMode {
                             follower.followPath(intakePile3, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -321,13 +320,13 @@ public class BlueCompFar27 extends OpMode {
                             intakePile3 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(144-currentX, 9),
+                                                    new Pose(144-(currentX-4), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144- (currentX-6), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144 - 12, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setPathEndVelocityConstraint(20)
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndHeadingConstraint(Math.toRadians(5))
@@ -336,18 +335,17 @@ public class BlueCompFar27 extends OpMode {
                             shootPile3 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(46, 9)
+                                                    new Pose(144-12, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144-46, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
                             follower.followPath(intakePile3, false);
                         })
                         // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
-                        .maxTime(2000)
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile3, true))
@@ -362,7 +360,7 @@ public class BlueCompFar27 extends OpMode {
                             follower.followPath(intakePile4, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -371,13 +369,13 @@ public class BlueCompFar27 extends OpMode {
                             intakePile4 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(144-currentX, 9),
+                                                    new Pose(144-(currentX-4), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144- (currentX-6), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144 - 12, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setPathEndVelocityConstraint(20)
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndHeadingConstraint(Math.toRadians(5))
@@ -386,18 +384,17 @@ public class BlueCompFar27 extends OpMode {
                             shootPile4 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(46, 9)
+                                                    new Pose(144-12, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144-46, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
                             follower.followPath(intakePile4, false);
                         })
                         // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
-                        .maxTime(2000)
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile4, true))
@@ -412,7 +409,7 @@ public class BlueCompFar27 extends OpMode {
                             follower.followPath(intakePile5, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -421,13 +418,13 @@ public class BlueCompFar27 extends OpMode {
                             intakePile5 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(144-currentX, 9),
+                                                    new Pose(144-(currentX-4), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144- (currentX-6), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144 - 12, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setPathEndVelocityConstraint(20)
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndHeadingConstraint(Math.toRadians(5))
@@ -436,17 +433,16 @@ public class BlueCompFar27 extends OpMode {
                             shootPile5 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(46, 9)
+                                                    new Pose(144-12, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144-46, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
                             follower.followPath(intakePile5, false);
                         })
-                        .maxTime(2000)
                         // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -462,7 +458,7 @@ public class BlueCompFar27 extends OpMode {
                             follower.followPath(intakePile6, false);
                         })
                         // iteration 1: updating ONCE! not multiple times, so we go to corner originally
-                        .transition(new Transition(() -> follower.getPose().getX() < 30)),
+                        .transition(new Transition(() -> follower.getPose().getX() > 144-30)),
                 new State()
                         .onEnter(() -> {
                             double optimalX = robot.vision.getLargestClusterX();
@@ -471,13 +467,13 @@ public class BlueCompFar27 extends OpMode {
                             intakePile6 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(currentX, 9),
-                                                    new Pose(currentX-4, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(currentX-6, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40))
+                                                    new Pose(144-currentX, 9),
+                                                    new Pose(144-(currentX-4), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144- (currentX-6), MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144 - 12, MathUtil.clamp(currentY+optimalX, 9, 40))
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setPathEndVelocityConstraint(20)
                                     .setPathEndTValueConstraint(0.9)
                                     .setPathEndHeadingConstraint(Math.toRadians(5))
@@ -486,18 +482,17 @@ public class BlueCompFar27 extends OpMode {
                             shootPile6 = follower.pathBuilder()
                                     .addPath(
                                             new BezierCurve(
-                                                    new Pose(12, MathUtil.clamp(currentY+optimalX, 9, 40)),
-                                                    new Pose(46, 9)
+                                                    new Pose(144-12, MathUtil.clamp(currentY+optimalX, 9, 40)),
+                                                    new Pose(144-46, 9)
                                             )
                                     )
-                                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                                    .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(180))
                                     .setZeroPowerAccelerationMultiplier(3)
                                     .build();
                             follower.breakFollowing();
                             follower.followPath(intakePile6, false);
                         })
                         // iteration 3: just go till the end, the intake is literally like 10 inches away so it shouldnt move much
-                        .maxTime(2000)
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> follower.followPath(shootPile6, true))
@@ -542,9 +537,9 @@ public class BlueCompFar27 extends OpMode {
     @Override
     public void start() {
         // setting pid coefficients to brake better
-        follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0006,0.6,0.0));
-        follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.018,0.00,0.0007,0.6,0.0));
-        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(42.65, 9, Math.toRadians(180)), new Vector());
+        follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0005,0.6,0.0));
+        follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0.00,0.00075,0.6,0.0));
+        double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-42.65, 9, Math.toRadians(180) - Math.toRadians(180)), new Vector());
         robot.setAzimuthThetaVelocity(values);
 
         robot.shooter.state = Shooter.ShooterState.SHOOTER_ON;
@@ -558,4 +553,3 @@ public class BlueCompFar27 extends OpMode {
         blackboard.put(RobotConstants.END_POSE_KEY, follower.getPose());
     }
 }
-

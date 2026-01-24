@@ -30,11 +30,13 @@ public class PoseConstants {
     public static Pose RED_END_AUTO_POSE = new Pose(144-54, 115, Math.toRadians(180-(-118)));
     public static Pose BLUE_END_FAR_AUTO_POSE = new Pose(36, 12, Math.toRadians(180));
     public static Pose RED_END_FAR_AUTO_POSE = new Pose(144 - 36, 12, Math.toRadians(180-180));
+    // 144-12.4
 
     // TODO: FIND NEW GATE POSITIONS
     // 14.2 60.4, 147
     public static Pose BLUE_GATE_AUTO_POSE =  new Pose(12.4, 60, Math.toRadians(148));
-    public static Pose RED_GATE_AUTO_POSE = new Pose(12.4, 60, Math.toRadians(180-148));
+    //public static Pose RED_GATE_AUTO_POSE = new Pose(144-12.4, 60, Math.toRadians(180-148));
+    public static Pose RED_GATE_AUTO_POSE = new Pose(127, 59.5, Math.toRadians(180-148));
     public static Pose BLUE_GATE_AUTO_POSE_IN =  new Pose(BLUE_GATE_AUTO_POSE.getX()+Math.cos(BLUE_GATE_AUTO_POSE.getHeading())*DISTANCE_IN, BLUE_GATE_AUTO_POSE.getY()+Math.sin(BLUE_GATE_AUTO_POSE.getHeading())*DISTANCE_IN, BLUE_GATE_AUTO_POSE.getHeading());
     public static Pose RED_GATE_AUTO_POSE_IN =  new Pose(RED_GATE_AUTO_POSE.getX()+Math.cos(RED_GATE_AUTO_POSE.getHeading())*DISTANCE_IN, RED_GATE_AUTO_POSE.getY()+Math.sin(RED_GATE_AUTO_POSE.getHeading())*DISTANCE_IN, RED_GATE_AUTO_POSE.getHeading());
     public static Pose BLUE_SHOOT_AUTO_POSE = new Pose(54, 78, Math.toRadians(148));

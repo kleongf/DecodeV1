@@ -46,10 +46,10 @@ public class MainTeleopV2 {
     public MainTeleopV2(Pose startPose, Pose goalPose, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, boolean resetEncoders) {
         drivetrain = new SpecializedDrivetrain(hardwareMap);
 
+        drivetrain.setStartingPose(startPose);
         robot = new TeleopRobot(hardwareMap);
         if (resetEncoders) {
             robot.turret.resetEncoder();
-            drivetrain.setStartingPose(startPose);
         }
 
         this.gamepad1 = gamepad1;

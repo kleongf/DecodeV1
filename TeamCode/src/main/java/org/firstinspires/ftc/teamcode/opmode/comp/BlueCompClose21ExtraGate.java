@@ -310,7 +310,7 @@ public class BlueCompClose21ExtraGate extends OpMode {
                         .onEnter(() -> {
                             follower.setMaxPower(1);
                             follower.followPath(shootGate4, true);
-                            shootPose = new Pose(54, 84, Math.toRadians(180));
+                            shootPose = new Pose(144-54, 84, Math.toRadians(180) - Math.toRadians(180));
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
