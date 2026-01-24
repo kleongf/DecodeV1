@@ -198,8 +198,6 @@ public class BlueCompClose21 extends OpMode {
                 // preload
                 new State()
                         .onEnter(() -> {
-                            follower.setHeadingPIDF(new CustomPIDFCoefficients(2,0,0.04,0));
-                            follower.setSecondaryHeadingPIDF(new CustomPIDFCoefficients(3,0,0.06,0));
                             follower.followPath(shootPreload, true);
                             robot.intake.state = Intake.IntakeState.INTAKE_SLOW;
                         })
@@ -209,8 +207,8 @@ public class BlueCompClose21 extends OpMode {
                             robot.shootCommand.start();
                             follower.setHeadingPIDF(new CustomPIDFCoefficients(1,0,0.02,0));
                             follower.setSecondaryHeadingPIDF(new CustomPIDFCoefficients(1.5,0,0.04,0));
-//                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0003,0.6,0.0));
-//                            follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0002,0.6,0.0));
+                            follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0003,0.6,0.0));
+                            follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0002,0.6,0.0));
                             // follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0003,0.6,0.0));
                         })
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
@@ -367,8 +365,10 @@ public class BlueCompClose21 extends OpMode {
         robot.setAzimuthThetaVelocity(values);
         robot.shooter.state = Shooter.ShooterState.SHOOTER_ON;
 
-//        follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0005,0.6,0.0));
-//        follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0.00,0.00075,0.6,0.0));
+        follower.setHeadingPIDF(new CustomPIDFCoefficients(2,0,0.04,0));
+        follower.setSecondaryHeadingPIDF(new CustomPIDFCoefficients(3,0,0.06,0));
+        follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0005,0.6,0.0));
+        follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0.00,0.00075,0.6,0.0));
 
         // follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0006,0.6,0.0));
 

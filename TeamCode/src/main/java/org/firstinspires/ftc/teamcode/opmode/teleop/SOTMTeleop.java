@@ -18,10 +18,10 @@ public class SOTMTeleop extends OpMode {
     private MainTeleop teleop;
     private Pose startPose = PoseConstants.BLUE_FAR_AUTO_POSE;
     private Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
-    public static double timeScaleFactor = 2.4;
-    public static double constantTimeScaleFactor = 0.05;
-    public static double offsetFactor = 0.12;
-    public static double radialScaleFactor = 1.2;
+    public static double timeScaleFactor = 2.4; // tune
+    public static double constantTimeScaleFactor = 0.05; // tune
+    public static double offsetFactor = 8.0;
+    public static double radialScaleFactor = 1.2; // tune. this is important one
 
     @Override
     public void init() {

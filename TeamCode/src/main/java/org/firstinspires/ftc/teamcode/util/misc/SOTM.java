@@ -16,7 +16,7 @@ public class SOTM {
     private double radiusBall = 0.06223; // 2.45 in
     public double timeScaleFactor = 2.4;
     public double constantTimeFactor = 0.05;
-    public double offsetFactor = 0.12; // think i found it! after doing some algebra
+    public double offsetFactor = 8; // think i found it! after doing some algebra
     private double MAX_ITERATIONS = 67;
     public double radialVelocityScaleFactor = 1.2; // made to match the timeScale b/c if we're using bad physics we may as well use it for both right?
 
@@ -42,21 +42,21 @@ public class SOTM {
         thetaLUT.addData(53, Math.toRadians(0));
 
         velocityLUT = new LUT();
-        velocityLUT.addData(163, 1440);
-        velocityLUT.addData(158, 1420);
+        velocityLUT.addData(163, 1500);
+        velocityLUT.addData(158, 1480);
         // velocityLUT.addData(153, 1680);
-        velocityLUT.addData(148, 1400);
+        velocityLUT.addData(148, 1440);
         // velocityLUT.addData(143, 1560);
-        velocityLUT.addData(138, 1360);
+        velocityLUT.addData(138, 1400);
         // velocityLUT.addData(133, 1420+70);
         velocityLUT.addData(128, 1320);
-        velocityLUT.addData(118, 1280);
-        velocityLUT.addData(108, 1220);
+        velocityLUT.addData(118, 1260);
+        velocityLUT.addData(108, 1200);
 
         velocityLUT.addData(98, 1140);
-        velocityLUT.addData(88, 1080);
-        velocityLUT.addData(78, 1020);
-        velocityLUT.addData(68, 980);
+        velocityLUT.addData(88, 1110);
+        velocityLUT.addData(78, 1080);
+        velocityLUT.addData(68, 1020);
         velocityLUT.addData(58, 960);
         velocityLUT.addData(53, 960);
 
@@ -123,7 +123,14 @@ public class SOTM {
         System.out.println("Tangential Y: " + vTangential.getYComponent());
         // TODO: idea: offset is a bigger problem at far distances (more emphasized), what if we divide offset by distance at the end?
         // this would make more sense... given that it is based on arc length
-        double offset = isBlue ? (angleToGoal - Math.PI / 4) * offsetFactor : (angleToGoal + Math.PI / 4) * offsetFactor;
+        // double offset = isBlue ? (angleToGoal - Math.PI / 4) * offsetFactor : (angleToGoal + Math.PI / 4) * offsetFactor;
+        double offset;
+        if (dist > 0) {
+            offset = isBlue ? ((angleToGoal - Math.PI / 4) / dist) * offsetFactor : ((angleToGoal + Math.PI / 4) / dist) * offsetFactor;
+        } else {
+            // in case pinpoint gives a weird coord in div 0 err
+            offset = isBlue ? ((angleToGoal - Math.PI / 4)) * offsetFactor : ((angleToGoal + Math.PI / 4)) * offsetFactor;
+        }
 
         // double offset = isBlue ? (angleToGoal - Math.PI / 4) * offsetFactor : (angleToGoal + Math.PI / 4) * offsetFactor;
         // when angle is big, aim more left (which is positive direction), when it is small, aim more right (negative direction)

@@ -9,6 +9,7 @@ import com.pedropathing.pathgen.BezierPoint;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
 import com.pedropathing.util.CustomFilteredPIDFCoefficients;
+import com.pedropathing.util.CustomPIDFCoefficients;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -32,8 +33,8 @@ public class BlueCompFar21 extends OpMode {
     private StateMachine stateMachine;
     private AutonomousRobot robot;
     private SOTM sotm2;
-    private final Pose startPose = PoseConstants.BLUE_CLOSE_AUTO_POSE;
-    private Pose shootPose = new Pose(54, 90, Math.toRadians(-110));
+    private final Pose startPose = PoseConstants.BLUE_FAR_AUTO_POSE;
+    private Pose shootPose = new Pose(54, 90, Math.toRadians(-115)); // i am tricking it
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
     private PathChain shootPreload, intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeThird, shootThird, intakeCorner, shootCorner, park;
     public void buildPaths() {
@@ -42,7 +43,7 @@ public class BlueCompFar21 extends OpMode {
                 .addPath(
                         new BezierLine(startPose, new Pose(54, 90))
                 )
-                .setLinearHeadingInterpolation(PoseConstants.BLUE_CLOSE_AUTO_POSE.getHeading(), Math.toRadians(-110))
+                .setConstantHeadingInterpolation(Math.toRadians(-110))
                 .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
@@ -160,23 +161,23 @@ public class BlueCompFar21 extends OpMode {
         shootThird = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(12.000, 36.000),
-                                new Pose(50, 9)
+                                new Pose(50, 10)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         intakeCorner = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(50, 9),
-                                new Pose(10, 9)
+                                new Pose(50, 10),
+                                new Pose(10, 10)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
         shootCorner = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(10, 9),
-                                new Pose(50, 9)
+                                new Pose(10, 10),
+                                new Pose(50, 10)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
@@ -185,7 +186,7 @@ public class BlueCompFar21 extends OpMode {
 
         park = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(50, 9),
+                                new Pose(50, 10),
                                 new Pose(36, 12)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
@@ -213,7 +214,10 @@ public class BlueCompFar21 extends OpMode {
                 new State()
                         .onEnter(() -> {
                             robot.shootCommand.start();
+                            follower.setHeadingPIDF(new CustomPIDFCoefficients(1,0,0.02,0));
+                            follower.setSecondaryHeadingPIDF(new CustomPIDFCoefficients(1.5,0,0.04,0));
                             follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0003,0.6,0.0));
+                            follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0002,0.6,0.0));
                         })
                         .transition(new Transition(() -> robot.shootCommand.isFinished())),
                 // second
@@ -375,7 +379,10 @@ public class BlueCompFar21 extends OpMode {
         robot.setAzimuthThetaVelocity(values);
         robot.shooter.state = Shooter.ShooterState.SHOOTER_ON;
 
-        follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0006,0.6,0.0));
+        follower.setHeadingPIDF(new CustomPIDFCoefficients(2,0,0.04,0));
+        follower.setSecondaryHeadingPIDF(new CustomPIDFCoefficients(3,0,0.06,0));
+        follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0005,0.6,0.0));
+        follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0.00,0.00075,0.6,0.0));
 
         stateMachine.start();
         robot.start();

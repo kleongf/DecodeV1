@@ -23,8 +23,8 @@ public class PoseConstants {
     // TODO: rename to blue far auto start pose
     // TODO: these poses are a bit off. change them to what they should be based on limelight pose test.
     // TODO: also find these poses for far auto, maybe tomorrow if have time
-    public static Pose BLUE_FAR_AUTO_POSE = new Pose(55.5, 6, Math.toRadians(90));
-    public static Pose RED_FAR_AUTO_POSE = new Pose(144-55.5, 6, Math.toRadians(90));
+    public static Pose BLUE_FAR_AUTO_POSE = new Pose(55.5, 8, Math.toRadians(90));
+    public static Pose RED_FAR_AUTO_POSE = new Pose(144-55.5, 8, Math.toRadians(90));
 
     public static Pose BLUE_END_AUTO_POSE = new Pose(54, 115, Math.toRadians(-118));
     public static Pose RED_END_AUTO_POSE = new Pose(144-54, 115, Math.toRadians(180-(-118)));
@@ -34,7 +34,7 @@ public class PoseConstants {
 
     // TODO: FIND NEW GATE POSITIONS
     // 14.2 60.4, 147
-    public static Pose BLUE_GATE_AUTO_POSE =  new Pose(12.4, 60, Math.toRadians(148));
+    public static Pose BLUE_GATE_AUTO_POSE =  new Pose(13.3, 60.7, Math.toRadians(148));
     //public static Pose RED_GATE_AUTO_POSE = new Pose(144-12.4, 60, Math.toRadians(180-148));
     public static Pose RED_GATE_AUTO_POSE = new Pose(127, 59.5, Math.toRadians(180-148));
     public static Pose BLUE_GATE_AUTO_POSE_IN =  new Pose(BLUE_GATE_AUTO_POSE.getX()+Math.cos(BLUE_GATE_AUTO_POSE.getHeading())*DISTANCE_IN, BLUE_GATE_AUTO_POSE.getY()+Math.sin(BLUE_GATE_AUTO_POSE.getHeading())*DISTANCE_IN, BLUE_GATE_AUTO_POSE.getHeading());

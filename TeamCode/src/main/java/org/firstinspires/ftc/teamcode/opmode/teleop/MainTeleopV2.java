@@ -83,9 +83,9 @@ public class MainTeleopV2 {
             robotState = RobotState.SHOOTING;
         }
 
-        if (robotState == RobotState.IDLE && robot.intake.stalling()) {
+        if (robotState == RobotState.IDLE && robot.intake.intakeFull()) {
             robot.intake.state = Intake.IntakeState.INTAKE_SLOW;
-        } else if (robotState == RobotState.IDLE && !robot.intake.stalling()) {
+        } else if (robotState == RobotState.IDLE && !robot.intake.intakeFull()) {
             robot.intake.state = Intake.IntakeState.INTAKE_FAST;
         }
 
@@ -204,7 +204,7 @@ public class MainTeleopV2 {
         }
 
         Pose currPose = drivetrain.follower.getPose();
-        double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity());
+        double[] values = sotm.calculateAzimuthThetaVelocity(drivetrain.follower.getPose(), drivetrain.follower.getVelocity(), 0);
         robot.shooter.setShooterPitch(values[1]);
         robot.shooter.setTargetVelocity(values[2]);
         robot.turret.setFeedforward(0);

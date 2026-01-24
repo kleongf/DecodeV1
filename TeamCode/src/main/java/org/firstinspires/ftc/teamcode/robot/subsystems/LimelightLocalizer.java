@@ -54,7 +54,7 @@ public class LimelightLocalizer extends Subsystem {
         if (result != null && result.isValid()) {
             if (pipeline == Pipeline.APRILTAG) {
                 Pose3D botPose = result.getBotpose();
-                double heading = MathFunctions.angleWrap(Math.toRadians(result.getBotpose().getOrientation().getYaw(AngleUnit.DEGREES) - 90));
+                double heading = MathFunctions.angleWrap(Math.toRadians(result.getBotpose().getOrientation().getYaw(AngleUnit.DEGREES) - 270));
                 currentPose = toPinpointPose(botPose, heading);
             }
             if (pipeline == Pipeline.ARTIFACT_DETECTION) {

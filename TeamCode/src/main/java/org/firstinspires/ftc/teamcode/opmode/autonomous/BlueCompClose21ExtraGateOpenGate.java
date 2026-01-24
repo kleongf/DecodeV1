@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmode.comp;
+package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
 import static java.lang.Thread.sleep;
 import com.pedropathing.localization.Pose;
@@ -8,7 +8,6 @@ import com.pedropathing.pathgen.BezierPoint;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Vector;
 import com.pedropathing.util.CustomFilteredPIDFCoefficients;
-import com.pedropathing.util.CustomPIDFCoefficients;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
