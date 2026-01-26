@@ -58,6 +58,7 @@ public class PedroPathingSpeedTest extends OpMode {
         }
 
         if (autoDriving && !follower.isBusy()) {
+            autoDriving = false;
             follower.breakFollowing();
             follower.startTeleopDrive(); // also sets to brake mode
         }
