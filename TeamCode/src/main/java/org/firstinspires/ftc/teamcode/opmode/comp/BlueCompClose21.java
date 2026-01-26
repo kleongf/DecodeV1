@@ -334,6 +334,7 @@ public class BlueCompClose21 extends OpMode {
                         .onEnter(() -> {
                             robot.shootCommand.start();
                             blackboard.put(RobotConstants.END_POSE_KEY, follower.getPose());
+                            // follower.poseUpdater.get
                         })
                         .onExit(() -> blackboard.put(RobotConstants.END_POSE_KEY, follower.getPose()))
                         .transition(new Transition(() -> robot.shootCommand.isFinished()))

@@ -125,6 +125,7 @@ public class Drivetrain {
     public void setStartingPose(Pose p) {
         follower.setStartingPose(p);
         targetHeading = p.getHeading();
+        // follower.setTeleOpMovementVectors();
     }
 
     public double getTotalAngularVelocity() {

@@ -9,6 +9,11 @@ public class VoltageCompFollower extends Follower {
         super(hardwareMap, FConstants, LConstants);
     }
 
+//    @Override
+//    public void setTeleOpMovementVectors(double a, double b, double c, boolean x) {
+//        System.out.println("Hi");
+//    }
+
     @Override
     public double getVoltageNormalized() {
         double frictionConstant = 0.15;
@@ -17,4 +22,5 @@ public class VoltageCompFollower extends Follower {
                 (this.getVoltage() - ((Math.pow(FollowerConstants.nominalVoltage, 2) /
                         this.getVoltage()) * frictionConstant));
     }
+
 }
