@@ -34,7 +34,7 @@ public class BlueCompFar21 extends OpMode {
     private AutonomousRobot robot;
     private SOTM sotm2;
     private final Pose startPose = PoseConstants.BLUE_FAR_AUTO_POSE;
-    private Pose shootPose = new Pose(54, 90, Math.toRadians(-115)); // i am tricking it
+    private Pose shootPose = new Pose(54, 90, Math.toRadians(-110));
     private final Pose goalPose = PoseConstants.BLUE_GOAL_POSE;
     private PathChain shootPreload, intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeThird, shootThird, intakeCorner, shootCorner, park;
     public void buildPaths() {
@@ -43,7 +43,7 @@ public class BlueCompFar21 extends OpMode {
                 .addPath(
                         new BezierLine(startPose, new Pose(54, 90))
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(-110))
+                .setLinearHeadingInterpolation(startPose.getHeading(), Math.toRadians(-110))
                 .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
@@ -76,8 +76,8 @@ public class BlueCompFar21 extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.BLUE_SHOOT_AUTO_POSE,
-                                new Pose(45.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                PoseConstants.BLUE_GATE_AUTO_POSE
+                                new Pose(45.404, PoseConstants.BLUE_FAR_GATE_AUTO_POSE.getY()),
+                                PoseConstants.BLUE_FAR_GATE_AUTO_POSE
                         )
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
@@ -89,7 +89,7 @@ public class BlueCompFar21 extends OpMode {
         shootGate1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                PoseConstants.BLUE_GATE_AUTO_POSE,
+                                PoseConstants.BLUE_FAR_GATE_AUTO_POSE,
                                 PoseConstants.BLUE_SHOOT_AUTO_POSE
                         )
                 )
@@ -100,8 +100,8 @@ public class BlueCompFar21 extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.BLUE_SHOOT_AUTO_POSE,
-                                new Pose(45.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                PoseConstants.BLUE_GATE_AUTO_POSE
+                                new Pose(45.404, PoseConstants.BLUE_FAR_GATE_AUTO_POSE.getY()),
+                                PoseConstants.BLUE_FAR_GATE_AUTO_POSE
                         )
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
@@ -113,7 +113,7 @@ public class BlueCompFar21 extends OpMode {
         shootGate2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                PoseConstants.BLUE_GATE_AUTO_POSE,
+                                PoseConstants.BLUE_FAR_GATE_AUTO_POSE,
                                 PoseConstants.BLUE_SHOOT_AUTO_POSE
                         )
                 )
@@ -124,10 +124,10 @@ public class BlueCompFar21 extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 PoseConstants.BLUE_SHOOT_AUTO_POSE,
-                                new Pose(45.404, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                PoseConstants.BLUE_GATE_AUTO_POSE
-                                // new Pose(55.340, PoseConstants.BLUE_GATE_AUTO_POSE.getY()),
-                                // new Pose(PoseConstants.BLUE_GATE_AUTO_POSE.getX(), PoseConstants.BLUE_GATE_AUTO_POSE.getY()+1, PoseConstants.BLUE_GATE_AUTO_POSE.getHeading())
+                                new Pose(45.404, PoseConstants.BLUE_FAR_GATE_AUTO_POSE.getY()),
+                                PoseConstants.BLUE_FAR_GATE_AUTO_POSE
+                                // new Pose(55.340, PoseConstants.BLUE_FAR_GATE_AUTO_POSE.getY()),
+                                // new Pose(PoseConstants.BLUE_FAR_GATE_AUTO_POSE.getX(), PoseConstants.BLUE_FAR_GATE_AUTO_POSE.getY()+1, PoseConstants.BLUE_FAR_GATE_AUTO_POSE.getHeading())
                         )
                 )
                 .setConstantHeadingInterpolation(PoseConstants.BLUE_SHOOT_AUTO_POSE.getHeading())
@@ -139,7 +139,7 @@ public class BlueCompFar21 extends OpMode {
         shootGate3 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                PoseConstants.BLUE_GATE_AUTO_POSE,
+                                PoseConstants.BLUE_FAR_GATE_AUTO_POSE,
                                 new Pose(50,60),
                                 new Pose(54, 84)
                         )
@@ -212,6 +212,8 @@ public class BlueCompFar21 extends OpMode {
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
+                        .maxTime(300),
+                new State()
                         .onEnter(() -> {
                             robot.shootCommand.start();
                             follower.setHeadingPIDF(new CustomPIDFCoefficients(1,0,0.02,0));
@@ -245,11 +247,11 @@ public class BlueCompFar21 extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> {
-                            follower.holdPoint(new BezierPoint(PoseConstants.BLUE_GATE_AUTO_POSE_IN), PoseConstants.BLUE_GATE_AUTO_POSE_IN.getHeading());
+                            follower.holdPoint(new BezierPoint(PoseConstants.BLUE_FAR_GATE_AUTO_POSE_IN), PoseConstants.BLUE_FAR_GATE_AUTO_POSE_IN.getHeading());
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1000),
+                        .maxTime(900),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -268,11 +270,11 @@ public class BlueCompFar21 extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> {
-                            follower.holdPoint(new BezierPoint(PoseConstants.BLUE_GATE_AUTO_POSE_IN), PoseConstants.BLUE_GATE_AUTO_POSE_IN.getHeading());
+                            follower.holdPoint(new BezierPoint(PoseConstants.BLUE_FAR_GATE_AUTO_POSE_IN), PoseConstants.BLUE_FAR_GATE_AUTO_POSE_IN.getHeading());
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1200),
+                        .maxTime(1300),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -292,11 +294,11 @@ public class BlueCompFar21 extends OpMode {
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
                         .onEnter(() -> {
-                            follower.holdPoint(new BezierPoint(PoseConstants.BLUE_GATE_AUTO_POSE_IN), PoseConstants.BLUE_GATE_AUTO_POSE_IN.getHeading());
+                            follower.holdPoint(new BezierPoint(PoseConstants.BLUE_FAR_GATE_AUTO_POSE_IN), PoseConstants.BLUE_FAR_GATE_AUTO_POSE_IN.getHeading());
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1400),
+                        .maxTime(1300),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -379,8 +381,8 @@ public class BlueCompFar21 extends OpMode {
         robot.setAzimuthThetaVelocity(values);
         robot.shooter.state = Shooter.ShooterState.SHOOTER_ON;
 
-        follower.setHeadingPIDF(new CustomPIDFCoefficients(2,0,0.04,0));
-        follower.setSecondaryHeadingPIDF(new CustomPIDFCoefficients(3,0,0.06,0));
+        follower.setHeadingPIDF(new CustomPIDFCoefficients(1.5,0,0.03,0));
+        follower.setSecondaryHeadingPIDF(new CustomPIDFCoefficients(2,0,0.04,0));
         follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0,0.0005,0.6,0.0));
         follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.015,0.00,0.00075,0.6,0.0));
 

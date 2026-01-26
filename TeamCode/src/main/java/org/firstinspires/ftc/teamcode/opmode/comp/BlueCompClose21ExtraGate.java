@@ -239,7 +239,7 @@ public class BlueCompClose21ExtraGate extends OpMode {
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1000),
+                        .maxTime(1200),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -262,7 +262,7 @@ public class BlueCompClose21ExtraGate extends OpMode {
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1200),
+                        .maxTime(1550),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -285,7 +285,7 @@ public class BlueCompClose21ExtraGate extends OpMode {
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1200),
+                        .maxTime(1550),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -309,12 +309,12 @@ public class BlueCompClose21ExtraGate extends OpMode {
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1400),
+                        .maxTime(1650),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
                             follower.followPath(shootGate4, true);
-                            shootPose = new Pose(144-54, 84, Math.toRadians(180) - Math.toRadians(180));
+                            shootPose = new Pose(54, 84, Math.toRadians(180));
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()
@@ -325,6 +325,7 @@ public class BlueCompClose21ExtraGate extends OpMode {
                         .onEnter(() -> {
                             robot.intakeCommand.start();
                             follower.followPath(intakeFirst, false);
+                            shootPose = new Pose(54, 115, Math.toRadians(-118));
                         })
                         .transition(new Transition(() -> !follower.isBusy())),
                 new State()

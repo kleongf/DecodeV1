@@ -537,8 +537,8 @@ public class RedCompFar27 extends OpMode {
     @Override
     public void start() {
         // setting pid coefficients to brake better
-        follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0005,0.6,0.0));
-        follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0.00,0.0008,0.6,0.0));
+        follower.setDrivePIDF(new CustomFilteredPIDFCoefficients(0.02,0,0.0006,0.6,0.0));
+        follower.setSecondaryDrivePIDF(new CustomFilteredPIDFCoefficients(0.018,0.00,0.0007,0.6,0.0));
         double[] values = sotm2.calculateAzimuthThetaVelocity(new Pose(144-42.65, 9, Math.toRadians(180) - Math.toRadians(180)), new Vector());
         robot.setAzimuthThetaVelocity(values);
 

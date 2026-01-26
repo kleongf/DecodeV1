@@ -143,8 +143,12 @@ public class MainTeleopV2 {
 //        }
 
         // mapped to a button because b button is used for controller
-        if (gp1.aPressed()) {
-            automateRobot = !automateRobot;
+//        if (gp1.aPressed()) {
+//            automateRobot = !automateRobot;
+//        }
+
+        if (gp1.bPressed()) {
+            drivetrain.setRobotCentric(!drivetrain.getRobotCentric());
         }
 
         // x button: drive to gate

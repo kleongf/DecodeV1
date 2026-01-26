@@ -33,7 +33,7 @@ public class RedCompClose21ExtraGate extends OpMode {
     private AutonomousRobot robot;
     private SOTM sotm2;
     private final Pose startPose = PoseConstants.RED_CLOSE_AUTO_POSE;
-    private Pose shootPose = new Pose(144-54, 90, Math.toRadians(180) - Math.toRadians(-110));
+    private Pose shootPose = new Pose(144-54, 90, Math.toRadians(180) - Math.toRadians(-110)); // i am tricking it
     private final Pose goalPose = PoseConstants.RED_GOAL_POSE;
     private PathChain shootPreload, intakeSecond, shootSecond, intakeGate1, shootGate1, intakeGate2, shootGate2, intakeGate3, shootGate3, intakeGate4, shootGate4, intakeFirst, shootFirst;
     public void buildPaths() {
@@ -42,7 +42,7 @@ public class RedCompClose21ExtraGate extends OpMode {
                 .addPath(
                         new BezierLine(startPose, new Pose(144-54, 90))
                 )
-                .setLinearHeadingInterpolation(PoseConstants.RED_CLOSE_AUTO_POSE.getHeading(), Math.toRadians(180) - Math.toRadians(-110))
+                .setConstantHeadingInterpolation(Math.toRadians(180) - Math.toRadians(-110))
                 .setZeroPowerAccelerationMultiplier(4)
                 .build();
 
@@ -238,7 +238,7 @@ public class RedCompClose21ExtraGate extends OpMode {
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1000),
+                        .maxTime(1200),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -261,7 +261,7 @@ public class RedCompClose21ExtraGate extends OpMode {
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1200),
+                        .maxTime(1500),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -284,7 +284,7 @@ public class RedCompClose21ExtraGate extends OpMode {
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1200),
+                        .maxTime(1500),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -308,7 +308,7 @@ public class RedCompClose21ExtraGate extends OpMode {
                         })
 //                        .minTime(600)
 //                        .transition(new Transition(() -> robot.intake.intakeFull()))
-                        .maxTime(1400),
+                        .maxTime(1650),
                 new State()
                         .onEnter(() -> {
                             follower.setMaxPower(1);
@@ -365,7 +365,8 @@ public class RedCompClose21ExtraGate extends OpMode {
     @Override
     public void start() {
         double[] values = sotm2.calculateAzimuthThetaVelocity(shootPose, new Vector());
-        robot.setAzimuthThetaVelocity(values);
+        double[] adjVals = new double[] {values[0], values[1], values[2]-40};
+        robot.setAzimuthThetaVelocity(adjVals);
         robot.shooter.state = Shooter.ShooterState.SHOOTER_ON;
 
         follower.setHeadingPIDF(new CustomPIDFCoefficients(2,0,0.04,0));

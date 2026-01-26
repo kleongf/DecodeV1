@@ -59,6 +59,7 @@ public class SpecializedDrivetrain {
     private double period = 0.03;
     private double KICK_TIME = 0.7;
     private boolean IS_KICKING = false;
+    private boolean robotCentric = false;
 
     public SpecializedDrivetrain(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
@@ -126,6 +127,16 @@ public class SpecializedDrivetrain {
 
         setMotorPowers(x, y, rx);
         lastError = error;
+    }
+
+    public void setRobotCentricMovementVectors(double forward, double strafe, double heading) {
+        double x = -strafe;
+        double y = -forward;
+        double rx = heading;
+
+        setMotorPowers(x, y, rx);
+
+        targetHeading = currentPose.getHeading();
     }
 
     public void setStartingPose(Pose p) {
@@ -275,9 +286,17 @@ public class SpecializedDrivetrain {
         switch (state) {
             case TELEOP_DRIVE:
                 if (Math.abs(gprx) > 0) {
-                    setFieldCentricMovementVectors(gpx, gpy, gprx);
+                    if (robotCentric) {
+                        setRobotCentricMovementVectors(gpx, gpy, gprx);
+                    } else {
+                        setFieldCentricMovementVectors(gpx, gpy, gprx);
+                    }
                 } else {
-                    setHeadingLockFieldCentricMovementVectors(gpx, gpy, gprx);
+                    if (robotCentric) {
+                        setRobotCentricMovementVectors(gpx, gpy, gprx);
+                    } else {
+                        setHeadingLockFieldCentricMovementVectors(gpx, gpy, gprx);
+                    }
                 }
                 break;
             case FOLLOWING_PATH:
@@ -315,6 +334,12 @@ public class SpecializedDrivetrain {
                 break;
         }
     }
+
+    public void setRobotCentric(boolean rc) {
+        robotCentric = rc;
+    }
+
+    public boolean getRobotCentric() {return robotCentric;}
 
     public Pose getGoalPose() {return goalPose;}
     public String getState() {
