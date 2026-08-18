@@ -1,3 +1,42 @@
+# DECODE Robot Code
+
+FTC competition robot software built on SDK 11.0 for the DECODE season. The `TeamCode` module contains competition teleop/autonomous programs, subsystem abstractions, Pedro Pathing integration, custom path planners, vision/localisation helpers, and controller/tuning utilities.
+
+## Highlights
+
+- red and blue close/far autonomous variants, including gate cycles and shooting-on-the-move experiments
+- alliance-specific competition teleop
+- intake, flywheel shooter, turret, drivetrain, Limelight, and bulk-read subsystems
+- Pedro Pathing plus custom pure-pursuit and safe-path planning implementations
+- PIDF, PDFL, TBH, feedforward, position, shooter, and turret tuning OpModes
+
+## Build and deploy
+
+Install Android Studio Ladybug (2024.2) or newer, open the repository as a Gradle project, and allow dependencies to sync. A command-line debug build can be produced with:
+
+```bash
+./gradlew :TeamCode:assembleDebug
+```
+
+Connect an FTC Control Hub/Robot Controller device and use Android Studio's `FtcRobotController` run configuration to install the app.
+
+## Robot configuration
+
+The competition code expects hardware names including `front_left_drive`, `front_right_drive`, `back_left_drive`, `back_right_drive`, `intakeMotor`, shooter motors, `turretMotor`, gate/pitch/latch servos, `colorSensor`, and `limelight`. Individual experimental and tuning OpModes may require additional devices.
+
+Review `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/robot/constants/` and the hardware lookups in each selected OpMode before running on a robot. Motor directions, dimensions, gains, and paths are robot-specific.
+
+## Source layout
+
+- `opmode/autonomous/`, `opmode/teleop/`, `opmode/test/`, and `opmode/tuning/` — registered programs.
+- `robot/` — robot and subsystem implementations.
+- `pedroPathing/` — Pedro constants, examples, and tuning programs.
+- `util/` — controllers, state machines, hardware wrappers, localisation, and path generation.
+
+---
+
+## FTC SDK reference
+
 ## NOTICE
 
 This repository contains the public FTC SDK for the INTO THE DEEP (2024-2025) competition season.
